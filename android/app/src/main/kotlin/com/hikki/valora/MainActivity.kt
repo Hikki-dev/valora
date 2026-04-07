@@ -1,0 +1,5 @@
+package com.hikki.valora
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity()
