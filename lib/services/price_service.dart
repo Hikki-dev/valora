@@ -14,10 +14,35 @@ class PriceService {
 
   PriceService(this._client);
 
+  /// Centralized session refresh logic to prevent concurrent race conditions.
+  static Future<void>? _refreshFuture;
+
+  Future<void> _ensureValidSession() async {
+    final session = _client.auth.currentSession;
+    if (session != null && !session.isExpired) return;
+
+    if (_refreshFuture != null) {
+      debugPrint('[PriceService] Waiting for existing session refresh...');
+      return _refreshFuture;
+    }
+
+    debugPrint('[PriceService] Starting synchronized session refresh...');
+    _refreshFuture = _client.auth.refreshSession().then((_) {
+      _refreshFuture = null;
+    }).catchError((e) {
+      _refreshFuture = null;
+      throw e;
+    });
+
+    return _refreshFuture;
+  }
+
   /// Fetches the latest price for a game via the centralized Edge Function.
   /// This handles caching, rate limiting, and multi-source lookups (Steam, PriceCharting, CheapShark).
-  Future<PriceData?> fetchPrices(Game game, {bool force = false}) async {
+  Future<PriceData?> fetchPrices(Game game, {bool force = false, int retryCount = 0}) async {
     try {
+      await _ensureValidSession();
+
       final response = await _client.functions.invoke(
         'fetch-price',
         body: {
@@ -27,6 +52,9 @@ class PriceService {
           'title': game.title,
           'forceRefresh': force,
         },
+        headers: {
+          'Authorization': 'Bearer ${_client.auth.currentSession?.accessToken}',
+        },
       );
 
       if (response.status != 200) {
@@ -35,9 +63,31 @@ class PriceService {
       }
 
       final data = response.data as Map<String, dynamic>;
-      return PriceData.fromJson(data);
+      final priceData = PriceData.fromJson(data);
+      
+      // If we got a better cover URL, update the game record
+      final newCoverUrl = data['cover_url'] as String?;
+      if (newCoverUrl != null && newCoverUrl.isNotEmpty && newCoverUrl != game.coverUrl) {
+        debugPrint('[PriceService] Found better cover art for "${game.title}". Synchronizing...');
+        _client.from('games').update({'cover_url': newCoverUrl}).eq('id', game.id).then((_) {
+          debugPrint('[PriceService] Cover updated for "${game.title}".');
+        });
+      }
+
+      return priceData;
     } catch (e) {
-      debugPrint('[PriceService] Invoke error for "${game.title}": $e');
+      if (e is FunctionException && e.status == 401) {
+        if (retryCount == 0) {
+          debugPrint('[PriceService] AUTH ERROR (401). Retrying with fresh session...');
+          // Invalidate future to force a hard refresh on retry
+          _refreshFuture = null; 
+          await _ensureValidSession();
+          return fetchPrices(game, force: force, retryCount: 1);
+        }
+        debugPrint('[PriceService] AUTH ERROR: Invalid or expired JWT. Price fetching failed for "${game.title}".');
+      } else {
+        debugPrint('[PriceService] Invoke error for "${game.title}": $e');
+      }
       return null;
     }
   }

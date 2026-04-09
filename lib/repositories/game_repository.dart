@@ -19,7 +19,7 @@ class GameRepository {
   Future<List<Game>> getGames() async {
     final response = await _client
         .from('games_with_valuations')
-        .select('id, title, cover_url, platform, condition, current_value, estimated_value, purchase_price, added_at')
+        .select()
         .order('added_at', ascending: false);
     
     return (response as List<dynamic>)

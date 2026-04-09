@@ -29,12 +29,26 @@ class RouterNotifier extends ChangeNotifier {
 
 
 
-class MainLayout extends ConsumerWidget {
+class MainLayout extends ConsumerStatefulWidget {
   final Widget child;
   const MainLayout({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends ConsumerState<MainLayout> {
+  @override
+  void initState() {
+    super.initState();
+    // Trigger onboarding check on startup
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(onboardingControllerProvider.notifier).checkOnboarding();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
     final width = MediaQuery.sizeOf(context).width;
     final isDesktop = width >= 900;
@@ -53,7 +67,7 @@ class MainLayout extends ConsumerWidget {
         Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1200),
-            child: child,
+            child: widget.child,
           ),
         ),
         if (onboardingState.type != OnboardingType.none)
@@ -90,7 +104,7 @@ class MainLayout extends ConsumerWidget {
         selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: textColor.withValues(alpha: 0.5),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.library_books), label: 'Library'),
           BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Wishlist'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
@@ -114,30 +128,35 @@ class MainLayout extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(32.0),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              onTap: () => context.go('/'),
+              borderRadius: BorderRadius.circular(12),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.auto_graph, color: Theme.of(context).primaryColor, size: 24),
                   ),
-                  child: Icon(Icons.auto_graph, color: Theme.of(context).primaryColor, size: 24),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Valora',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.2,
-                    color: textColor,
+                  const SizedBox(width: 12),
+                  Text(
+                    'Valora',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                      color: textColor,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 10),
+          _buildSidebarItem(context, Icons.home_rounded, 'Home', currentIndex == 0, () => context.go('/')),
           _buildSidebarItem(context, Icons.library_books, 'Library', currentIndex == 1, () => context.go('/collections')),
           _buildSidebarItem(context, Icons.favorite, 'Wishlist', currentIndex == 2, () => context.go('/wishlists')),
           _buildSidebarItem(context, Icons.person, 'Profile', currentIndex == 3, () => context.go('/profile')),
@@ -260,35 +279,41 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/login',
-        builder: (context, state) => const LoginView(),
+        pageBuilder: (context, state) => const NoTransitionPage(child: LoginView()),
       ),
       ShellRoute(
         builder: (context, state, child) => MainLayout(child: child),
         routes: [
           GoRoute(
             path: '/',
-            builder: (context, state) => const HomeView(),
+            pageBuilder: (context, state) => const NoTransitionPage(child: HomeView()),
           ),
           GoRoute(
             path: '/collections',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final platform = state.uri.queryParameters['platform'];
-              return CollectionsView(platformFilter: platform);
+              return NoTransitionPage(child: CollectionsView(platformFilter: platform));
             },
           ),
           GoRoute(
             path: '/wishlists',
-            builder: (context, state) => const WishlistsView(),
+            pageBuilder: (context, state) => const NoTransitionPage(child: WishlistsView()),
           ),
           GoRoute(
             path: '/profile',
-            builder: (context, state) => const ProfileView(),
+            pageBuilder: (context, state) => const NoTransitionPage(child: ProfileView()),
           ),
           GoRoute(
             path: '/game/:id',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final gameId = state.pathParameters['id']!;
-              return GameDetailView(gameId: gameId);
+              return CustomTransitionPage(
+                child: GameDetailView(gameId: gameId),
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+                transitionDuration: const Duration(milliseconds: 200),
+              );
             },
           ),
         ],

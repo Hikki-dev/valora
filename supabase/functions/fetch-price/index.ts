@@ -53,15 +53,20 @@ Deno.serve(async (req: Request) => {
     // Normalized Platform grouping
     const isPhysicalPlayStation = ['ps4_physical', 'ps5_physical', 'playstation_physical'].includes(platform)
     const isSteam = platform === 'steam'
-    const isOtherDigital = ['epic', 'ps4_digital', 'ps5_digital', 'psn_digital', 'nintendo_digital'].includes(platform)
     const isNintendoPhysical = ['nintendo', 'nintendo_physical'].includes(platform)
 
     if (isPhysicalPlayStation || isNintendoPhysical) {
        if (externalId) {
           priceData = await fetchPriceCharting(externalId)
-       } else {
-          // Fallback to title search if no external ID
-          priceData = await fetchCheapShark(title, platform)
+       }
+       
+       // Fallback to eBay if PriceCharting failed or had 0 values
+       if (!priceData.price_complete || priceData.price_complete === 0) {
+          console.log(`Fallback to eBay for ${title}...`);
+          const ebayData = await fetchEbayMarket(title, platform)
+          if (ebayData) {
+            priceData = { ...priceData, ...ebayData }
+          }
        }
     } else if (isSteam) {
       priceData = await fetchSteam(externalId)
@@ -116,6 +121,7 @@ async function fetchPriceCharting(externalId: string) {
     price_digital: null,
     source: 'pricecharting',
     currency: 'USD',
+    cover_url: d['image-url'] ?? null,
   }
 }
 
@@ -135,11 +141,12 @@ async function fetchSteam(appId: string) {
     price_digital: app?.price_overview ? app.price_overview.final / 100 : 0,
     source: 'steam',
     currency: 'USD',
+    cover_url: app?.header_image || app?.capsule_imageV5 || null,
   }
 }
 
 async function fetchCheapShark(title: string, platform: string) {
-  // 1. Search for the game to get internal ID
+  // ... existing implementation ...
   const searchRes = await fetch(
     `https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(title)}&limit=1`
   )
@@ -147,34 +154,12 @@ async function fetchCheapShark(title: string, platform: string) {
   
   const games = await searchRes.json()
   const game = games?.[0]
-  if (!game) {
-    return {
-      price_loose: null,
-      price_complete: null,
-      price_new: null,
-      price_digital: 0,
-      source: 'cheapshark',
-      currency: 'USD',
-    }
-  }
+  if (!game) return { price_digital: 0, source: 'cheapshark' }
 
-  // 2. Get current cheapest deal for this game
-  const detailRes = await fetch(
-    `https://www.cheapshark.com/api/1.0/games?id=${game.gameID}`
-  )
-  if (!detailRes.ok) throw new Error(`CheapShark detail error: ${detailRes.statusText}`)
-  
+  const detailRes = await fetch(`https://www.cheapshark.com/api/1.0/games?id=${game.gameID}`)
   const details = await detailRes.json()
   const deals = details.deals || []
-  
-  // Find the lowest current price across all stores
-  let lowestCurrent = 0
-  if (deals.length > 0) {
-    lowestCurrent = Math.min(...deals.map((d: any) => parseFloat(d.price)))
-  } else {
-    // Fallback to the historical cheapest if no current deals (rare for CheapShark)
-    lowestCurrent = parseFloat(game.cheapest || '0')
-  }
+  let lowestCurrent = deals.length > 0 ? Math.min(...deals.map((d: any) => parseFloat(d.price))) : parseFloat(game.cheapest || '0')
 
   return {
     price_loose: null,
@@ -183,5 +168,53 @@ async function fetchCheapShark(title: string, platform: string) {
     price_digital: lowestCurrent,
     source: 'cheapshark',
     currency: 'USD',
+    cover_url: game.thumb ?? null,
+  }
+}
+
+async function fetchEbayMarket(title: string, platform: string) {
+  try {
+    const cleanTitle = title.replace(/\(.*?\)/g, '').replace(/['":-]/g, ' ').replace(/\s+/g, ' ').trim()
+    const platformLabel = platform.includes('ps5') ? 'PS5' : platform.includes('ps4') ? 'PS4' : platform.includes('nintendo') ? 'Nintendo' : ''
+    const query = encodeURIComponent(`${cleanTitle} ${platformLabel} Sold`)
+    const url = `https://www.ebay.com/sch/i.html?_nkw=${query}&LH_Sold=1&LH_Complete=1`
+
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+    })
+    if (!res.ok) return null
+    
+    const html = await res.text()
+    
+    // Simple regex to extract prices (porting the logic from Dart)
+    const priceRegex = /(?:s-item__price|s-card__price)[^>]*>\s*<span class="positive">\s*(?:[A-Z]+\s*)?\$?([\d,]+\.\d{2})/g
+    const prices: number[] = []
+    let match
+    while ((match = priceRegex.exec(html)) !== null && prices.length < 10) {
+      prices.push(parseFloat(match[1].replace(/,/g, '')))
+    }
+
+    if (prices.length === 0) return null
+
+    // Average minus outliers
+    prices.sort((a, b) => a - b)
+    let avg = 0
+    if (prices.length >= 5) {
+      const sub = prices.slice(1, -1)
+      avg = sub.reduce((a, b) => a + b, 0) / sub.length
+    } else {
+      avg = prices.reduce((a, b) => a + b, 0) / prices.length
+    }
+
+    return {
+      price_loose: avg * 0.8,
+      price_complete: avg,
+      price_new: avg * 1.5,
+      source: 'eBay (Market Avg)',
+      currency: 'USD'
+    }
+  } catch (e) {
+    console.error('eBay fetch error:', e)
+    return null
   }
 }

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'dart:ui' as ui;
 
 import '../../models/game.dart';
 import '../../models/price_data.dart';
@@ -85,77 +84,28 @@ class GameDetailView extends ConsumerWidget {
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
-        // ── Animated Hero AppBar ───────────────────────────────────────────
-        SliverAppBar(
-          expandedHeight: 280,
+        // ── Custom Robust Header ─────────────────────────────────────────────
+        SliverPersistentHeader(
           pinned: true,
-          stretch: true,
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          elevation: 0,
-          leading: IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.4),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.chevron_left, color: Colors.orangeAccent, size: 24),
-            ),
-            onPressed: () {
+          delegate: _GameHeaderDelegate(
+            game: game,
+            onBack: () {
               if (context.canPop()) {
                 context.pop();
               } else {
                 context.go('/collections');
               }
             },
-          ),
-          actions: [
-            IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.4),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.refresh, color: Colors.white, size: 20),
-              ),
-              onPressed: () async {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Refreshing metadata...'), duration: Duration(seconds: 1)),
-                );
-                await ref.read(priceServiceProvider).refreshGameMetadata(game);
-                ref.invalidate(gameDetailProvider(game.id));
-              },
-            ),
-            const SizedBox(width: 8),
-          ],
-          flexibleSpace: FlexibleSpaceBar(
-            stretchModes: const [
-              StretchMode.zoomBackground,
-              StretchMode.blurBackground,
-            ],
-            background: _HeroBanner(game: game, textColor: textColor, mutedColor: mutedColor),
-            centerTitle: true,
-            title: LayoutBuilder(
-              builder: (context, constraints) {
-                // Determine if we are collapsed or expanded
-                final top = constraints.biggest.height;
-                final isCollapsed = top < (MediaQuery.of(context).padding.top + kToolbarHeight + 20);
-                
-                return AnimatedOpacity(
-                  duration: const Duration(milliseconds: 200),
-                  opacity: isCollapsed ? 1.0 : 0.0,
-                  child: Text(
-                    game.title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                );
-              },
-            ),
+            onRefresh: () async {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Refreshing metadata...'), duration: Duration(seconds: 1)),
+              );
+              await ref.read(priceServiceProvider).refreshGameMetadata(game);
+              ref.invalidate(gameDetailProvider(game.id));
+            },
+            textColor: textColor,
+            mutedColor: mutedColor,
+            topPadding: MediaQuery.paddingOf(context).top,
           ),
         ),
 
@@ -275,17 +225,20 @@ class _HeroBanner extends ConsumerWidget {
   final Color textColor;
   final Color mutedColor;
 
-  const _HeroBanner(
-      {required this.game, required this.textColor, required this.mutedColor});
+  const _HeroBanner({
+    required this.game,
+    required this.textColor,
+    required this.mutedColor,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Generate subtitle: Publisher • Genre • Year
     final List<String> metaParts = [];
-    if (game.publisher != null && game.publisher!.isNotEmpty) {
+    if (game.publisher != null && (game.publisher ?? '').isNotEmpty) {
       metaParts.add(game.publisher!);
     }
-    if (game.genre != null && game.genre!.isNotEmpty) {
+    if (game.genre != null && (game.genre ?? '').isNotEmpty) {
       metaParts.add(game.genre!);
     }
     if (game.releaseYear != null) {
@@ -295,23 +248,28 @@ class _HeroBanner extends ConsumerWidget {
 
     return Stack(
       children: [
-        // Blurred background to fill gaps and hide low-res artifacts
-        if (game.coverUrl != null && game.coverUrl!.isNotEmpty)
-          Positioned.fill(
-             child: CachedNetworkImage(
-               imageUrl: game.coverUrl!,
-               fit: BoxFit.cover,
-               imageBuilder: (context, imageProvider) => Container(
-                 decoration: BoxDecoration(
-                   image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
-                 ),
-                 child: BackdropFilter(
-                    filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                    child: Container(color: Colors.black.withValues(alpha: 0.3)),
-                 ),
-               ),
-             ),
-          ),
+        // Background layer: Dark gradient or cover tint
+        Positioned.fill(
+          child: game.coverUrl != null && game.coverUrl!.isNotEmpty
+              ? CachedNetworkImage(
+                  imageUrl: game.coverUrl!,
+                  fit: BoxFit.cover,
+                  imageBuilder: (context, imageProvider) => Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                        colorFilter: ColorFilter.mode(
+                          Colors.black.withValues(alpha: 0.5),
+                          BlendMode.darken,
+                        ),
+                      ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(color: Colors.black),
+                )
+              : Container(color: Colors.black),
+        ),
         
         // Main Cover image with Hero transition
         SizedBox(
@@ -323,7 +281,7 @@ class _HeroBanner extends ConsumerWidget {
               child: game.coverUrl != null && game.coverUrl!.isNotEmpty
                   ? CachedNetworkImage(
                       imageUrl: game.coverUrl!,
-                      fit: BoxFit.contain, // Contain for the main focus
+                      fit: BoxFit.contain,
                       placeholder: (context, url) => _FallbackHero(game: game),
                       errorWidget: (context, url, error) => _FallbackHero(game: game),
                     )
@@ -331,6 +289,7 @@ class _HeroBanner extends ConsumerWidget {
             ),
           ),
         ),
+
         // Bottom gradient overlay for text legibility
         Positioned.fill(
           child: DecoratedBox(
@@ -340,15 +299,16 @@ class _HeroBanner extends ConsumerWidget {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Colors.black.withValues(alpha: 0.95),
+                  Colors.black.withValues(alpha: 0.8),
+                  Colors.black,
                 ],
-                stops: const [0.5, 1.0],
+                stops: const [0.4, 0.8, 1.0],
               ),
             ),
           ),
         ),
 
-        // Title, Subtitle, and Badges consolidated in one Column
+        // Title, Subtitle, and Badges
         Positioned(
           left: 24,
           right: 24,
@@ -357,24 +317,22 @@ class _HeroBanner extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Badges Row
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
                   _Badge(label: game.platform.label, primary: true),
                   _Badge(label: game.condition.label),
-                  if (game.region != null && game.region!.isNotEmpty)
+                  if (game.region != null && (game.region ?? '').isNotEmpty)
                     _Badge(label: game.region!),
                 ],
               ),
               const SizedBox(height: 16),
-              // Big Title
               Text(
                 game.title,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 28, // Bigger for expanded state
+                  fontSize: 28,
                   fontWeight: FontWeight.w900,
                   letterSpacing: -1,
                   height: 1.1,
@@ -446,12 +404,12 @@ class _Badge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: primary
-            ? Colors.greenAccent[700]!.withValues(alpha: 0.15)
+            ? (Colors.greenAccent[700] ?? Colors.green).withValues(alpha: 0.15)
             : Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: primary
-              ? Colors.greenAccent[400]!.withValues(alpha: 0.3)
+              ? (Colors.greenAccent[400] ?? Colors.green).withValues(alpha: 0.3)
               : Colors.white.withValues(alpha: 0.15),
         ),
       ),
@@ -525,7 +483,7 @@ class _PriceRows extends StatelessWidget {
           _PriceRow(
             label: 'Loose',
             sublabel: 'Disc only',
-            price: prices!.loosePrice,
+            price: prices?.loosePrice,
             currency: currency,
             cardColor: cardColor,
             textColor: textColor,
@@ -536,7 +494,7 @@ class _PriceRows extends StatelessWidget {
           _PriceRow(
             label: 'Complete',
             sublabel: 'Disc + case + manual',
-            price: prices!.cibPrice,
+            price: prices?.cibPrice,
             currency: currency,
             cardColor: cardColor,
             textColor: textColor,
@@ -548,7 +506,7 @@ class _PriceRows extends StatelessWidget {
           _PriceRow(
             label: 'New & sealed',
             sublabel: 'Factory sealed',
-            price: prices!.newPrice,
+            price: prices?.newPrice,
             currency: currency,
             cardColor: cardColor,
             textColor: textColor,
@@ -562,7 +520,7 @@ class _PriceRows extends StatelessWidget {
     return _PriceRow(
       label: 'Store Price',
       sublabel: 'Best digital deal',
-      price: prices!.currentPrice,
+      price: prices?.currentPrice,
       currency: currency,
       cardColor: cardColor,
       textColor: textColor,
@@ -624,7 +582,7 @@ class _PriceRow extends StatelessWidget {
             ],
           ),
           Text(
-            price != null ? currency.format(price!) : '—',
+            price != null ? currency.format(price ?? 0.0) : '—',
             style: TextStyle(
               color: priceColor,
               fontWeight: FontWeight.w900,
@@ -691,7 +649,7 @@ class _ValuationCard extends StatelessWidget {
 
     String updatedLabel = '';
     if (game.fetchedAt != null) {
-      final diff = DateTime.now().difference(game.fetchedAt!);
+      final diff = DateTime.now().difference(game.fetchedAt ?? DateTime.now());
       if (diff.inMinutes < 60) {
         updatedLabel = '${diff.inMinutes}m ago';
       } else if (diff.inHours < 24) {
@@ -760,13 +718,13 @@ class _ProfitLossCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final paid = game.purchasePrice!;
+    final paid = game.purchasePrice ?? 0.0;
     final valued = prices?.priceForCondition(game.condition) ??
         game.activeMarketValue ??
         paid;
     final diff = valued - paid;
     final isGain = diff >= 0;
-    final diffColor = isGain ? Colors.greenAccent[400]! : Colors.redAccent;
+    final diffColor = isGain ? (Colors.greenAccent[400] ?? Colors.green) : Colors.redAccent;
     final diffSign = isGain ? '+' : '';
 
     return Column(
@@ -859,5 +817,113 @@ class _CompareRow extends StatelessWidget {
                 color: textColor, fontWeight: FontWeight.w800, fontSize: 16)),
       ],
     );
+  }
+}
+
+class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Game game;
+  final VoidCallback onBack;
+  final VoidCallback onRefresh;
+  final Color textColor;
+  final Color mutedColor;
+  final double topPadding;
+
+  _GameHeaderDelegate({
+    required this.game,
+    required this.onBack,
+    required this.onRefresh,
+    required this.textColor,
+    required this.mutedColor,
+    required this.topPadding,
+  });
+
+  @override
+  double get minExtent => topPadding + kToolbarHeight;
+
+  @override
+  double get maxExtent => 280.0;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final double spread = maxExtent - minExtent;
+    final double opacity = (1.0 - (shrinkOffset / (spread * 0.5))).clamp(0.0, 1.0);
+    final double titleOpacity = (shrinkOffset / spread).clamp(0.0, 1.0);
+
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Stack(
+        children: [
+          // Background - Hero Banner with parallax/fade
+          Positioned.fill(
+            child: Opacity(
+              opacity: opacity,
+              child: _HeroBanner(game: game, textColor: textColor, mutedColor: mutedColor),
+            ),
+          ),
+
+          // Top Header Bar (Back / Title / Refresh)
+          Positioned(
+            top: topPadding,
+            left: 0,
+            right: 0,
+            height: kToolbarHeight,
+            child: Row(
+              children: [
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.chevron_left, color: Colors.orangeAccent, size: 24),
+                  ),
+                  onPressed: onBack,
+                ),
+                Expanded(
+                  child: Center(
+                    child: Opacity(
+                      opacity: titleOpacity,
+                      child: Text(
+                        game.title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          shadows: [
+                            Shadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 2)),
+                          ],
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.refresh, color: Colors.white, size: 20),
+                  ),
+                  onPressed: onRefresh,
+                ),
+                const SizedBox(width: 8),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _GameHeaderDelegate oldDelegate) {
+    return oldDelegate.game != game || 
+           oldDelegate.textColor != textColor ||
+           oldDelegate.topPadding != topPadding;
   }
 }

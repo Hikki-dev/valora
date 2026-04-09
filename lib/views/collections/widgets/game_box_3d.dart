@@ -162,40 +162,31 @@ class _GameBox3DState extends State<GameBox3D> {
     return Container(
       color: const Color(0xFF1E1E2C),
       child: Center(
-        child: loading
-            ? const CircularProgressIndicator(strokeWidth: 2, color: Colors.cyanAccent)
-            : Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (constraints.maxHeight < 50 || constraints.maxWidth < 40) {
-                      return const Icon(Icons.gamepad, color: Colors.white54, size: 16);
-                    }
-                    return SingleChildScrollView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.gamepad, color: Colors.white54, size: 24),
-                          const SizedBox(height: 8),
-                          Text(
-                            widget.title,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+      child: loading
+          ? const CircularProgressIndicator(strokeWidth: 2, color: Colors.cyanAccent)
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.gamepad, color: Colors.white54, size: 32),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.title,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  }
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
+            ),
       ),
     );
   }

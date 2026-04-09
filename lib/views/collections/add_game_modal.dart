@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,13 +11,13 @@ import '../../models/wishlist_item.dart';
 import '../../repositories/game_repository.dart';
 import '../../repositories/wishlist_repository.dart';
 import '../../controllers/home_controller.dart';
-import 'widgets/game_box_3d.dart';
 import '../../core/currency_provider.dart';
 import '../../services/price_service.dart';
-import '../../services/barcode_service.dart';
-import 'barcode_scanner_view.dart';
 import '../../services/search_alias_service.dart';
+import 'widgets/game_box_3d.dart';
+import 'barcode_scanner_view.dart';
 import 'library_sync_view.dart';
+import '../../services/barcode_service.dart';
 
 
 
@@ -54,15 +53,13 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
 
   
-  bool _isSearching = false;
-  bool _isScraping = false;
   List<dynamic> _searchResults = [];
-  String _selectedPlatformFilter = 'All';
-  
   bool _configuring = false;
   dynamic _selectedGame;
+  bool _isScraping = false;
   bool _isSaving = false;
-
+  
+  String _selectedPlatformFilter = 'All';
   String _format = 'Physical';
   String _uiPlatform = 'PlayStation 5';
   String _region = 'R1 (USA)';
@@ -140,18 +137,11 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
     
     if (cleanQuery.length <= 2) {
       debugPrint('[Search] Query too short, skipping.');
-      if (mounted) {
-        setState(() { 
-        _isSearching = false; 
-        _searchResults = []; 
-        _searchModeLabel = null;
-      });
-      }
       return;
     }
 
     setState(() {
-      _isSearching = true;
+      // _isSearching = true;
       _searchModeLabel = null;
     });
 
@@ -163,7 +153,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         if (mounted) {
           setState(() {
             _searchResults = firstResults;
-            _isSearching = false;
+            // _isSearching = false;
           });
         }
         return;
@@ -178,7 +168,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         if (mounted) {
           setState(() {
             _searchResults = secondResults;
-            _isSearching = false;
+            // _isSearching = false;
             _searchModeLabel = secondResults.isNotEmpty ? 'Results for "$expandedQuery"' : null;
           });
         }
@@ -189,12 +179,12 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       if (mounted) {
         setState(() {
           _searchResults = [];
-          _isSearching = false;
+          // _isSearching = false;
         });
       }
     } catch (e) {
       debugPrint('[Search] Exception: $e');
-      if (mounted) setState(() => _isSearching = false);
+      // if (mounted) setState(() => _isSearching = false);
     }
   }
 
@@ -344,54 +334,46 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0D0D14).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.8);
+    final bgColor = isDark ? const Color(0xFF0D0D14) : Colors.white;
     final textColor = isDark ? Colors.white : Colors.black87;
 
-    return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-      child: Container(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          border: Border(top: BorderSide(color: Theme.of(context).primaryColor.withValues(alpha: 0.3), width: 1)),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 800),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: _configuring ? _buildConfigurator(textColor) : _buildSearchPhase(textColor),
-              ),
+    return Container(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      decoration: BoxDecoration(
+        color: bgColor.withValues(alpha: 0.95),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Stack(
+          children: [
+            // Main content
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: _configuring 
+                  ? Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 500),
+                        child: Card(
+                          elevation: 12,
+                          shadowColor: Colors.black.withValues(alpha: 0.5),
+                          color: isDark ? const Color(0xFF1A1A24) : Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: _buildConfigurator(textColor),
+                          ),
+                        ).animate().scale(begin: const Offset(0.9, 0.9), duration: 200.ms, curve: Curves.easeOutBack),
+                      ),
+                    )
+                  : _buildSearchPhase(textColor),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  void _startManualEntry() {
-    setState(() {
-      _selectedGame = {
-        'external': _searchController.text.isNotEmpty ? _searchController.text : '',
-        'gameID': 'manual_${DateTime.now().millisecondsSinceEpoch}',
-        'thumb': '',
-      };
-      _titleController.text = _selectedGame['external'];
-      _format = 'Physical';
-      _uiPlatform = 'PlayStation 5';
-      _region = 'R1 (USA)';
-      _conditionValue = GameCondition.cib;
-      _inputCurrency = 'USD'; 
-      _priceController.clear();
-      _estimatedValueController.clear();
-      _customImageUrlController.text = '';
-      _targetPriceController.clear();
-      _configuring = true;
-
-    });
-  }
 
 
   Future<void> _scanBarcode() async {
@@ -402,14 +384,14 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
     if (upc != null && upc.isNotEmpty) {
       // Show loading
-      setState(() => _isSearching = true);
+      // setState(() => _isSearching = true);
       
       final service = BarcodeService();
       final result = await service.fetchGameByUPC(upc);
       
       if (result != null && mounted) {
         setState(() {
-          _isSearching = false;
+          // _isSearching = false;
           _selectedGame = {
             'external': result['title'],
             'gameID': 'upc_$upc',
@@ -438,10 +420,14 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         _scrapePhysicalPrice(tempGame);
       } else {
         if (mounted) {
-          setState(() => _isSearching = false);
+          if (!mounted) return;
+          if (mounted) {
+            if (!mounted) return;
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not identify game from barcode. Try searching manually.')),
-          );
+              const SnackBar(content: Text('Could not identify game from barcode. Try searching manually.')),
+            );
+          }
         }
       }
     }
@@ -507,7 +493,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
             hintText: 'Type a game title...',
             hintStyle: TextStyle(color: textColor.withValues(alpha: 0.3)),
             prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
-            suffixIcon: (_selectedPlatformFilter == 'PlayStation 5' || _selectedPlatformFilter == 'PlayStation 4' || _selectedPlatformFilter == 'Nintendo' || _selectedPlatformFilter == 'All') && !widget.isWishlistMode
+            suffixIcon: (_selectedPlatformFilter.contains('PlayStation') || _selectedPlatformFilter == 'Nintendo') && !widget.isWishlistMode
                 ? IconButton(
                     icon: Icon(Icons.barcode_reader, color: Theme.of(context).primaryColor),
                     onPressed: _scanBarcode,
@@ -535,13 +521,13 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                 separatorBuilder: (context, index) => const SizedBox(height: 12),
                 itemBuilder: (context, index) => _buildSearchResultRow(_searchResults[index], textColor, index),
               )
-            : Center(
+            : Padding(
+                padding: const EdgeInsets.only(top: 16.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 20),
                     _buildSyncHero(context, textColor),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 24),
                     Text(
                       'Your next masterpiece awaits.', 
                       style: TextStyle(color: textColor.withValues(alpha: 0.2), fontStyle: FontStyle.italic, fontSize: 13)
@@ -563,8 +549,9 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           barrierLabel: 'Library Sync',
           pageBuilder: (context, anim1, anim2) => const LibrarySyncView(),
         );
-        if (result == true && mounted) {
-          Navigator.pop(context, true);
+        if (result == true) {
+          if (!context.mounted) return;
+          Navigator.of(context).pop(true);
         }
       },
       borderRadius: BorderRadius.circular(24),

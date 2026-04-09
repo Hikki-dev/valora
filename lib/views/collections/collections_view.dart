@@ -185,16 +185,16 @@ class CollectionsView extends ConsumerWidget {
               ),
               if (!isDesktop) const SizedBox(height: 24),
 
-              // Overview Card
+              // Overview Card (Compact Stats Bar)
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 decoration: BoxDecoration(
                   color: cardColor,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: textColor.withValues(alpha: 0.05)),
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min, // Hug the content
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,7 +212,7 @@ class CollectionsView extends ConsumerWidget {
                             return Text(
                               ref.watch(currencyProvider).format(total),
                               style: const TextStyle(
-                                fontSize: 28,
+                                fontSize: 32,
                                 fontWeight: FontWeight.w900,
                                 fontFamily: 'Syne',
                                 color: Colors.white,
@@ -230,8 +230,16 @@ class CollectionsView extends ConsumerWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(width: 32),
+                    // Subtle Vertical Divider
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: textColor.withValues(alpha: 0.1),
+                    ),
+                    const SizedBox(width: 32),
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Games',
