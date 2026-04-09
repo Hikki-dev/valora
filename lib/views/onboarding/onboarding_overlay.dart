@@ -6,7 +6,8 @@ import 'onboarding_content.dart';
 
 class OnboardingOverlay extends ConsumerStatefulWidget {
   final bool isFull;
-  const OnboardingOverlay({super.key, this.isFull = true});
+  final int lastSeenCount;
+  const OnboardingOverlay({super.key, this.isFull = true, this.lastSeenCount = 0});
 
   @override
   ConsumerState<OnboardingOverlay> createState() => _OnboardingOverlayState();
@@ -24,7 +25,27 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
     final secondaryTextColor = textColor.withValues(alpha: 0.6);
     final primaryColor = Colors.amber;
     
-    final contents = widget.isFull ? OnboardingContent.features : OnboardingContent.changelog;
+    List<OnboardingContent> contents;
+    if (widget.isFull) {
+      contents = OnboardingContent.features;
+    } else {
+      // Show only items the user hasn't seen yet
+      final allChangelog = OnboardingContent.changelog;
+      if (widget.lastSeenCount < allChangelog.length) {
+        contents = allChangelog.sublist(widget.lastSeenCount);
+      } else {
+        contents = [];
+      }
+    }
+
+    if (contents.isEmpty) {
+       // Safety check: if no new content, just complete it
+       WidgetsBinding.instance.addPostFrameCallback((_) {
+         ref.read(onboardingControllerProvider.notifier).completeOnboarding();
+       });
+       return const SizedBox.shrink();
+    }
+
     final isLastPage = _currentPage == contents.length - 1;
 
     return Scaffold(

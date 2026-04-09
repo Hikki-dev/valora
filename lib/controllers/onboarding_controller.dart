@@ -4,14 +4,24 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/profile.dart';
+import '../views/onboarding/onboarding_content.dart';
 
-enum OnboardingState { none, full, changelog }
+enum OnboardingType { none, full, changelog }
+
+class OnboardingState {
+  final OnboardingType type;
+  final int lastSeenCount;
+
+  OnboardingState({required this.type, this.lastSeenCount = 0});
+
+  static OnboardingState none() => OnboardingState(type: OnboardingType.none);
+}
 
 class OnboardingController extends Notifier<OnboardingState> {
   bool _hasChecked = false;
 
   @override
-  OnboardingState build() => OnboardingState.none;
+  OnboardingState build() => OnboardingState.none();
 
   Future<void> checkOnboarding() async {
     if (_hasChecked) return;
@@ -41,25 +51,27 @@ class OnboardingController extends Notifier<OnboardingState> {
     }
 
     final supabaseLastSeen = profile?.lastSeenVersion;
+    final lastSeenChangelogCount = prefs.getInt('seen_changelog_count') ?? profile?.seenChangelogCount ?? 0;
 
     debugPrint('[Onboarding] 🛠️ Version Comparison:');
     debugPrint('[Onboarding] Current App Version: $currentVersion');
     debugPrint('[Onboarding] Supabase Last Seen: $supabaseLastSeen');
     debugPrint('[Onboarding] Local Device Last Seen: $localLastSeen');
+    debugPrint('[Onboarding] Seen Changelog Items: $lastSeenChangelogCount');
 
     // Decision Logic:
     // If supabaseLastSeen is null, it's a completely new user -> Full Intro
-    // If localLastSeen != currentVersion, it's a new device or update -> Intro/Changelog
+    // If they haven't seen all changelog items -> Changelog
     
     if (supabaseLastSeen == null) {
       debugPrint('[Onboarding] ✅ Decision: FULL INTRO (New Account)');
-      state = OnboardingState.full;
-    } else if (supabaseLastSeen != currentVersion) {
-       debugPrint('[Onboarding] ✅ Decision: CHANGELOG (Version Update)');
-       state = OnboardingState.changelog;
+      state = OnboardingState(type: OnboardingType.full);
+    } else if (lastSeenChangelogCount < OnboardingContent.changelog.length) {
+       debugPrint('[Onboarding] ✅ Decision: CHANGELOG (New items found)');
+       state = OnboardingState(type: OnboardingType.changelog, lastSeenCount: lastSeenChangelogCount);
     } else {
-      debugPrint('[Onboarding] 💤 Decision: NONE (Already saw this version)');
-      state = OnboardingState.none;
+      debugPrint('[Onboarding] 💤 Decision: NONE (Everything seen)');
+      state = OnboardingState.none();
     }
     _hasChecked = true;
   }
@@ -74,19 +86,21 @@ class OnboardingController extends Notifier<OnboardingState> {
 
     // Update Local
     await prefs.setString('last_seen_version', currentVersion);
+    await prefs.setInt('seen_changelog_count', OnboardingContent.changelog.length);
 
     // Update Supabase
     try {
        await Supabase.instance.client.from('profiles').upsert({
         'id': user.id,
         'last_seen_version': currentVersion,
+        'seen_changelog_count': OnboardingContent.changelog.length,
         'onboarded_at': DateTime.now().toIso8601String(),
       });
     } catch (e) {
       // Handle error or ignore if table doesn't exist yet
     }
 
-    state = OnboardingState.none;
+    state = OnboardingState.none();
     _hasChecked = true;
   }
 }

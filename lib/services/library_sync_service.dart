@@ -35,10 +35,12 @@ class SteamLibraryProvider implements LibraryProvider {
           collectionId: userId,
           userId: userId,
           title: g['title'] ?? 'Unknown Steam Game',
-          coverUrl: g['coverUrl'],
+          coverUrl: g['externalId'] != null 
+              ? 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${g['externalId']}/library_600x900.jpg'
+              : g['coverUrl'],
           platform: AppPlatform.steam,
           format: 'Digital',
-          externalId: g['externalId'],
+          externalId: g['externalId']?.toString(),
         );
       }).toList();
     } on FunctionException catch (e) {

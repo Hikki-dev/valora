@@ -13,6 +13,7 @@ import 'views/collections/collections_view.dart';
 import 'views/collections/game_detail_view.dart';
 import 'views/wishlists/wishlists_view.dart';
 import 'views/onboarding/onboarding_overlay.dart';
+import 'views/home/profile_view.dart';
 import 'controllers/onboarding_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'core/currency_provider.dart';
@@ -41,6 +42,7 @@ class MainLayout extends ConsumerWidget {
     int currentIndex = 0;
     if (location.startsWith('/collections')) currentIndex = 1;
     if (location.startsWith('/wishlists')) currentIndex = 2;
+    if (location.startsWith('/profile')) currentIndex = 3;
 
     final onboardingState = ref.watch(onboardingControllerProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -54,8 +56,11 @@ class MainLayout extends ConsumerWidget {
             child: child,
           ),
         ),
-        if (onboardingState != OnboardingState.none)
-          OnboardingOverlay(isFull: onboardingState == OnboardingState.full),
+        if (onboardingState.type != OnboardingType.none)
+          OnboardingOverlay(
+            isFull: onboardingState.type == OnboardingType.full,
+            lastSeenCount: onboardingState.lastSeenCount,
+          ),
       ],
     );
 
@@ -72,13 +77,14 @@ class MainLayout extends ConsumerWidget {
 
     return Scaffold(
       body: body,
-      bottomNavigationBar: onboardingState == OnboardingState.none 
+      bottomNavigationBar: onboardingState.type == OnboardingType.none 
           ? BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) {
           if (index == 0) context.go('/');
           if (index == 1) context.go('/collections');
           if (index == 2) context.go('/wishlists');
+          if (index == 3) context.go('/profile');
         },
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         selectedItemColor: Theme.of(context).primaryColor,
@@ -87,6 +93,7 @@ class MainLayout extends ConsumerWidget {
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.library_books), label: 'Library'),
           BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Wishlist'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
         )
       : null,
@@ -131,9 +138,9 @@ class MainLayout extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 10),
-          _buildSidebarItem(context, Icons.dashboard, 'Dashboard', currentIndex == 0, () => context.go('/')),
           _buildSidebarItem(context, Icons.library_books, 'Library', currentIndex == 1, () => context.go('/collections')),
           _buildSidebarItem(context, Icons.favorite, 'Wishlist', currentIndex == 2, () => context.go('/wishlists')),
+          _buildSidebarItem(context, Icons.person, 'Profile', currentIndex == 3, () => context.go('/profile')),
           const Spacer(),
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -272,6 +279,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/wishlists',
             builder: (context, state) => const WishlistsView(),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileView(),
           ),
           GoRoute(
             path: '/game/:id',

@@ -133,9 +133,14 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
           centerTitle: true,
         ),
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: _discoveredGames.isEmpty ? _buildSteamInput(textColor) : _buildReviewList(textColor),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: _discoveredGames.isEmpty ? _buildSteamInput(textColor) : _buildReviewList(textColor),
+              ),
+            ),
           ),
         ),
       ),
@@ -169,9 +174,37 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
             fillColor: Colors.white.withValues(alpha: 0.05),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
             prefixIcon: const Icon(Icons.person_outline, color: Colors.blueAccent),
-            helperText: 'You can find this in your Steam Profile URL',
           ),
           style: TextStyle(color: textColor),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.blueAccent.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.1)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.help_outline, color: Colors.blueAccent, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    'How to find your Steam ID?',
+                    style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '1. Go to your Steam Profile\n2. Right-click and "Copy Page URL"\n3. Paste it at steamid.io to get your "SteamID64"',
+                style: TextStyle(color: textColor.withValues(alpha: 0.4), fontSize: 12, height: 1.5),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 32),
         SizedBox(

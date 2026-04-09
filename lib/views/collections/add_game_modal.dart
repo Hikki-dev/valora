@@ -57,6 +57,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
   bool _isSearching = false;
   bool _isScraping = false;
   List<dynamic> _searchResults = [];
+  String _selectedPlatformFilter = 'All';
   
   bool _configuring = false;
   dynamic _selectedGame;
@@ -468,7 +469,34 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
             IconButton(icon: Icon(Icons.close, color: textColor.withValues(alpha: 0.5)), onPressed: () => Navigator.pop(context))
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Row(
+            children: ['All', 'PlayStation 5', 'PlayStation 4', 'Nintendo', 'Steam', 'Epic Games'].map((p) {
+               final isSelected = _selectedPlatformFilter == p;
+               return Padding(
+                 padding: const EdgeInsets.only(right: 8.0),
+                 child: FilterChip(
+                    label: Text(p, style: TextStyle(fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+                    selected: isSelected,
+                    onSelected: (val) {
+                      setState(() {
+                         _selectedPlatformFilter = p;
+                         if (p != 'All') _uiPlatform = p;
+                      });
+                    },
+                    backgroundColor: textColor.withValues(alpha: 0.05),
+                    selectedColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                    showCheckmark: false,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                 ),
+               );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 8),
         TextField(
           controller: _searchController,
           onChanged: _onSearchChanged,
@@ -479,13 +507,13 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
             hintText: 'Type a game title...',
             hintStyle: TextStyle(color: textColor.withValues(alpha: 0.3)),
             prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
-            suffixIcon: widget.isWishlistMode 
-                ? null 
-                : IconButton(
+            suffixIcon: (_selectedPlatformFilter == 'PlayStation 5' || _selectedPlatformFilter == 'PlayStation 4' || _selectedPlatformFilter == 'Nintendo' || _selectedPlatformFilter == 'All') && !widget.isWishlistMode
+                ? IconButton(
                     icon: Icon(Icons.barcode_reader, color: Theme.of(context).primaryColor),
                     onPressed: _scanBarcode,
                     tooltip: 'Scan Physical Disc',
-                  ),
+                  )
+                : null,
 
             filled: true,
             fillColor: textColor.withValues(alpha: 0.05),
@@ -500,144 +528,104 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
              child: Text(_searchModeLabel!, style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 13, fontStyle: FontStyle.italic)),
            ),
         
-        // --- NEW: Import from Library Entry ---
-        if (!widget.isWishlistMode && _uiPlatform == 'Steam') Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
-          child: InkWell(
-            onTap: () async {
-              final result = await showGeneralDialog(
-                context: context,
-                barrierDismissible: true,
-                barrierLabel: 'Library Sync',
-                pageBuilder: (context, anim1, anim2) => const LibrarySyncView(),
-              );
-              if (result == true && mounted) {
-                Navigator.pop(context, true);
-              }
-            },
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Theme.of(context).primaryColor.withValues(alpha: 0.15), Colors.transparent],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+        Expanded(
+          child: _searchController.text.isNotEmpty 
+            ? ListView.separated(
+                itemCount: _searchResults.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                itemBuilder: (context, index) => _buildSearchResultRow(_searchResults[index], textColor, index),
+              )
+            : Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 20),
+                    _buildSyncHero(context, textColor),
+                    const SizedBox(height: 40),
+                    Text(
+                      'Your next masterpiece awaits.', 
+                      style: TextStyle(color: textColor.withValues(alpha: 0.2), fontStyle: FontStyle.italic, fontSize: 13)
+                    ),
+                  ],
                 ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.2)),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.sync, color: Theme.of(context).primaryColor, size: 20),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'BRING YOUR LIBRARY HOME',
-                          style: TextStyle(color: textColor, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1),
-                        ),
-                        Text(
-                          'Sync your Steam collection in one go',
-                          style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 11),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward_ios, color: textColor.withValues(alpha: 0.2), size: 14),
-                ],
-              ),
-            ),
-          ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
-        ),
-        // ------------------------------------
-
-        SizedBox(
-
-          height: 300,
-          child: _isSearching
-              ? Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor))
-              : _searchController.text.length > 2
-                   ? Column(
-                     children: [
-                       Expanded(
-                         child: _searchResults.isEmpty 
-                            ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text("Hmm, we couldn't find that one.", style: TextStyle(color: textColor.withValues(alpha: 0.5))),
-                                    if (_searchController.text.toLowerCase().contains('gta 6') || _searchController.text.toLowerCase().contains('gta vi')) ...[
-                                      const SizedBox(height: 16),
-                                      Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(16),
-                                          border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.2)),
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            const Text('🔥 ANTICIPATED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
-
-                                            const SizedBox(height: 4),
-                                            const Text('Grand Theft Auto VI', style: TextStyle(fontWeight: FontWeight.bold)),
-                                            const SizedBox(height: 8),
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  _titleController.text = 'Grand Theft Auto VI';
-                                                  _customImageUrlController.text = 'https://media-rockstargames-com.akamaized.net/m0/games/GTAVI/GTAVI_Logo.png';
-                                                  _configuring = true;
-                                                  _format = 'Digital';
-                                                });
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Theme.of(context).primaryColor,
-                                                foregroundColor: Colors.white,
-                                                textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                                              ),
-                                              child: const Text('QUICK ADD TO WISHLIST'),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              )
-                            : ListView.separated(
-                                physics: const BouncingScrollPhysics(),
-                                itemCount: _searchResults.length,
-                                separatorBuilder: (context, index) => const SizedBox(height: 12),
-                                itemBuilder: (context, index) => _buildSearchResultRow(_searchResults[index], textColor, index),
-                              ),
-                       ),
-                       const SizedBox(height: 16),
-                       TextButton.icon(
-                         onPressed: _startManualEntry,
-                         icon: const Icon(Icons.add_circle_outline, size: 18),
-                         label: const Text('Can\'t find it? Add Manually'),
-                         style: TextButton.styleFrom(
-                           foregroundColor: Theme.of(context).primaryColor,
-                           padding: const EdgeInsets.symmetric(vertical: 12),
-                         ),
-                       ),
-                     ],
-                   )
-                   : Center(child: Text('Your next masterpiece awaits.', style: TextStyle(color: textColor.withValues(alpha: 0.2), fontStyle: FontStyle.italic))),
         ),
       ],
     );
+  }
+
+  Widget _buildSyncHero(BuildContext context, Color textColor) {
+    return InkWell(
+      onTap: () async {
+        final result = await showGeneralDialog(
+          context: context,
+          barrierDismissible: true,
+          barrierLabel: 'Library Sync',
+          pageBuilder: (context, anim1, anim2) => const LibrarySyncView(),
+        );
+        if (result == true && mounted) {
+          Navigator.pop(context, true);
+        }
+      },
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).primaryColor,
+              Theme.of(context).primaryColor.withValues(alpha: 0.6),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.sync_alt, color: Colors.white, size: 28),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'BULK IMPORT',
+                    style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 2),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Connect your Steam library',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    'Import your entire collection in seconds',
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.white54),
+          ],
+        ),
+      ),
+    ).animate().scale(delay: 200.ms, begin: const Offset(0.95, 0.95), end: const Offset(1, 1)).fadeIn();
   }
 
 
