@@ -434,14 +434,17 @@ class CollectionsView extends ConsumerWidget {
                     width: double.infinity,
                     color: cardBgColor,
                     child: game.coverUrl != null && game.coverUrl!.isNotEmpty
-                        ? CachedNetworkImage(
-                            imageUrl: game.coverUrl!,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Container(color: cardBgColor),
-                            errorWidget: (context, url, error) => Icon(
-                              Icons.videogame_asset,
-                              size: 40,
-                              color: mutedTextColor,
+                        ? RepaintBoundary(
+                            child: CachedNetworkImage(
+                              imageUrl: game.coverUrl!,
+                              fit: BoxFit.cover,
+                              memCacheWidth: 250,
+                              placeholder: (context, url) => Container(color: cardBgColor),
+                              errorWidget: (context, url, error) => Icon(
+                                Icons.videogame_asset,
+                                size: 40,
+                                color: mutedTextColor,
+                              ),
                             ),
                           )
                         : Icon(

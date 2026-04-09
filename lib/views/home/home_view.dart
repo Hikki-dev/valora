@@ -23,7 +23,7 @@ class HomeView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(homeControllerProvider);
+    final isLoading = ref.watch(homeControllerProvider.select((s) => s.isLoading));
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themeToggleIcon = isDark ? Icons.light_mode : Icons.dark_mode;
     final textColor = isDark ? Colors.white : Colors.black87;
@@ -69,15 +69,15 @@ class HomeView extends ConsumerWidget {
           ),
         ),
         child: SafeArea(
-          child: state.isLoading 
+          child: isLoading 
               ? _buildSkeleton(context, ref, isDark, isDesktop)
-              : _buildDashboard(context, ref, state, isDark, textColor, mutedTextColor, cardColor, isDesktop),
+              : _buildDashboard(context, ref, isDark, textColor, mutedTextColor, cardColor, isDesktop),
         ),
       ),
     );
   }
 
-  Widget _buildDashboard(BuildContext context, WidgetRef ref, HomeState state, bool isDark, Color textColor, Color mutedTextColor, Color cardColor, bool isDesktop) {
+  Widget _buildDashboard(BuildContext context, WidgetRef ref, bool isDark, Color textColor, Color mutedTextColor, Color cardColor, bool isDesktop) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(isDesktop ? 48.0 : 24.0),
       child: Column(
@@ -128,15 +128,20 @@ class HomeView extends ConsumerWidget {
                     constraints: const BoxConstraints(),
                   ),
                   const SizedBox(width: 12),
-                  IconButton(
-                    onPressed: () => ref.read(homeControllerProvider.notifier).togglePricingVisibility(),
-                    icon: Icon(
-                      state.hidePricing ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                      size: 16,
-                      color: mutedTextColor,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final hidePricing = ref.watch(homeControllerProvider.select((s) => s.hidePricing));
+                      return IconButton(
+                        onPressed: () => ref.read(homeControllerProvider.notifier).togglePricingVisibility(),
+                        icon: Icon(
+                          hidePricing ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                          size: 16,
+                          color: mutedTextColor,
+                        ),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -145,14 +150,22 @@ class HomeView extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
 
-          Text(
-            state.hidePricing ? '****' : ref.watch(currencyProvider).format(state.totalValuation),
-            style: TextStyle(
-              fontSize: 56,
-              fontWeight: FontWeight.w900,
-              color: textColor,
-              letterSpacing: -2,
-            ),
+          Consumer(
+            builder: (context, ref, _) {
+              final hidePricing = ref.watch(homeControllerProvider.select((s) => s.hidePricing));
+              final totalValuation = ref.watch(homeControllerProvider.select((s) => s.totalValuation));
+              final currency = ref.watch(currencyProvider);
+              
+              return Text(
+                hidePricing ? '****' : currency.format(totalValuation),
+                style: TextStyle(
+                  fontSize: 56,
+                  fontWeight: FontWeight.w900,
+                  color: textColor,
+                  letterSpacing: -2,
+                ),
+              );
+            },
           ),
           const SizedBox(height: 4),
           Text(
@@ -200,7 +213,6 @@ class HomeView extends ConsumerWidget {
           _buildCollectionListItem(
              context, 
              ref,
-             state,
              title: 'PlayStation', 
              filter: 'playstation', 
              iconWidget: const FaIcon(FontAwesomeIcons.playstation, color: Colors.blueAccent, size: 28),
@@ -211,7 +223,6 @@ class HomeView extends ConsumerWidget {
           _buildCollectionListItem(
              context, 
              ref,
-             state,
              title: 'Steam', 
              filter: 'steam', 
              iconWidget: const FaIcon(FontAwesomeIcons.steam, color: Colors.white, size: 28),
@@ -222,7 +233,6 @@ class HomeView extends ConsumerWidget {
           _buildCollectionListItem(
              context, 
              ref,
-             state,
              title: 'Epic Games', 
              filter: 'epic', 
              iconWidget: const Icon(Icons.gamepad, color: Colors.white, size: 28),
@@ -235,7 +245,6 @@ class HomeView extends ConsumerWidget {
           _buildCollectionListItem(
              context, 
              ref,
-             state,
              title: 'Nintendo', 
              filter: 'nintendo', 
              iconWidget: const Icon(Icons.videogame_asset, color: Colors.white, size: 28),
@@ -255,7 +264,6 @@ class HomeView extends ConsumerWidget {
   Widget _buildCollectionListItem(
     BuildContext context, 
     WidgetRef ref,
-    HomeState state,
     {
       required String title, 
       required String filter, 
@@ -265,79 +273,82 @@ class HomeView extends ConsumerWidget {
       required Color textColor
     }
   ) {
-    final stats = state.platformStats[filter.replaceAll(' ', '').toLowerCase()] ?? state.platformStats[filter] ?? const PlatformStat(0, 0);
+    final stats = ref.watch(homeControllerProvider.select((s) => s.platformStats[filter.replaceAll(' ', '').toLowerCase()] ?? s.platformStats[filter] ?? const PlatformStat(0, 0)));
+    final hidePricing = ref.watch(homeControllerProvider.select((s) => s.hidePricing));
     final currency = ref.watch(currencyProvider);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: textColor.withValues(alpha: 0.05)),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+    return RepaintBoundary(
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: cardColor,
           borderRadius: BorderRadius.circular(20),
-          hoverColor: Theme.of(context).primaryColor.withValues(alpha: 0.05),
-          onTap: () {
-             context.push('/collections?platform=$filter');
-          },
-          highlightColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-          splashColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-          child: Padding(
-             padding: const EdgeInsets.all(16.0),
-             child: Row(
-               children: [
-                  Container(
-                    width: 54,
-                    height: 54,
-                    decoration: BoxDecoration(
-                      color: iconBgColor,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Center(
-                       child: iconWidget,
-                    ),
-                 ),
-                 const SizedBox(width: 16),
-                 Expanded(
-                   child: Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
+          border: Border.all(color: textColor.withValues(alpha: 0.05)),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            hoverColor: Theme.of(context).primaryColor.withValues(alpha: 0.05),
+            onTap: () {
+               context.push('/collections?platform=$filter');
+            },
+            highlightColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+            splashColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+            child: Padding(
+               padding: const EdgeInsets.all(16.0),
+               child: Row(
+                 children: [
+                    Container(
+                      width: 54,
+                      height: 54,
+                      decoration: BoxDecoration(
+                        color: iconBgColor,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Center(
+                         child: iconWidget,
+                      ),
+                   ),
+                   const SizedBox(width: 16),
+                   Expanded(
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         Text(
+                           title, 
+                           style: TextStyle(
+                             fontSize: 18, 
+                             fontWeight: FontWeight.bold, 
+                             color: textColor
+                           )
+                         ),
+                         const SizedBox(height: 4),
+                         Text(
+                           '${stats.count} games',
+                           style: TextStyle(color: mutatedTextColor(textColor), fontSize: 13)
+                         )
+                       ],
+                     ),
+                   ),
+                   Column(
+                     crossAxisAlignment: CrossAxisAlignment.end,
                      children: [
                        Text(
-                         title, 
-                         style: TextStyle(
-                           fontSize: 18, 
-                           fontWeight: FontWeight.bold, 
-                           color: textColor
-                         )
+                          hidePricing ? '****' : currency.format(stats.value),
+                          style: TextStyle(
+                             fontSize: 18, 
+                             fontWeight: FontWeight.bold, 
+                             color: textColor
+                          )
                        ),
                        const SizedBox(height: 4),
-                       Text(
-                         '${stats.count} games',
-                         style: TextStyle(color: mutatedTextColor(textColor), fontSize: 13)
-                       )
-                     ],
-                   ),
-                 ),
-                 Column(
-                   crossAxisAlignment: CrossAxisAlignment.end,
-                   children: [
-                     Text(
-                        state.hidePricing ? '****' : currency.format(stats.value),
-                        style: TextStyle(
-                           fontSize: 18, 
-                           fontWeight: FontWeight.bold, 
-                           color: textColor
-                        )
-                     ),
-                     const SizedBox(height: 4),
-                     Icon(Icons.chevron_right, color: mutatedTextColor(textColor), size: 16),
-                   ]
-                 )
-               ],
-             ),
+                       Icon(Icons.chevron_right, color: mutatedTextColor(textColor), size: 16),
+                     ]
+                   )
+                 ],
+               ),
+            ),
           ),
         ),
       ),
