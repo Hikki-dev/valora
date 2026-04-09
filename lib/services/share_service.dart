@@ -1,4 +1,5 @@
-import 'dart:io';
+import 'dart:io' show File;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
@@ -14,27 +15,39 @@ class ShareService {
       );
 
       // Capture the widget as a PNG image
-      // We use a ProviderScope to ensure the widget can access providers if it's a ConsumerWidget
       final imageBuffer = await _screenshotController.captureFromWidget(
         Material(child: snapshotWidget),
-        delay: const Duration(milliseconds: 300), // Slightly more delay for images to load
+        delay: const Duration(milliseconds: 500), // Slightly more delay for images to load
         context: context,
         pixelRatio: 2.0, // Higher resolution for sharing
       );
 
-      // Save to a temporary file
-      final directory = await getTemporaryDirectory();
-      final imagePath = '${directory.path}/valora_snapshot_${DateTime.now().millisecondsSinceEpoch}.png';
-      final imageFile = File(imagePath);
-      await imageFile.writeAsBytes(imageBuffer);
+      if (!context.mounted) return;
 
-      // Share using the share_plus package
       final RenderBox? box = context.findRenderObject() as RenderBox?;
-      await Share.shareXFiles(
-        [XFile(imagePath)],
-        text: 'Check out my Valora collection valuation!',
-        sharePositionOrigin: box != null ? box.localToGlobal(Offset.zero) & box.size : null,
-      );
+      final sharePositionOrigin = box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+
+      if (kIsWeb) {
+        // On Web, we can't use path_provider. Use XFile.fromData directly.
+        await Share.shareXFiles(
+          [XFile.fromData(imageBuffer, mimeType: 'image/png', name: 'valora_snapshot.png')],
+          text: 'Check out my Valora collection valuation!',
+          sharePositionOrigin: sharePositionOrigin,
+        );
+      } else {
+        // Save to a temporary file for Native platforms
+        final directory = await getTemporaryDirectory();
+        final imagePath = '${directory.path}/valora_snapshot_${DateTime.now().millisecondsSinceEpoch}.png';
+        final imageFile = File(imagePath);
+        await imageFile.writeAsBytes(imageBuffer);
+
+        // Share using the share_plus package
+        await Share.shareXFiles(
+          [XFile(imagePath)],
+          text: 'Check out my Valora collection valuation!',
+          sharePositionOrigin: sharePositionOrigin,
+        );
+      }
 
     } catch (e) {
       debugPrint('[ShareService] Error sharing snapshot: $e');

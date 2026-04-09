@@ -18,14 +18,21 @@ import '../../services/price_service.dart';
 import '../../services/barcode_service.dart';
 import 'barcode_scanner_view.dart';
 import '../../services/search_alias_service.dart';
+import 'library_sync_view.dart';
 
 
 
 class AddGameModal extends ConsumerStatefulWidget {
   final bool isWishlistMode;
   final WishlistItem? prefillItem;
+  final String? initialPlatform;
   
-  const AddGameModal({super.key, this.isWishlistMode = false, this.prefillItem});
+  const AddGameModal({
+    super.key, 
+    this.isWishlistMode = false, 
+    this.prefillItem,
+    this.initialPlatform,
+  });
 
 
   @override
@@ -65,11 +72,24 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialPlatform != null) {
+      _uiPlatform = _mapPlatformFilter(widget.initialPlatform!);
+    }
     if (widget.prefillItem != null) {
       _targetPriceController.text = widget.prefillItem!.targetPrice?.toString() ?? '';
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _preFillFromItem(widget.prefillItem!);
       });
+    }
+  }
+
+  String _mapPlatformFilter(String filter) {
+    switch (filter.toLowerCase()) {
+      case 'steam': return 'Steam';
+      case 'playstation': return 'PlayStation 5';
+      case 'nintendo': return 'Nintendo';
+      case 'epic': return 'Epic Games';
+      default: return 'PlayStation 5';
     }
   }
 
@@ -196,8 +216,8 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
   Future<void> _scrapePhysicalPrice(Game tempGame) async {
     setState(() => _isScraping = true);
     try {
-      final ebayService = ref.read(priceServiceProvider).ebayService;
-      final priceData = await ebayService.fetchMarketPrice(tempGame);
+      final priceService = ref.read(priceServiceProvider);
+      final priceData = await priceService.fetchPrices(tempGame, force: true);
       
       if (priceData != null && mounted) {
         final price = priceData.priceForCondition(_conditionValue);
@@ -208,7 +228,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         }
       }
     } catch (e) {
-      debugPrint('Scrape error: $e');
+      debugPrint('Price fetch error: $e');
     } finally {
       if (mounted) setState(() => _isScraping = false);
     }
@@ -336,9 +356,14 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           border: Border(top: BorderSide(color: Theme.of(context).primaryColor.withValues(alpha: 0.3), width: 1)),
         ),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: _configuring ? _buildConfigurator(textColor) : _buildSearchPhase(textColor),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: _configuring ? _buildConfigurator(textColor) : _buildSearchPhase(textColor),
+              ),
+            ),
           ),
         ),
       ),
@@ -431,12 +456,12 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              widget.isWishlistMode ? 'ADD TO WISHLIST' : 'DISCOVER',
+              widget.isWishlistMode ? 'SAVE FOR LATER' : 'FIND NEW GEMS',
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
-                letterSpacing: 2,
+                letterSpacing: 1.5,
                 color: textColor,
               ),
             ),
@@ -451,7 +476,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           style: TextStyle(color: textColor, fontSize: 18),
 
           decoration: InputDecoration(
-            hintText: 'Search CheapShark...',
+            hintText: 'Type a game title...',
             hintStyle: TextStyle(color: textColor.withValues(alpha: 0.3)),
             prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
             suffixIcon: widget.isWishlistMode 
@@ -474,6 +499,68 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
              padding: const EdgeInsets.only(bottom: 8.0),
              child: Text(_searchModeLabel!, style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 13, fontStyle: FontStyle.italic)),
            ),
+        
+        // --- NEW: Import from Library Entry ---
+        if (!widget.isWishlistMode && _uiPlatform == 'Steam') Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: InkWell(
+            onTap: () async {
+              final result = await showGeneralDialog(
+                context: context,
+                barrierDismissible: true,
+                barrierLabel: 'Library Sync',
+                pageBuilder: (context, anim1, anim2) => const LibrarySyncView(),
+              );
+              if (result == true && mounted) {
+                Navigator.pop(context, true);
+              }
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Theme.of(context).primaryColor.withValues(alpha: 0.15), Colors.transparent],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.sync, color: Theme.of(context).primaryColor, size: 20),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'BRING YOUR LIBRARY HOME',
+                          style: TextStyle(color: textColor, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1),
+                        ),
+                        Text(
+                          'Sync your Steam collection in one go',
+                          style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.arrow_forward_ios, color: textColor.withValues(alpha: 0.2), size: 14),
+                ],
+              ),
+            ),
+          ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
+        ),
+        // ------------------------------------
+
         SizedBox(
 
           height: 300,
@@ -488,7 +575,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('No direct results found.', style: TextStyle(color: textColor.withValues(alpha: 0.5))),
+                                    Text("Hmm, we couldn't find that one.", style: TextStyle(color: textColor.withValues(alpha: 0.5))),
                                     if (_searchController.text.toLowerCase().contains('gta 6') || _searchController.text.toLowerCase().contains('gta vi')) ...[
                                       const SizedBox(height: 16),
                                       Container(

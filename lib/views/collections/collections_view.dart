@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../repositories/game_repository.dart';
 import '../../models/game.dart';
@@ -93,16 +94,42 @@ class CollectionsView extends ConsumerWidget {
         ? Colors.white.withValues(alpha: 0.05)
         : Colors.black.withValues(alpha: 0.05);
 
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 900;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: isDesktop ? null : AppBar(
+        title: Text(_getPlatformTitle(), style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: EdgeInsets.symmetric(horizontal: isDesktop ? 48.0 : 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
-              // Header Row
+              if (!isDesktop) const SizedBox(height: 16),
+              if (isDesktop) ...[
+                const SizedBox(height: 32),
+                Text(
+                  _getPlatformTitle(),
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w900,
+                    color: textColor,
+                    letterSpacing: -1,
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+              // Header Row (Mobile only or simplified desktop)
+              if (!isDesktop) 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -111,7 +138,7 @@ class CollectionsView extends ConsumerWidget {
                       if (context.canPop()) {
                         context.pop();
                       } else {
-                        context.go('/home');
+                        context.go('/');
                       }
                     },
                     child: Row(
@@ -156,7 +183,7 @@ class CollectionsView extends ConsumerWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              if (!isDesktop) const SizedBox(height: 24),
 
               // Overview Card
               Container(
@@ -176,21 +203,19 @@ class CollectionsView extends ConsumerWidget {
                           'Collection value',
                           style: TextStyle(color: mutedTextColor, fontSize: 13),
                         ),
-                        const SizedBox(height: 4),
                         gamesAsync.maybeWhen(
                           data: (games) {
                             final total = games.fold<double>(
                               0.0,
-                              (sum, g) =>
-                                  sum +
-                                  (g.estimatedValue ?? g.purchasePrice ?? 0.0),
+                              (sum, g) => sum + (g.activeMarketValue ?? 0.0),
                             );
                             return Text(
                               ref.watch(currencyProvider).format(total),
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: textColor,
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Syne',
+                                color: Colors.white,
                               ),
                             );
                           },
@@ -326,14 +351,14 @@ class CollectionsView extends ConsumerWidget {
                       );
                     }
                     return GridView.builder(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: isDesktop ? 4 : 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 0.75,
+                      ),
                       itemCount: games.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 0.75,
-                          ),
                       itemBuilder: (context, index) {
                         final g = games[index];
                         return _buildGameCard(
@@ -347,11 +372,7 @@ class CollectionsView extends ConsumerWidget {
                       },
                     );
                   },
-                  loading: () => Center(
-                    child: CircularProgressIndicator(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
+                  loading: () => _buildShimmerGrid(isDesktop),
                   error: (err, st) => Center(
                     child: Text(
                       'Error: $err',
@@ -455,11 +476,7 @@ class CollectionsView extends ConsumerWidget {
                             Text(
                               ref
                                   .watch(currencyProvider)
-                                  .format(
-                                    game.estimatedValue ??
-                                        game.purchasePrice ??
-                                        0.0,
-                                  ),
+                                  .format(game.activeMarketValue ?? 0.0),
                               style: const TextStyle(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 16,
@@ -478,6 +495,29 @@ class CollectionsView extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerGrid(bool isDesktop) {
+    return Shimmer.fromColors(
+      baseColor: Colors.white.withValues(alpha: 0.05),
+      highlightColor: Colors.white.withValues(alpha: 0.1),
+      child: GridView.builder(
+        padding: const EdgeInsets.only(bottom: 24),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: isDesktop ? 4 : 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 0.75,
+        ),
+        itemCount: 8,
+        itemBuilder: (context, index) => Container(
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
       ),
@@ -506,7 +546,7 @@ class CollectionsView extends ConsumerWidget {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (context) => const AddGameModal(),
+            builder: (context) => AddGameModal(initialPlatform: platformFilter),
           );
         },
       ),

@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+// ignore: avoid_web_libraries_in_flutter
+import 'package:web/web.dart' as web;
 
 import 'core/theme.dart';
 import 'views/home/home_view.dart';
@@ -12,6 +15,7 @@ import 'views/wishlists/wishlists_view.dart';
 import 'views/onboarding/onboarding_overlay.dart';
 import 'controllers/onboarding_controller.dart';
 import 'controllers/auth_controller.dart';
+import 'core/currency_provider.dart';
 
 
 class RouterNotifier extends ChangeNotifier {
@@ -31,23 +35,45 @@ class MainLayout extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final location = GoRouterState.of(context).uri.path;
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 900;
+    
     int currentIndex = 0;
     if (location.startsWith('/collections')) currentIndex = 1;
     if (location.startsWith('/wishlists')) currentIndex = 2;
 
     final onboardingState = ref.watch(onboardingControllerProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+
+    Widget body = Stack(
+      children: [
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: child,
+          ),
+        ),
+        if (onboardingState != OnboardingState.none)
+          OnboardingOverlay(isFull: onboardingState == OnboardingState.full),
+      ],
+    );
+
+    if (isDesktop) {
+      return Scaffold(
+        body: Row(
+          children: [
+            _buildSidebar(context, ref, currentIndex, isDark),
+            Expanded(child: body),
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
-      body: Stack(
-        children: [
-          child,
-          if (onboardingState != OnboardingState.none)
-            OnboardingOverlay(isFull: onboardingState == OnboardingState.full),
-        ],
-      ),
+      body: body,
       bottomNavigationBar: onboardingState == OnboardingState.none 
           ? BottomNavigationBar(
-
         currentIndex: currentIndex,
         onTap: (index) {
           if (index == 0) context.go('/');
@@ -56,7 +82,7 @@ class MainLayout extends ConsumerWidget {
         },
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.5),
+        unselectedItemColor: textColor.withValues(alpha: 0.5),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.library_books), label: 'Library'),
@@ -64,6 +90,148 @@ class MainLayout extends ConsumerWidget {
         ],
         )
       : null,
+    );
+  }
+
+  Widget _buildSidebar(BuildContext context, WidgetRef ref, int currentIndex, bool isDark) {
+    final themeToggleIcon = isDark ? Icons.light_mode : Icons.dark_mode;
+    final textColor = isDark ? Colors.white : Colors.black87;
+
+    return Container(
+      width: 260,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF14141A) : Colors.white,
+        border: Border(right: BorderSide(color: textColor.withValues(alpha: 0.05))),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(Icons.auto_graph, color: Theme.of(context).primaryColor, size: 24),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Valora',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                    color: textColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          _buildSidebarItem(context, Icons.dashboard, 'Dashboard', currentIndex == 0, () => context.go('/')),
+          _buildSidebarItem(context, Icons.library_books, 'Library', currentIndex == 1, () => context.go('/collections')),
+          _buildSidebarItem(context, Icons.favorite, 'Wishlist', currentIndex == 2, () => context.go('/wishlists')),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                _buildSidebarAction(
+                  context, 
+                  themeToggleIcon, 
+                  'Toggle Theme', 
+                  () => ref.read(themeProvider.notifier).toggle()
+                ),
+                _buildSidebarAction(
+                  context, 
+                  Icons.currency_exchange, 
+                  'Currency', 
+                  () => ref.read(currencyProvider.notifier).toggleCurrency()
+                ),
+                const Divider(height: 32),
+                _buildSidebarAction(
+                  context, 
+                  Icons.logout, 
+                  'Sign Out', 
+                  () => ref.read(authControllerProvider.notifier).signOut(),
+                  isDestructive: true
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSidebarItem(BuildContext context, IconData icon, String label, bool isSelected, VoidCallback onTap) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final activeColor = Theme.of(context).primaryColor;
+    final textColor = isDark ? Colors.white : Colors.black87;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? activeColor.withValues(alpha: 0.1) : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon, 
+                color: isSelected ? activeColor : textColor.withValues(alpha: 0.5),
+                size: 20,
+              ),
+              const SizedBox(width: 16),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? textColor : textColor.withValues(alpha: 0.5),
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSidebarAction(BuildContext context, IconData icon, String label, VoidCallback onTap, {bool isDestructive = false}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final color = isDestructive ? Colors.redAccent : textColor.withValues(alpha: 0.6);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 18),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 14,
+                fontWeight: isDestructive ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -126,18 +294,21 @@ class ValoraApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeProvider);
 
-    // Initial onboarding check when auth state changes
-    ref.listen(authControllerProvider, (previous, next) {
-      if (next.value != null) {
+    // Onboarding check: Trigger on auth changes or once at startup
+    ref.listen(authControllerProvider, (prev, next) {
+      if (next.value != null && prev?.value == null) {
         ref.read(onboardingControllerProvider.notifier).checkOnboarding();
       }
     });
 
-    // Check on startup if already logged in
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final user = ref.read(authControllerProvider).asData?.value;
-      if (user != null) {
+      if (ref.read(authControllerProvider).value != null) {
         ref.read(onboardingControllerProvider.notifier).checkOnboarding();
+      }
+
+      // Signal to the web container that the first frame is rendered
+      if (kIsWeb) {
+        web.window.dispatchEvent(web.CustomEvent('flutter-first-frame'));
       }
     });
     

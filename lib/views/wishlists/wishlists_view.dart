@@ -20,11 +20,13 @@ class WishlistsView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final wishlistAsync = ref.watch(wishlistProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 900;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
+      appBar: isDesktop ? null : AppBar(
         title: Text('WISHLIST', 
           style: TextStyle(
             fontWeight: FontWeight.w900, 
@@ -48,36 +50,76 @@ class WishlistsView extends ConsumerWidget {
           ),
         ),
         child: SafeArea(
-          child: wishlistAsync.when(
-            data: (items) {
-              if (items.isEmpty) {
-                 return Center(
-                   child: Column(
-                     mainAxisAlignment: MainAxisAlignment.center,
-                     children: [
-                       Icon(Icons.auto_awesome, size: 64, color: Theme.of(context).primaryColor.withValues(alpha: 0.3)),
-                       const SizedBox(height: 16),
-                       Text(
-                         "Your wishlist is empty.\nLet's track some deals!",
-                         textAlign: TextAlign.center,
-                         style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.5), fontSize: 16, fontWeight: FontWeight.w500),
-                       ),
-                     ],
-                   ),
-                 );
-              }
-              
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  return _buildWishlistItem(context, ref, item, index);
-                },
-              );
-            },
-            loading: () => Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor)),
-            error: (err, st) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.red))),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: isDesktop ? 48.0 : 0.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isDesktop) ...[
+                  const SizedBox(height: 32),
+                  Text(
+                    'WISHLIST',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : Colors.black87,
+                      letterSpacing: -1,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+                Expanded(
+                  child: wishlistAsync.when(
+                    data: (items) {
+                      if (items.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.auto_awesome, size: 64, color: Theme.of(context).primaryColor.withValues(alpha: 0.3)),
+                              const SizedBox(height: 16),
+                              Text(
+                                "Your wishlist is empty.\nLet's track some deals!",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.5), fontSize: 16, fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      
+                      if (isDesktop) {
+                        return GridView.builder(
+                          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 24,
+                            mainAxisSpacing: 0,
+                            mainAxisExtent: 160,
+                          ),
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            final item = items[index];
+                            return _buildWishlistItem(context, ref, item, index);
+                          },
+                        );
+                      }
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          final item = items[index];
+                          return _buildWishlistItem(context, ref, item, index);
+                        },
+                      );
+                    },
+                    loading: () => Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor)),
+                    error: (err, st) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.red))),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

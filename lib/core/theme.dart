@@ -16,15 +16,40 @@ final themeProvider = NotifierProvider<ThemeNotifier, ThemeMode>(() {
 });
 
 class AppTheme {
+  // Brand Colors - Liquid Glass Palette
+  static const Color accentViolet = Color(0xFF8B5CF6);
+  static const Color accentEmerald = Color(0xFF10B981);
+  static const Color darkObsidian = Color(0xFF0A0A0F);
+  static const Color darkCard = Color(0xFF14141A);
+  static const Color lightScaffold = Color(0xFFF8FAFC);
+  static const Color lightCard = Colors.white;
+
   static ThemeData get darkTheme {
-    return ThemeData.dark().copyWith(
-      scaffoldBackgroundColor: const Color(0xFF0A0A0F),
-      primaryColor: const Color(0xFF8B5CF6), // Vibrant Violet
+    final base = ThemeData.dark();
+    return base.copyWith(
+      scaffoldBackgroundColor: darkObsidian,
+      primaryColor: accentViolet,
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF8B5CF6),
-        surface: Color(0xFF14141A),
+        primary: accentViolet,
+        secondary: accentEmerald,
+        surface: darkCard,
+        surfaceContainer: Color(0xFF1A1A24),
       ),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+      hoverColor: accentViolet.withValues(alpha: 0.1),
+      cardTheme: CardThemeData(
+        color: darkCard,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      textTheme: GoogleFonts.plusJakartaSansTextTheme(base.textTheme).copyWith(
+        displayLarge: GoogleFonts.syne(fontWeight: FontWeight.w800),
+        displayMedium: GoogleFonts.syne(fontWeight: FontWeight.w800),
+        displaySmall: GoogleFonts.syne(fontWeight: FontWeight.w800),
+        headlineLarge: GoogleFonts.syne(fontWeight: FontWeight.w700),
+        headlineMedium: GoogleFonts.syne(fontWeight: FontWeight.w700),
+        headlineSmall: GoogleFonts.syne(fontWeight: FontWeight.w700),
+        titleLarge: GoogleFonts.syne(fontWeight: FontWeight.w700),
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -34,14 +59,24 @@ class AppTheme {
   }
 
   static ThemeData get lightTheme {
-    return ThemeData.light().copyWith(
-      scaffoldBackgroundColor: const Color(0xFFF5F5F7), // Apple-like light gray
-      primaryColor: const Color(0xFF7C3AED), // Deeper Violet for contrast
+    final base = ThemeData.light();
+    return base.copyWith(
+      scaffoldBackgroundColor: lightScaffold,
+      primaryColor: accentViolet,
       colorScheme: const ColorScheme.light(
-        primary: Color(0xFF7C3AED),
-        surface: Colors.white,
+        primary: accentViolet,
+        secondary: accentEmerald,
+        surface: lightCard,
       ),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme),
+      textTheme: GoogleFonts.plusJakartaSansTextTheme(base.textTheme).copyWith(
+        displayLarge: GoogleFonts.syne(fontWeight: FontWeight.w800),
+        displayMedium: GoogleFonts.syne(fontWeight: FontWeight.w800),
+        displaySmall: GoogleFonts.syne(fontWeight: FontWeight.w800),
+        headlineLarge: GoogleFonts.syne(fontWeight: FontWeight.w700),
+        headlineMedium: GoogleFonts.syne(fontWeight: FontWeight.w700),
+        headlineSmall: GoogleFonts.syne(fontWeight: FontWeight.w700),
+        titleLarge: GoogleFonts.syne(fontWeight: FontWeight.w700),
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,

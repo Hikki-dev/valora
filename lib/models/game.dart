@@ -1,4 +1,4 @@
-import 'price_data.dart';
+// import 'price_data.dart';
 
 enum GameCondition {
   loose('Loose'),
@@ -72,11 +72,18 @@ class Game {
   final String format; 
   final String? region;
   final GameCondition condition; 
-  final double? estimatedValue;
   final double? purchasePrice;
+  final double? estimatedValue;
 
-  final PriceData? priceCache;
-  final DateTime? priceFetchedAt;
+  // View fields (valuations)
+  final double? priceLoose;
+  final double? priceComplete;
+  final double? priceNew;
+  final double? priceDigital;
+  final String? currency;
+  final String? source;
+  final DateTime? fetchedAt;
+  final double? currentValue;
 
   Game({
     required this.id,
@@ -92,25 +99,19 @@ class Game {
     this.format = 'Digital',
     this.region,
     this.condition = GameCondition.cib,
-    this.estimatedValue,
     this.purchasePrice,
-    this.priceCache,
-    this.priceFetchedAt,
+    this.estimatedValue,
+    this.priceLoose,
+    this.priceComplete,
+    this.priceNew,
+    this.priceDigital,
+    this.currency,
+    this.source,
+    this.fetchedAt,
+    this.currentValue,
   });
 
   factory Game.fromJson(Map<String, dynamic> json) {
-    PriceData? priceCache;
-    final rawCache = json['price_cache'];
-    if (rawCache is Map<String, dynamic>) {
-      priceCache = PriceData.fromJson(rawCache);
-    }
-
-    DateTime? priceFetchedAt;
-    final rawTs = json['price_fetched_at'];
-    if (rawTs != null) {
-      priceFetchedAt = DateTime.tryParse(rawTs as String);
-    }
-
     return Game(
       id: json['id'] as String,
       collectionId: json['collection_id'] as String,
@@ -125,10 +126,16 @@ class Game {
       format: json['format'] as String? ?? 'Digital',
       region: json['region'] as String?,
       condition: GameCondition.fromString(json['condition'] as String?),
-      estimatedValue: (json['estimated_value'] as num?)?.toDouble(),
       purchasePrice: (json['purchase_price'] as num?)?.toDouble(),
-      priceCache: priceCache,
-      priceFetchedAt: priceFetchedAt,
+      estimatedValue: (json['estimated_value'] as num?)?.toDouble(),
+      priceLoose: (json['price_loose'] as num?)?.toDouble(),
+      priceComplete: (json['price_complete'] as num?)?.toDouble(),
+      priceNew: (json['price_new'] as num?)?.toDouble(),
+      priceDigital: (json['price_digital'] as num?)?.toDouble(),
+      currency: json['currency'] as String?,
+      source: json['source'] as String?,
+      fetchedAt: json['fetched_at'] != null ? DateTime.tryParse(json['fetched_at'] as String) : null,
+      currentValue: (json['current_value'] as num?)?.toDouble(),
     );
   }
   
@@ -146,26 +153,74 @@ class Game {
       'format': format,
       'region': region,
       'condition': condition.label,
-      'estimated_value': estimatedValue,
       'purchase_price': purchasePrice,
+      'estimated_value': estimatedValue,
     };
   }
 
-  double? get activeMarketValue {
-    if (priceCache != null) {
-      return priceCache!.priceForCondition(condition);
-    }
-    return estimatedValue ?? purchasePrice;
+  Game copyWith({
+    String? id,
+    String? collectionId,
+    String? userId,
+    String? title,
+    String? coverUrl,
+    AppPlatform? platform,
+    String? externalId,
+    String? genre,
+    String? publisher,
+    int? releaseYear,
+    String? format,
+    String? region,
+    GameCondition? condition,
+    double? purchasePrice,
+    double? estimatedValue,
+    double? priceLoose,
+    double? priceComplete,
+    double? priceNew,
+    double? priceDigital,
+    String? currency,
+    String? source,
+    DateTime? fetchedAt,
+    double? currentValue,
+  }) {
+    return Game(
+      id: id ?? this.id,
+      collectionId: collectionId ?? this.collectionId,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      coverUrl: coverUrl ?? this.coverUrl,
+      platform: platform ?? this.platform,
+      externalId: externalId ?? this.externalId,
+      genre: genre ?? this.genre,
+      publisher: publisher ?? this.publisher,
+      releaseYear: releaseYear ?? this.releaseYear,
+      format: format ?? this.format,
+      region: region ?? this.region,
+      condition: condition ?? this.condition,
+      purchasePrice: purchasePrice ?? this.purchasePrice,
+      estimatedValue: estimatedValue ?? this.estimatedValue,
+      priceLoose: priceLoose ?? this.priceLoose,
+      priceComplete: priceComplete ?? this.priceComplete,
+      priceNew: priceNew ?? this.priceNew,
+      priceDigital: priceDigital ?? this.priceDigital,
+      currency: currency ?? this.currency,
+      source: source ?? this.source,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      currentValue: currentValue ?? this.currentValue,
+    );
   }
+
+  double? get activeMarketValue => currentValue ?? estimatedValue ?? purchasePrice;
 
   double get profitOrLoss {
     final paid = purchasePrice ?? 0.0;
-    final marketAtCondition = activeMarketValue ?? 0.0;
-    return marketAtCondition - paid;
+    final market = activeMarketValue ?? 0.0;
+    return market - paid;
   }
 
   bool get isPriceCacheStale {
-    if (priceFetchedAt == null) return true;
-    return DateTime.now().difference(priceFetchedAt!).inHours >= 24;
+    if (fetchedAt == null) return true;
+    final ttlHours = platform.isDigital ? 6 : 24;
+    return DateTime.now().difference(fetchedAt!).inHours >= ttlHours;
   }
 }

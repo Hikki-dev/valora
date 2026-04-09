@@ -2,7 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'dart:io' show Platform;
 
 class AuthController extends Notifier<AsyncValue<User?>> {
   @override
@@ -40,23 +41,31 @@ class AuthController extends Notifier<AsyncValue<User?>> {
   Future<void> signInWithGoogle() async {
     state = const AsyncLoading();
     try {
-      // For mobile: use native google_sign_in
-      // For web/alternative: use Supabase's built-in OAuth (redirect)
-      
-      if (Platform.isIOS || Platform.isAndroid) {
-        // Native login flow
+      if (kIsWeb) {
+        // Web flow: Redirect (Stable on Vercel)
+        await Supabase.instance.client.auth.signInWithOAuth(
+          OAuthProvider.google,
+          redirectTo: kIsWeb ? Uri.base.toString() : 'com.valora.app://login-callback',
+        );
+      } else {
+        // Mobile flow: ID Token (Seamless/Native)
         final webClientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
         final iosClientId = dotenv.env['GOOGLE_IOS_CLIENT_ID'];
         
         final GoogleSignIn googleSignIn = GoogleSignIn(
-          clientId: Platform.isIOS ? iosClientId : null,
+          clientId: Platform.isIOS ? iosClientId : null, // Handled automatically on Android
           serverClientId: webClientId,
         );
         
         final googleUser = await googleSignIn.signIn();
-        final googleAuth = await googleUser?.authentication;
-        final accessToken = googleAuth?.accessToken;
-        final idToken = googleAuth?.idToken;
+        if (googleUser == null) {
+          state = const AsyncData(null); // User cancelled
+          return;
+        }
+
+        final googleAuth = await googleUser.authentication;
+        final accessToken = googleAuth.accessToken;
+        final idToken = googleAuth.idToken;
 
         if (idToken == null) {
           throw 'No ID Token found.';
@@ -67,9 +76,6 @@ class AuthController extends Notifier<AsyncValue<User?>> {
           idToken: idToken,
           accessToken: accessToken,
         );
-      } else {
-        // Web flow
-        await Supabase.instance.client.auth.signInWithOAuth(OAuthProvider.google);
       }
     } catch (e, st) {
       state = AsyncError(e, st);

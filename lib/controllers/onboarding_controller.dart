@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,10 +8,13 @@ import '../models/profile.dart';
 enum OnboardingState { none, full, changelog }
 
 class OnboardingController extends Notifier<OnboardingState> {
+  bool _hasChecked = false;
+
   @override
   OnboardingState build() => OnboardingState.none;
 
   Future<void> checkOnboarding() async {
+    if (_hasChecked) return;
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return;
 
@@ -33,32 +37,31 @@ class OnboardingController extends Notifier<OnboardingState> {
         profile = Profile.fromJson(response);
       }
     } catch (e) {
-      print('[Onboarding] Profile fetch failed or empty: $e');
+      debugPrint('[Onboarding] Profile fetch failed or empty: $e');
     }
 
     final supabaseLastSeen = profile?.lastSeenVersion;
 
-    print('[Onboarding] 🛠️ Version Comparison:');
-    print('[Onboarding] Current App Version: $currentVersion');
-    print('[Onboarding] Supabase Last Seen: $supabaseLastSeen');
-    print('[Onboarding] Local Device Last Seen: $localLastSeen');
+    debugPrint('[Onboarding] 🛠️ Version Comparison:');
+    debugPrint('[Onboarding] Current App Version: $currentVersion');
+    debugPrint('[Onboarding] Supabase Last Seen: $supabaseLastSeen');
+    debugPrint('[Onboarding] Local Device Last Seen: $localLastSeen');
 
     // Decision Logic:
     // If supabaseLastSeen is null, it's a completely new user -> Full Intro
     // If localLastSeen != currentVersion, it's a new device or update -> Intro/Changelog
     
     if (supabaseLastSeen == null) {
-      print('[Onboarding] ✅ Decision: FULL INTRO (New Account)');
+      debugPrint('[Onboarding] ✅ Decision: FULL INTRO (New Account)');
       state = OnboardingState.full;
-    } else if (supabaseLastSeen != currentVersion || localLastSeen != currentVersion) {
-       print('[Onboarding] ✅ Decision: ${supabaseLastSeen != currentVersion ? 'CHANGELOG' : 'FULL INTRO (New Device)'}');
-      state = (supabaseLastSeen != currentVersion && supabaseLastSeen.isNotEmpty)
-          ? OnboardingState.changelog 
-          : OnboardingState.full;
+    } else if (supabaseLastSeen != currentVersion) {
+       debugPrint('[Onboarding] ✅ Decision: CHANGELOG (Version Update)');
+       state = OnboardingState.changelog;
     } else {
-      print('[Onboarding] 💤 Decision: NONE (Already seen)');
+      debugPrint('[Onboarding] 💤 Decision: NONE (Already saw this version)');
       state = OnboardingState.none;
     }
+    _hasChecked = true;
   }
 
   Future<void> completeOnboarding() async {
@@ -84,6 +87,7 @@ class OnboardingController extends Notifier<OnboardingState> {
     }
 
     state = OnboardingState.none;
+    _hasChecked = true;
   }
 }
 

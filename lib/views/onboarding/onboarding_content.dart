@@ -75,18 +75,43 @@ class OnboardingContent {
       icon: const FaIcon(FontAwesomeIcons.shareNodes, size: 48, color: Colors.amber),
       preview: const MockSharingPreview(),
     ),
+    OnboardingContent(
+      title: 'FEATURE 06',
+      subtitle: 'Library Sync',
+      description: 'Import your entire library from Steam, Playstation, and Epic in one tap. Valora handles the metadata and valuation automatically.',
+      bulletPoints: [
+        'One-tap sync for Steam & Epic',
+        'Secure OpenID authentication',
+        'Bulk add with live price tracking'
+      ],
+      icon: const FaIcon(FontAwesomeIcons.arrowsRotate, size: 48, color: Colors.amber),
+      preview: const MockSyncPreview(),
+    ),
   ];
 
   static List<OnboardingContent> get changelog => [
     OnboardingContent(
       title: 'WHAT\'S NEW',
-      subtitle: 'Valora v0.1.0',
-      description: 'We\'ve added new features to help you track your collection better.',
+      subtitle: 'Valora v0.2.0',
+      description: 'The "Library Sync" update is here! Now you can import your existing games from all your favorite platforms.',
       bulletPoints: [
-        'Added onboarding walkthrough for new users',
-        'Fixed minor bugs in price fetching'
+        'Added Library Sync for Steam (Full OpenID support)',
+        'Experimental Playstation & Epic import support',
+        'Privacy-first authentication (No passwords stored)',
+        'Bulk game adding with optimized price fetching'
       ],
       icon: const FaIcon(FontAwesomeIcons.rocket, size: 48, color: Colors.amber),
+    ),
+    OnboardingContent(
+      title: 'PREVIOUSLY',
+      subtitle: 'Valora v0.1.0',
+      description: 'Initial release with core tracking features.',
+      bulletPoints: [
+        'Real-time eBay price scraping',
+        '3D Game Box visualization',
+        'Google Auth integration'
+      ],
+      icon: const FaIcon(FontAwesomeIcons.clockRotateLeft, size: 48, color: Colors.amber),
     ),
   ];
 }

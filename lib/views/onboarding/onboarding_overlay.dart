@@ -18,11 +18,17 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final secondaryTextColor = textColor.withValues(alpha: 0.6);
+    final primaryColor = Colors.amber;
+    
     final contents = widget.isFull ? OnboardingContent.features : OnboardingContent.changelog;
     final isLastPage = _currentPage == contents.length - 1;
 
     return Scaffold(
-      backgroundColor: Colors.black.withValues(alpha: 0.95),
+      backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.98),
       body: SafeArea(
         child: Column(
           children: [
@@ -33,12 +39,12 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                 children: [
                   Text(
                     '${_currentPage + 1} of ${contents.length}',
-                    style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 13),
+                    style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                   if (!isLastPage)
                     TextButton(
                       onPressed: () => ref.read(onboardingControllerProvider.notifier).completeOnboarding(),
-                      child: const Text('Skip intro', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                      child: Text('Skip intro', style: TextStyle(color: secondaryTextColor, fontSize: 13)),
                     ),
                 ],
               ),
@@ -50,7 +56,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                 itemCount: contents.length,
                 itemBuilder: (context, index) {
                   final content = contents[index];
-                  return _buildSlide(content);
+                  return _buildSlide(content, textColor, secondaryTextColor, primaryColor);
                 },
               ),
             ),
@@ -58,7 +64,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: [
-                  _buildDotsIndicator(contents.length),
+                  _buildDotsIndicator(contents.length, primaryColor, textColor),
                   const SizedBox(height: 32),
                   Row(
                     children: [
@@ -67,11 +73,11 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                           child: OutlinedButton(
                             onPressed: () => _pageController.previousPage(duration: 300.ms, curve: Curves.easeInOut),
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Colors.white24),
+                              side: BorderSide(color: textColor.withValues(alpha: 0.1)),
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
-                            child: const Text('← Back', style: TextStyle(color: Colors.white)),
+                            child: Text('← Back', style: TextStyle(color: textColor)),
                           ),
                         ),
                       if (_currentPage > 0) const SizedBox(width: 16),
@@ -86,13 +92,17 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isLastPage ? Colors.amber : Colors.white10,
+                            backgroundColor: isLastPage ? primaryColor : textColor.withValues(alpha: 0.05),
+                             elevation: 0,
                              padding: const EdgeInsets.symmetric(vertical: 16),
                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
                           child: Text(
                             isLastPage ? 'Go to Valora →' : 'Next →',
-                            style: TextStyle(color: isLastPage ? Colors.black : Colors.white, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              color: isLastPage ? Colors.black : textColor, 
+                              fontWeight: FontWeight.bold
+                            ),
                           ),
                         ),
                       ),
@@ -107,7 +117,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
     ).animate().fadeIn(duration: 400.ms);
   }
 
-  Widget _buildSlide(OnboardingContent content) {
+  Widget _buildSlide(OnboardingContent content, Color textColor, Color secondaryTextColor, Color primaryColor) {
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -123,7 +133,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.5),
+                          color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 40,
                           spreadRadius: 10,
                         ),
@@ -143,9 +153,9 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                   child: Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
+                      color: textColor.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white10),
+                      border: Border.all(color: textColor.withValues(alpha: 0.1)),
                     ),
                     child: content.icon,
                   ),
@@ -154,17 +164,17 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
              ],
              Text(
                content.title,
-               style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.w800, letterSpacing: 2, fontSize: 13),
+               style: TextStyle(color: primaryColor, fontWeight: FontWeight.w800, letterSpacing: 2, fontSize: 13),
              ),
              const SizedBox(height: 12),
              Text(
                content.subtitle,
-               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 28, letterSpacing: -1),
+               style: TextStyle(color: textColor, fontWeight: FontWeight.w900, fontSize: 28, letterSpacing: -1),
              ),
              const SizedBox(height: 16),
              Text(
                content.description,
-               style: const TextStyle(color: Colors.white70, fontSize: 15, height: 1.5),
+               style: TextStyle(color: secondaryTextColor, fontSize: 15, height: 1.5),
              ),
              const SizedBox(height: 24),
              ...content.bulletPoints.map((point) => Padding(
@@ -172,15 +182,15 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                child: Row(
                  crossAxisAlignment: CrossAxisAlignment.start,
                  children: [
-                   const Padding(
-                     padding: EdgeInsets.only(top: 6.0),
-                     child: Icon(Icons.circle, color: Colors.amber, size: 6),
+                   Padding(
+                     padding: const EdgeInsets.only(top: 6.0),
+                     child: Icon(Icons.circle, color: primaryColor, size: 6),
                    ),
                    const SizedBox(width: 12),
                    Expanded(
                      child: Text(
                        point, 
-                       style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)
+                       style: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.w500)
                      )
                    ),
                  ],
@@ -192,7 +202,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
     );
   }
 
-  Widget _buildDotsIndicator(int length) {
+  Widget _buildDotsIndicator(int length, Color primaryColor, Color textColor) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(length, (index) {
@@ -203,7 +213,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
           width: isActive ? 24 : 8,
           height: 8,
           decoration: BoxDecoration(
-            color: isActive ? Colors.amber : Colors.white24,
+            color: isActive ? primaryColor : textColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(4),
           ),
         );

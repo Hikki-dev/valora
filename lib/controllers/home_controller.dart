@@ -68,7 +68,7 @@ class HomeController extends Notifier<HomeState> {
       Map<String, int> counts = {'playstation': 0, 'steam': 0, 'nintendo': 0, 'epic': 0};
 
       for (final g in games) {
-        final val = (g.estimatedValue ?? g.purchasePrice ?? 0.0);
+        final val = g.activeMarketValue ?? 0.0;
         total += val;
         
         String group = 'steam'; // fallback

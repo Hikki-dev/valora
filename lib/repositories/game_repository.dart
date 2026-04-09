@@ -11,9 +11,6 @@ final allGamesProvider = FutureProvider<List<Game>>((ref) async {
   return ref.read(gameRepositoryProvider).getGames();
 });
 
-
-
-
 class GameRepository {
   final SupabaseClient _client;
 
@@ -21,7 +18,7 @@ class GameRepository {
 
   Future<List<Game>> getGames() async {
     final response = await _client
-        .from('games')
+        .from('games_with_valuations')
         .select()
         .order('added_at', ascending: false);
     
@@ -32,7 +29,7 @@ class GameRepository {
 
   Future<Game?> getGameById(String id) async {
     final response = await _client
-        .from('games')
+        .from('games_with_valuations')
         .select()
         .eq('id', id)
         .maybeSingle();
@@ -42,34 +39,103 @@ class GameRepository {
   }
 
   Future<void> addGame(Game game) async {
+    // Check for duplicates locally first
+    if (game.externalId != null) {
+      final existingIds = await _getExistingExternalIds(game.userId, game.platform);
+      if (existingIds.contains(game.externalId)) return;
+    }
+
+    await _ensureCollection(game.collectionId, game.userId, game.platform);
+    await _client.from('games').insert(game.toJson());
+  }
+
+  Future<void> addGamesBatch(List<Game> games) async {
+    if (games.isEmpty) return;
+    
+    final userId = games.first.userId;
+    final platform = games.first.platform;
+    
+    // Fetch currently tracked games to avoid duplicates
+    final existingIds = await _getExistingExternalIds(userId, platform);
+    
+    // Filter out games that already exist
+    final newGames = games.where((g) => !existingIds.contains(g.externalId)).toList();
+    
+    if (newGames.isEmpty) return;
+
+    await _ensureCollection(games.first.collectionId, userId, platform);
+    
+    // Bulk insert only the new games
+    await _client.from('games').insert(newGames.map((g) => g.toJson()).toList());
+  }
+
+  Future<Map<String, Game>> getExistingGamesByExternalIds(String userId, AppPlatform platform, List<String> externalIds) async {
+    if (externalIds.isEmpty) return {};
+
+    final response = await _client
+        .from('games_with_valuations')
+        .select()
+        .eq('user_id', userId)
+        .eq('platform', platform.value)
+        .inFilter('external_id', externalIds);
+    
+    final Map<String, Game> gameMap = {};
+    for (final json in (response as List<dynamic>)) {
+      final game = Game.fromJson(json as Map<String, dynamic>);
+      if (game.externalId != null) {
+        gameMap[game.externalId!] = game;
+      }
+    }
+    return gameMap;
+  }
+
+  Future<Set<String>> _getExistingExternalIds(String userId, AppPlatform platform) async {
+    final response = await _client
+        .from('games')
+        .select('external_id')
+        .eq('user_id', userId)
+        .eq('platform', platform.value);
+    
+    return (response as List<dynamic>)
+        .map((e) => e['external_id'] as String?)
+        .where((id) => id != null)
+        .cast<String>()
+        .toSet();
+  }
+
+  Future<void> _ensureCollection(String collectionId, String userId, AppPlatform platform) async {
     try {
       await _client.from('collections').upsert({
-        'id': game.collectionId,
-        'user_id': game.userId,
+        'id': collectionId,
+        'user_id': userId,
         'name': 'My Collection',
-        'platform': game.platform.value,
+        'platform': platform.value,
       });
     } catch (e) {
       try {
         await _client.from('collections').upsert({
-          'id': game.collectionId,
-          'user_id': game.userId,
-          'platform': game.platform.value,
+          'id': collectionId,
+          'user_id': userId,
+          'platform': platform.value,
         });
       } catch (innerE) {
          throw Exception('Could not ensure default collection exists. Details: $innerE');
       }
     }
-
-    await _client.from('games').insert(game.toJson());
   }
 
-  /// Writes fetched price data back to the Supabase row.
-  Future<void> updatePriceCache(String gameId, PriceData data) async {
-    await _client.from('games').update({
-      'price_cache': data.toJson(),
-      'price_fetched_at': DateTime.now().toIso8601String(),
-    }).eq('id', gameId);
+  /// Manually update valuation for a game.
+  Future<void> updateValuation(String userId, String gameId, PriceData data) async {
+    await _client.from('valuations').upsert({
+      'game_id': gameId,
+      'user_id': userId,
+      'price_loose': data.loosePrice,
+      'price_complete': data.cibPrice,
+      'price_new': data.newPrice,
+      'price_digital': data.digitalPrice,
+      'source': data.source,
+      'fetched_at': DateTime.now().toIso8601String(),
+    });
   }
 
   Future<void> deleteGame(String id) async {

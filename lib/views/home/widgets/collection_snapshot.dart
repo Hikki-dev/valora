@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../../models/game.dart';
-import '../../../controllers/home_controller.dart';
 import '../../../core/currency_provider.dart';
 
-class CollectionSnapshotWidget extends ConsumerWidget {
+class CollectionSnapshotWidget extends StatelessWidget {
   final List<Game> top10Games;
+  final double totalValuation;
+  final int totalGames;
+  final CurrencyState currency;
 
   const CollectionSnapshotWidget({
     super.key,
     required this.top10Games,
+    required this.totalValuation,
+    required this.totalGames,
+    required this.currency,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(homeControllerProvider);
-    final currency = ref.watch(currencyProvider);
-
+  Widget build(BuildContext context) {
     return Container(
       width: 450,
       padding: const EdgeInsets.all(32),
@@ -58,7 +58,7 @@ class CollectionSnapshotWidget extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            currency.format(state.totalValuation),
+            currency.format(totalValuation),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 56,
@@ -68,7 +68,7 @@ class CollectionSnapshotWidget extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Across ${state.totalGames} unique titles',
+            'Across $totalGames unique titles',
             style: const TextStyle(color: Colors.white54, fontSize: 16),
           ),
           
@@ -95,11 +95,23 @@ class CollectionSnapshotWidget extends ConsumerWidget {
           const SizedBox(height: 24),
           
           // Top 10 list
-          ...top10Games.asMap().entries.map((entry) {
-            final index = entry.key;
-            final game = entry.value;
-            return _buildGameRow(context, ref, game, index + 1, currency);
-          }),
+          if (top10Games.isEmpty)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 40),
+                child: Text('No games found in collection', style: TextStyle(color: Colors.white24)),
+              ),
+            )
+          else
+            ...top10Games.asMap().entries.map((entry) {
+              final index = entry.key;
+              final game = entry.value;
+              return _buildGameRow(context, game, index + 1);
+            }),
+          
+          // Add extra space if the list is short to maintain a premium "card" look
+          if (top10Games.isNotEmpty && top10Games.length < 5)
+            SizedBox(height: (5 - top10Games.length) * 20.0),
           
           const SizedBox(height: 40),
           const Row(
@@ -117,7 +129,7 @@ class CollectionSnapshotWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildGameRow(BuildContext context, WidgetRef ref, Game game, int rank, CurrencyState currency) {
+  Widget _buildGameRow(BuildContext context, Game game, int rank) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -133,11 +145,12 @@ class CollectionSnapshotWidget extends ConsumerWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: (game.coverUrl != null && game.coverUrl!.isNotEmpty)
-                ? CachedNetworkImage(
-                    imageUrl: game.coverUrl!,
+                ? Image.network(
+                    game.coverUrl!,
                     width: 30,
                     height: 40,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(width: 30, height: 40, color: Colors.white10),
                   )
                 : Container(width: 30, height: 40, color: Colors.white10),
           ),

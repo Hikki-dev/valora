@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/auth_controller.dart';
 
 class LoginView extends ConsumerStatefulWidget {
@@ -74,43 +75,46 @@ class _LoginViewState extends ConsumerState<LoginView> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Valora', 
-                style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  color: textColor,
-                  letterSpacing: 2,
-                )
-              ),
-              const SizedBox(height: 8),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: Tween<Offset>(begin: const Offset(0.0, 0.5), end: Offset.zero).animate(animation),
-                      child: child,
-                    ),
-                  );
-                },
-                child: Text(
-                  _isLogin ? 'Welcome back! Sign in to continue.' : 'Create an account to track your collection.', 
-                  key: ValueKey<bool>(_isLogin),
-                  style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 16),
-                  textAlign: TextAlign.center,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 450),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Valora', 
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 52,
+                    fontWeight: FontWeight.w900,
+                    color: textColor,
+                    letterSpacing: -1.5,
+                  )
                 ),
-              ),
-              const SizedBox(height: 48),
-              Container(
-                decoration: BoxDecoration(
-                  color: containerBg,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: borderColor),
+                const SizedBox(height: 8),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(begin: const Offset(0.0, 0.5), end: Offset.zero).animate(animation),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: Text(
+                    _isLogin ? 'Welcome back! Sign in to continue.' : 'Create an account to track your collection.', 
+                    key: ValueKey<bool>(_isLogin),
+                    style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
+                const SizedBox(height: 48),
+                Container(
+                  decoration: BoxDecoration(
+                    color: containerBg,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: borderColor),
+                  ),
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: AnimatedSize(
@@ -268,6 +272,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 ),
               ]
             ],
+            ),
           ),
         ),
       ),

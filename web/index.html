@@ -1,24 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Valora - Premium Game Collection Tracker">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -29,10 +16,118 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>valora</title>
+  <title>Valora</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    body {
+      background-color: #0A0A0F;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    #valora-splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease-out;
+      background-color: #0A0A0F;
+    }
+
+    /* Desktop View */
+    @media (min-width: 769px) {
+      #valora-splash {
+        background-image: url('assets/assets/icon/batman.jpg');
+        background-size: cover;
+        background-position: center;
+      }
+      #valora-splash::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle, transparent 20%, #0A0A0F 100%);
+      }
+    }
+
+    /* Mobile View */
+    @media (max-width: 768px) {
+      #logo-container {
+        width: 150px;
+        height: 150px;
+        background-image: url('assets/assets/icon/Spalsh.webp');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        animation: pulse 2.5s infinite ease-in-out;
+      }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.2)); }
+      50% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 25px rgba(0, 255, 255, 0.6)); }
+      100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.2)); }
+    }
+
+    .shimmer-text {
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-weight: 900;
+      letter-spacing: 12px;
+      margin-top: 24px;
+      font-size: 14px;
+      opacity: 0.6;
+      text-transform: uppercase;
+      z-index: 10;
+    }
+  </style>
 </head>
 <body>
+  <div id="valora-splash">
+    <div id="logo-container"></div>
+    <div class="shimmer-text">Loading Valora</div>
+  </div>
+
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    window.addEventListener('load', function(ev) {
+      // The splash screen is removed by the Flutter app itself or after a timeout
+      // to ensure a smooth transition.
+      const splash = document.getElementById('valora-splash');
+      
+      // Wait for Flutter to be ready
+      window.onload = function() {
+        // Fallback catch in case something locks up
+        setTimeout(() => {
+          if (splash) splash.style.opacity = '0';
+          setTimeout(() => splash?.remove(), 500);
+        }, 8000);
+      };
+    });
+
+    // This custom event is sent from Flutter app.dart after first frame
+    window.addEventListener('flutter-first-frame', function() {
+      const splash = document.getElementById('valora-splash');
+      if (splash) {
+        splash.style.opacity = '0';
+        setTimeout(() => splash.remove(), 500);
+      }
+    });
+
+    // Handle Service Worker updates to ensure everyone is on the latest version
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        // This fires when a new service worker takes control
+        window.location.reload();
+      });
+    }
+  </script>
 </body>
 </html>

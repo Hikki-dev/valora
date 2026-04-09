@@ -690,8 +690,8 @@ class _ValuationCard extends StatelessWidget {
     final source = prices?.source ?? 'Valora';
 
     String updatedLabel = '';
-    if (game.priceFetchedAt != null) {
-      final diff = DateTime.now().difference(game.priceFetchedAt!);
+    if (game.fetchedAt != null) {
+      final diff = DateTime.now().difference(game.fetchedAt!);
       if (diff.inMinutes < 60) {
         updatedLabel = '${diff.inMinutes}m ago';
       } else if (diff.inHours < 24) {

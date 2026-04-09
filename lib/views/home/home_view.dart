@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shimmer/shimmer.dart';
 
 
 import '../../controllers/home_controller.dart';
@@ -29,9 +30,12 @@ class HomeView extends ConsumerWidget {
     final mutedTextColor = isDark ? Colors.white.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.5);
     final cardColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
 
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 900;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
+      appBar: isDesktop ? null : AppBar(
         title: Text('Valora', style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1.5, color: textColor)),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -66,16 +70,16 @@ class HomeView extends ConsumerWidget {
         ),
         child: SafeArea(
           child: state.isLoading 
-              ? Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor)) 
-              : _buildDashboard(context, ref, state, isDark, textColor, mutedTextColor, cardColor),
+              ? _buildSkeleton(context, ref, isDark, isDesktop)
+              : _buildDashboard(context, ref, state, isDark, textColor, mutedTextColor, cardColor, isDesktop),
         ),
       ),
     );
   }
 
-  Widget _buildDashboard(BuildContext context, WidgetRef ref, HomeState state, bool isDark, Color textColor, Color mutedTextColor, Color cardColor) {
+  Widget _buildDashboard(BuildContext context, WidgetRef ref, HomeState state, bool isDark, Color textColor, Color mutedTextColor, Color cardColor, bool isDesktop) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
+      padding: EdgeInsets.all(isDesktop ? 48.0 : 24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -101,10 +105,17 @@ class HomeView extends ConsumerWidget {
                       final top10 = sortedGames.take(10).toList();
 
                       if (context.mounted) {
+                        final state = ref.read(homeControllerProvider);
+                        final currency = ref.read(currencyProvider);
                         final shareService = ShareService();
                         await shareService.shareSnapshot(
                           context, 
-                          CollectionSnapshotWidget(top10Games: top10),
+                          CollectionSnapshotWidget(
+                            top10Games: top10,
+                            totalValuation: state.totalValuation,
+                            totalGames: state.totalGames,
+                            currency: currency,
+                          ),
                         );
                       }
                     },
@@ -268,6 +279,7 @@ class HomeView extends ConsumerWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
+          hoverColor: Theme.of(context).primaryColor.withValues(alpha: 0.05),
           onTap: () {
              context.push('/collections?platform=$filter');
           },
@@ -327,6 +339,37 @@ class HomeView extends ConsumerWidget {
                ],
              ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeleton(BuildContext context, WidgetRef ref, bool isDark, bool isDesktop) {
+    final baseColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
+    final highlightColor = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1);
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(isDesktop ? 48.0 : 24.0),
+      child: Shimmer.fromColors(
+        baseColor: baseColor,
+        highlightColor: highlightColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(width: 150, height: 12, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+            const SizedBox(height: 12),
+            Container(width: 250, height: 48, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8))),
+            const SizedBox(height: 60),
+            Container(width: 120, height: 12, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+            const SizedBox(height: 16),
+            ...List.generate(4, (index) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Container(
+                height: 80,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+              ),
+            )),
+          ],
         ),
       ),
     );
