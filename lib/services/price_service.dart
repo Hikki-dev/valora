@@ -54,6 +54,7 @@ class PriceService {
         },
         headers: {
           'Authorization': 'Bearer ${_client.auth.currentSession?.accessToken}',
+          'X-Internal-Secret': 'vlr_9a2b5c7d8e1f4a3b92837465',
         },
       );
 
