@@ -31,7 +31,7 @@ final searchQueryProvider =
 
 final filteredGamesProvider = FutureProvider.family
     .autoDispose<List<Game>, String?>((ref, platformFilter) async {
-      final allGames = await ref.watch(allGamesProvider.future);
+      final allGames = await ref.watch(libraryStreamProvider.future);
 
 
       final subCategory = ref.watch(selectedSubCategoryProvider);
@@ -369,14 +369,16 @@ class CollectionsView extends ConsumerWidget {
                       itemCount: games.length,
                       itemBuilder: (context, index) {
                         final g = games[index];
-                        return _buildGameCard(
-                          context,
-                          ref,
-                          g,
-                          cardColor,
-                          textColor,
-                          mutedTextColor,
-                        ).animate().fadeIn(duration: 400.ms, delay: (index * 50).ms).slideY(begin: 0.1, end: 0);
+                        return RepaintBoundary(
+                          child: _buildGameCard(
+                            context,
+                            ref,
+                            g,
+                            cardColor,
+                            textColor,
+                            mutedTextColor,
+                          ).animate().fadeIn(duration: 400.ms, delay: (index * 50).ms).slideY(begin: 0.1, end: 0),
+                        );
                       },
                     );
                   },
@@ -420,6 +422,10 @@ class CollectionsView extends ConsumerWidget {
     }
 
     return GestureDetector(
+      onTapDown: (_) {
+        // PREFETCH: Start loading game details before the user lifts their finger
+        ref.read(gameRepositoryProvider).getGameById(game.id);
+      },
       onTap: () => context.push('/game/${game.id}'),
       child: Hero(
         tag: 'game_cover_${game.id}',

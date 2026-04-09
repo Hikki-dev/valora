@@ -1,220 +1,174 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { z } from 'zod'
+import { corsHeaders } from '../_shared/cors.ts'
 import { verifyUser } from '../_shared/auth.ts'
 import { checkRateLimit } from '../_shared/rateLimit.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// Input validation schema — rejects malformed requests before any logic
+const RequestSchema = z.object({
+  gameId:     z.string().uuid('gameId must be a valid UUID'),
+  platform:   z.enum(['ps_disc', 'psn', 'steam', 'epic', 'nintendo']),
+  externalId: z.string().min(1).max(128).regex(
+    /^[a-zA-Z0-9_\-\s:]+$/,
+    'externalId contains invalid characters'
+  ),
+  title:       z.string().min(1).max(200),
+  forceRefresh: z.boolean().optional().default(false),
+})
+
+// Cache TTL by platform (hours)
+const CACHE_TTL: Record<string, number> = {
+  ps_disc:  24,
+  psn:       6,
+  steam:     6,
+  epic:      6,
+  nintendo:  6,
 }
 
-Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
 
   try {
+    // 1. Auth check
     const { user, supabase } = await verifyUser(req)
+
+    // 2. Rate limit check
     await checkRateLimit(supabase, user.id)
 
-    const { gameId, platform, externalId, title, forceRefresh } = await req.json()
-
-    if (!gameId || !platform) {
-        throw new Error('Game ID and platform are required.')
+    // 3. Input validation
+    let body: z.infer<typeof RequestSchema>
+    try {
+      body = RequestSchema.parse(await req.json())
+    } catch (e: any) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: e.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
-    // 1. Check cache first
-    if (!forceRefresh) {
+    // 4. Cache check
+    if (!body.forceRefresh) {
       const { data: cached } = await supabase
         .from('valuations')
         .select('*')
-        .eq('game_id', gameId)
-        .maybeSingle()
+        .eq('game_id', body.gameId)
+        .single()
 
-      const cacheAge = cached?.fetched_at
-        ? (Date.now() - new Date(cached.fetched_at).getTime()) / 1000 / 60 / 60
-        : Infinity
-
-      // TTL: 6h for digital/Steam/Epic/PSN, 24h for physical
-      const isDigital = ['steam', 'epic', 'ps4_digital', 'ps5_digital', 'psn_digital'].includes(platform)
-      const ttlHours = isDigital ? 6 : 24
-
-      if (cached && cacheAge < ttlHours) {
-        console.log(`Using cached value for ${title} (${gameId})`);
-        return new Response(JSON.stringify(cached), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        })
+      if (cached?.fetched_at) {
+        const ageHours =
+          (Date.now() - new Date(cached.fetched_at).getTime()) / 3_600_000
+        if (ageHours < CACHE_TTL[body.platform]) {
+          return new Response(JSON.stringify(cached), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
       }
     }
 
-    console.log(`Fetching fresh price for ${title} (${platform})...`);
+    // 5. Fetch fresh price from appropriate source
+    let priceData: Record<string, any>
 
-    // 2. Fetch fresh price based on platform
-    let priceData: any = {}
-
-    // Normalized Platform grouping
-    const isPhysicalPlayStation = ['ps4_physical', 'ps5_physical', 'playstation_physical'].includes(platform)
-    const isSteam = platform === 'steam'
-    const isNintendoPhysical = ['nintendo', 'nintendo_physical'].includes(platform)
-
-    if (isPhysicalPlayStation || isNintendoPhysical) {
-       if (externalId) {
-          priceData = await fetchPriceCharting(externalId)
-       }
-       
-       // Fallback to eBay if PriceCharting failed or had 0 values
-       if (!priceData.price_complete || priceData.price_complete === 0) {
-          console.log(`Fallback to eBay for ${title}...`);
-          const ebayData = await fetchEbayMarket(title, platform)
-          if (ebayData) {
-            priceData = { ...priceData, ...ebayData }
-          }
-       }
-    } else if (isSteam) {
-      priceData = await fetchSteam(externalId)
+    if (body.platform === 'ps_disc') {
+      priceData = await fetchPriceCharting(body.externalId)
+    } else if (body.platform === 'steam') {
+      priceData = await fetchSteam(body.externalId)
     } else {
-      priceData = await fetchCheapShark(title, platform)
+      priceData = await fetchCheapShark(body.title, body.platform)
     }
 
-    // 3. Upsert into DB
+    // 6. Upsert to DB and return
     const { data: valuation, error: upsertError } = await supabase
       .from('valuations')
-      .upsert({
-        game_id: gameId,
-        user_id: user.id,
-        ...priceData,
-        fetched_at: new Date().toISOString(),
-      }, { onConflict: 'game_id' })
+      .upsert(
+        { game_id: body.gameId, user_id: user.id, ...priceData, fetched_at: new Date().toISOString() },
+        { onConflict: 'game_id' }
+      )
       .select()
       .single()
 
     if (upsertError) throw upsertError
 
     return new Response(JSON.stringify(valuation), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 
   } catch (err: any) {
-    console.error('fetch-price error:', err.message)
-    const status = err.message.includes('Unauthorized') ? 401
-      : err.message.includes('Rate limit') ? 429 : 500
+    const status =
+      err.message.includes('Unauthorized') ? 401 :
+      err.message.includes('Rate limit')   ? 429 :
+      err.message.includes('Invalid input') ? 400 : 500
 
-    return new Response(JSON.stringify({ error: err.message }), {
-      status,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    })
+    return new Response(
+      JSON.stringify({ error: err.message }),
+      { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
   }
 })
 
+// ── Price source implementations ──────────────────────────────────────────────
+
 async function fetchPriceCharting(externalId: string) {
-  const key = Deno.env.get('PRICE_CHARTING_TOKEN') || Deno.env.get('PRICECHARTING_API_KEY')
-  if (!key) throw new Error('PriceCharting API key not configured.')
-  
+  // Uses the public demo token for low-volume personal use
+  const token = Deno.env.get('PRICE_CHARTING_TOKEN') ??
+    'c0b53bce27c1bdab90b1605249e600dc43dfd1d5'
+
   const res = await fetch(
-    `https://www.pricecharting.com/api/product?id=${externalId}&t=${key}`
+    `https://www.pricecharting.com/api/product?id=${encodeURIComponent(externalId)}&t=${token}`,
+    { headers: { 'User-Agent': 'Valora/1.0' } }
   )
-  if (!res.ok) throw new Error(`PriceCharting API error: ${res.statusText}`)
-  
+  if (!res.ok) throw new Error(`PriceCharting error: ${res.status}`)
   const d = await res.json()
+
   return {
-    price_loose: (d['loose-price'] ?? 0) / 100,
-    price_complete: (d['cib-price'] ?? 0) / 100,
-    price_new: (d['new-price'] ?? 0) / 100,
-    price_digital: null,
-    source: 'pricecharting',
-    currency: 'USD',
-    cover_url: d['image-url'] ?? null,
+    price_loose:    (d['loose-price']   ?? 0) / 100,
+    price_complete: (d['cib-price']     ?? 0) / 100,
+    price_new:      (d['new-price']     ?? 0) / 100,
+    price_digital:  null,
+    source:         'pricecharting',
+    currency:       'USD',
   }
 }
 
 async function fetchSteam(appId: string) {
-  if (!appId) throw new Error('Steam AppID is required for Steam prices.')
   const res = await fetch(
-    `https://store.steampowered.com/api/appdetails?appids=${appId}&cc=US&l=english`
+    `https://store.steampowered.com/api/appdetails?appids=${encodeURIComponent(appId)}&cc=US&l=english`
   )
-  if (!res.ok) throw new Error(`Steam API error: ${res.statusText}`)
-  
-  const d = await res.json()
-  const app = d[appId]?.data
+  if (!res.ok) throw new Error(`Steam API error: ${res.status}`)
+  const data = await res.json()
+  const app = data[appId]?.data
+
   return {
-    price_loose: null,
+    price_loose:    null,
     price_complete: null,
-    price_new: null,
-    price_digital: app?.price_overview ? app.price_overview.final / 100 : 0,
-    source: 'steam',
-    currency: 'USD',
-    cover_url: app?.header_image || app?.capsule_imageV5 || null,
+    price_new:      null,
+    price_digital:  app?.price_overview?.final
+      ? app.price_overview.final / 100
+      : 0,
+    source:         'steam',
+    currency:       'USD',
   }
 }
 
 async function fetchCheapShark(title: string, platform: string) {
-  // ... existing implementation ...
-  const searchRes = await fetch(
-    `https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(title)}&limit=1`
+  const res = await fetch(
+    `https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(title)}&limit=5`
   )
-  if (!searchRes.ok) throw new Error(`CheapShark search error: ${searchRes.statusText}`)
-  
-  const games = await searchRes.json()
-  const game = games?.[0]
-  if (!game) return { price_digital: 0, source: 'cheapshark' }
+  if (!res.ok) throw new Error(`CheapShark error: ${res.status}`)
+  const games = await res.json()
 
-  const detailRes = await fetch(`https://www.cheapshark.com/api/1.0/games?id=${game.gameID}`)
-  const details = await detailRes.json()
-  const deals = details.deals || []
-  let lowestCurrent = deals.length > 0 ? Math.min(...deals.map((d: any) => parseFloat(d.price))) : parseFloat(game.cheapest || '0')
+  // Find best price match across deals
+  const game = games?.[0]
+  const price = game?.cheapestPriceEver
+    ? parseFloat(game.cheapestPriceEver)
+    : 0
 
   return {
-    price_loose: null,
+    price_loose:    null,
     price_complete: null,
-    price_new: null,
-    price_digital: lowestCurrent,
-    source: 'cheapshark',
-    currency: 'USD',
-    cover_url: game.thumb ?? null,
-  }
-}
-
-async function fetchEbayMarket(title: string, platform: string) {
-  try {
-    const cleanTitle = title.replace(/\(.*?\)/g, '').replace(/['":-]/g, ' ').replace(/\s+/g, ' ').trim()
-    const platformLabel = platform.includes('ps5') ? 'PS5' : platform.includes('ps4') ? 'PS4' : platform.includes('nintendo') ? 'Nintendo' : ''
-    const query = encodeURIComponent(`${cleanTitle} ${platformLabel} Sold`)
-    const url = `https://www.ebay.com/sch/i.html?_nkw=${query}&LH_Sold=1&LH_Complete=1`
-
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
-    })
-    if (!res.ok) return null
-    
-    const html = await res.text()
-    
-    // Simple regex to extract prices (porting the logic from Dart)
-    const priceRegex = /(?:s-item__price|s-card__price)[^>]*>\s*<span class="positive">\s*(?:[A-Z]+\s*)?\$?([\d,]+\.\d{2})/g
-    const prices: number[] = []
-    let match
-    while ((match = priceRegex.exec(html)) !== null && prices.length < 10) {
-      prices.push(parseFloat(match[1].replace(/,/g, '')))
-    }
-
-    if (prices.length === 0) return null
-
-    // Average minus outliers
-    prices.sort((a, b) => a - b)
-    let avg = 0
-    if (prices.length >= 5) {
-      const sub = prices.slice(1, -1)
-      avg = sub.reduce((a, b) => a + b, 0) / sub.length
-    } else {
-      avg = prices.reduce((a, b) => a + b, 0) / prices.length
-    }
-
-    return {
-      price_loose: avg * 0.8,
-      price_complete: avg,
-      price_new: avg * 1.5,
-      source: 'eBay (Market Avg)',
-      currency: 'USD'
-    }
-  } catch (e) {
-    console.error('eBay fetch error:', e)
-    return null
+    price_new:      null,
+    price_digital:  price,
+    source:         'cheapshark',
+    currency:       'USD',
   }
 }

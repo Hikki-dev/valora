@@ -15,6 +15,10 @@ import '../../models/game.dart';
 import '../../repositories/game_repository.dart';
 import '../../services/share_service.dart';
 import 'widgets/collection_snapshot.dart';
+import 'widgets/valuation_chart.dart';
+import '../onboarding/onboarding_panel.dart';
+import '../onboarding/onboarding_content.dart';
+import '../../controllers/onboarding_controller.dart';
 
 
 
@@ -58,21 +62,46 @@ class HomeView extends ConsumerWidget {
           ),
         ],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark 
-                ? [const Color(0xFF14141A), const Color(0xFF0A0A0F)]
-                : [const Color(0xFFFFFFFF), const Color(0xFFF0F0F5)],
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isDark 
+                    ? [const Color(0xFF14141A), const Color(0xFF0A0A0F)]
+                    : [const Color(0xFFFFFFFF), const Color(0xFFF0F0F5)],
+              ),
+            ),
+            child: SafeArea(
+              child: isLoading 
+                  ? _buildSkeleton(context, ref, isDark, isDesktop)
+                  : _buildDashboard(context, ref, isDark, textColor, mutedTextColor, cardColor, isDesktop),
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: isLoading 
-              ? _buildSkeleton(context, ref, isDark, isDesktop)
-              : _buildDashboard(context, ref, isDark, textColor, mutedTextColor, cardColor, isDesktop),
-        ),
+          // ONBOARDING PANEL (SLIDING FROM RIGHT)
+          Consumer(
+            builder: (context, ref, _) {
+              final onboardingState = ref.watch(onboardingControllerProvider);
+              if (onboardingState.shouldShow) {
+                // Determine what content to show
+                final contents = onboardingState.isFull 
+                  ? OnboardingContent.features 
+                  : OnboardingContent.changelog;
+
+                return Align(
+                  alignment: Alignment.centerRight,
+                  child: OnboardingPanel(contents: contents)
+                      .animate()
+                      .slideX(begin: 1, end: 0, duration: 400.ms, curve: Curves.easeOutCubic)
+                      .fadeIn(),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
       ),
     );
   }
@@ -188,6 +217,16 @@ class HomeView extends ConsumerWidget {
                ],
             ),
           ),
+          const SizedBox(height: 12),
+          Consumer(
+            builder: (context, ref, _) {
+              final state = ref.watch(homeControllerProvider);
+              return ValuationChart(
+                history: state.valueHistory,
+                hidePricing: state.hidePricing,
+              );
+            },
+          ),
           const SizedBox(height: 40),
           
           Row(
@@ -214,19 +253,29 @@ class HomeView extends ConsumerWidget {
              context, 
              ref,
              title: 'PlayStation', 
-             filter: 'playstation', 
+             filter: 'ps_disc', 
              iconWidget: const FaIcon(FontAwesomeIcons.playstation, color: Colors.blueAccent, size: 28),
-             iconBgColor: const Color(0xFF0D47A1), 
+             iconBgColor: AppTheme.surface2, 
              cardColor: cardColor, 
              textColor: textColor
           ).animate().fadeIn(duration: 400.ms, delay: 100.ms).slideY(begin: 0.2, end: 0),
           _buildCollectionListItem(
              context, 
              ref,
+             title: 'PSN Digital', 
+             filter: 'psn', 
+             iconWidget: const FaIcon(FontAwesomeIcons.playstation, color: Colors.cyanAccent, size: 28),
+             iconBgColor: AppTheme.surface2, 
+             cardColor: cardColor, 
+             textColor: textColor
+          ).animate().fadeIn(duration: 400.ms, delay: 150.ms).slideY(begin: 0.2, end: 0),
+          _buildCollectionListItem(
+             context, 
+             ref,
              title: 'Steam', 
              filter: 'steam', 
              iconWidget: const FaIcon(FontAwesomeIcons.steam, color: Colors.white, size: 28),
-             iconBgColor: const Color(0xFF171A21), 
+             iconBgColor: AppTheme.surface2, 
              cardColor: cardColor, 
              textColor: textColor
           ).animate().fadeIn(duration: 400.ms, delay: 200.ms).slideY(begin: 0.2, end: 0),
@@ -236,9 +285,7 @@ class HomeView extends ConsumerWidget {
              title: 'Epic Games', 
              filter: 'epic', 
              iconWidget: const Icon(Icons.gamepad, color: Colors.white, size: 28),
-
-
-             iconBgColor: const Color(0xFF000000), 
+             iconBgColor: AppTheme.surface2, 
              cardColor: cardColor, 
              textColor: textColor
           ).animate().fadeIn(duration: 400.ms, delay: 300.ms).slideY(begin: 0.2, end: 0),
@@ -248,9 +295,7 @@ class HomeView extends ConsumerWidget {
              title: 'Nintendo', 
              filter: 'nintendo', 
              iconWidget: const Icon(Icons.videogame_asset, color: Colors.white, size: 28),
-
-
-             iconBgColor: const Color(0xFFE60012), 
+             iconBgColor: AppTheme.surface2, 
              cardColor: cardColor, 
              textColor: textColor
           ).animate().fadeIn(duration: 400.ms, delay: 400.ms).slideY(begin: 0.2, end: 0),

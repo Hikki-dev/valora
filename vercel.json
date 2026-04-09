@@ -1,7 +1,37 @@
 {
   "version": 2,
-  "public": true,
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://store.steampowered.com https://www.cheapshark.com https://www.pricecharting.com; img-src 'self' data: blob: https://cdn.akamai.steamstatic.com https://*.playstation.com https://*.nintendo.com https://*.pricecharting.com https://*.epicgames.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'"
+        }
+      ]
+    }
   ]
 }

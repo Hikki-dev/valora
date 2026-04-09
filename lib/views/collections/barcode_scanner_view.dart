@@ -60,41 +60,49 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
   Widget _buildOverlay(BuildContext context) {
     return Column(
       children: [
-        Expanded(child: Container(color: Colors.black.withValues(alpha: 0.5))),
+        Expanded(child: Container(color: Colors.black.withValues(alpha: 0.7))),
         Row(
           children: [
-            Expanded(child: Container(color: Colors.black.withValues(alpha: 0.5))),
+            Expanded(child: Container(color: Colors.black.withValues(alpha: 0.7))),
             Container(
               width: 280,
               height: 180,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.cyanAccent, width: 2),
-                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.amber, width: 3),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.amber.withValues(alpha: 0.2),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
             ),
-            Expanded(child: Container(color: Colors.black.withValues(alpha: 0.5))),
+            Expanded(child: Container(color: Colors.black.withValues(alpha: 0.7))),
           ],
         ),
         Expanded(
           child: Container(
-            color: Colors.black.withValues(alpha: 0.5),
+            color: Colors.black.withValues(alpha: 0.7),
             width: double.infinity,
             child: const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'ALIGN BARCODE',
+                    'SCAN BARCODE',
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.amber,
+                        fontFamily: 'Syne',
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2,
-                        fontSize: 16),
+                        fontSize: 20),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 12),
                   Text(
-                    'Scanning physical discs...',
-                    style: TextStyle(color: Colors.white38, fontSize: 13),
+                    'Sony SIE prefix 71171 detected automatically',
+                    style: TextStyle(color: Colors.white54, fontSize: 13),
                   ),
                 ],
               ),

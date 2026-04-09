@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ThemeNotifier extends Notifier<ThemeMode> {
@@ -16,39 +15,48 @@ final themeProvider = NotifierProvider<ThemeNotifier, ThemeMode>(() {
 });
 
 class AppTheme {
-  // Brand Colors - Liquid Glass Palette
-  static const Color accentViolet = Color(0xFF8B5CF6);
-  static const Color accentEmerald = Color(0xFF10B981);
-  static const Color darkObsidian = Color(0xFF0A0A0F);
-  static const Color darkCard = Color(0xFF14141A);
-  static const Color lightScaffold = Color(0xFFF8FAFC);
-  static const Color lightCard = Colors.white;
+  // Brand Colors - Audit Specification
+  static const Color surface0 = Color(0xFF09090B);
+  static const Color surface1 = Color(0xFF111113);
+  static const Color surface2 = Color(0xFF1E1E22);
+  static const Color accentAmber = Color(0xFFF5A623);
+  
+  static const Color gainGreen = Color(0xFF4ADE80);
+  static const Color lossRed = Color(0xFFF87171);
+  
+  static const Color textPrimary = Color(0xFFFAFAF9);
+  static const Color textSecondary = Color(0xFFA1A1AA);
+  static const Color textTertiary = Color(0xFF52525B);
 
   static ThemeData get darkTheme {
     final base = ThemeData.dark();
     return base.copyWith(
-      scaffoldBackgroundColor: darkObsidian,
-      primaryColor: accentViolet,
+      scaffoldBackgroundColor: surface0,
+      primaryColor: accentAmber,
       colorScheme: const ColorScheme.dark(
-        primary: accentViolet,
-        secondary: accentEmerald,
-        surface: darkCard,
-        surfaceContainer: Color(0xFF1A1A24),
+        primary: accentAmber,
+        secondary: accentAmber,
+        surface: surface1,
+        surfaceContainer: surface2,
       ),
-      hoverColor: accentViolet.withValues(alpha: 0.1),
+      hoverColor: accentAmber.withValues(alpha: 0.1),
       cardTheme: CardThemeData(
-        color: darkCard,
+        color: surface1,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      textTheme: GoogleFonts.plusJakartaSansTextTheme(base.textTheme).copyWith(
-        displayLarge: GoogleFonts.syne(fontWeight: FontWeight.w800),
-        displayMedium: GoogleFonts.syne(fontWeight: FontWeight.w800),
-        displaySmall: GoogleFonts.syne(fontWeight: FontWeight.w800),
-        headlineLarge: GoogleFonts.syne(fontWeight: FontWeight.w700),
-        headlineMedium: GoogleFonts.syne(fontWeight: FontWeight.w700),
-        headlineSmall: GoogleFonts.syne(fontWeight: FontWeight.w700),
-        titleLarge: GoogleFonts.syne(fontWeight: FontWeight.w700),
+      textTheme: base.textTheme.apply(
+        fontFamily: 'PlusJakartaSans',
+        bodyColor: textPrimary,
+        displayColor: textPrimary,
+      ).copyWith(
+        displayLarge: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: textPrimary),
+        displayMedium: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: textPrimary),
+        displaySmall: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: textPrimary),
+        headlineLarge: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: textPrimary),
+        headlineMedium: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: textPrimary),
+        headlineSmall: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: textPrimary),
+        titleLarge: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: textPrimary),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -61,21 +69,25 @@ class AppTheme {
   static ThemeData get lightTheme {
     final base = ThemeData.light();
     return base.copyWith(
-      scaffoldBackgroundColor: lightScaffold,
-      primaryColor: accentViolet,
-      colorScheme: const ColorScheme.light(
-        primary: accentViolet,
-        secondary: accentEmerald,
-        surface: lightCard,
+      scaffoldBackgroundColor: Colors.white,
+      primaryColor: accentAmber,
+      colorScheme: ColorScheme.light(
+        primary: accentAmber,
+        secondary: accentAmber,
+        surface: Colors.grey.shade50,
       ),
-      textTheme: GoogleFonts.plusJakartaSansTextTheme(base.textTheme).copyWith(
-        displayLarge: GoogleFonts.syne(fontWeight: FontWeight.w800),
-        displayMedium: GoogleFonts.syne(fontWeight: FontWeight.w800),
-        displaySmall: GoogleFonts.syne(fontWeight: FontWeight.w800),
-        headlineLarge: GoogleFonts.syne(fontWeight: FontWeight.w700),
-        headlineMedium: GoogleFonts.syne(fontWeight: FontWeight.w700),
-        headlineSmall: GoogleFonts.syne(fontWeight: FontWeight.w700),
-        titleLarge: GoogleFonts.syne(fontWeight: FontWeight.w700),
+      textTheme: base.textTheme.apply(
+        fontFamily: 'PlusJakartaSans',
+        bodyColor: Colors.black87,
+        displayColor: Colors.black87,
+      ).copyWith(
+        displayLarge: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: Colors.black87),
+        displayMedium: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: Colors.black87),
+        displaySmall: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: Colors.black87),
+        headlineLarge: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.black87),
+        headlineMedium: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.black87),
+        headlineSmall: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.black87),
+        titleLarge: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.black87),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,

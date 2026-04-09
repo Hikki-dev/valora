@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../controllers/auth_controller.dart';
 
 class LoginView extends ConsumerStatefulWidget {
@@ -82,7 +82,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
               children: [
                 Text(
                   'Valora', 
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(
+                    fontFamily: 'Syne',
                     fontSize: 52,
                     fontWeight: FontWeight.w900,
                     color: textColor,
@@ -178,7 +179,17 @@ class _LoginViewState extends ConsumerState<LoginView> {
                         ],
                         const SizedBox(height: 24),
                         if (authState.isLoading)
-                          Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor))
+                          Shimmer.fromColors(
+                            baseColor: textColor.withValues(alpha: 0.1),
+                            highlightColor: textColor.withValues(alpha: 0.2),
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          )
                         else
                           ElevatedButton(
                             onPressed: _submit,

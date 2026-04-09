@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../repositories/game_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomeState {
   final bool isLoading;
@@ -7,6 +8,7 @@ class HomeState {
   final int totalGames;
   final bool hidePricing;
   final Map<String, PlatformStat> platformStats;
+  final List<ValueSnapshot> valueHistory;
   final String? errorMessage;
 
   HomeState({
@@ -15,6 +17,7 @@ class HomeState {
     required this.totalGames,
     required this.hidePricing,
     required this.platformStats,
+    this.valueHistory = const [],
     this.errorMessage,
   });
 
@@ -24,6 +27,7 @@ class HomeState {
         totalGames: 0,
         hidePricing: false,
         platformStats: <String, PlatformStat>{},
+        valueHistory: [],
       );
 
   HomeState copyWith({
@@ -32,6 +36,7 @@ class HomeState {
     int? totalGames,
     bool? hidePricing,
     Map<String, PlatformStat>? platformStats,
+    List<ValueSnapshot>? valueHistory,
     String? errorMessage,
   }) {
     return HomeState(
@@ -40,6 +45,7 @@ class HomeState {
       totalGames: totalGames ?? this.totalGames,
       hidePricing: hidePricing ?? this.hidePricing,
       platformStats: platformStats ?? this.platformStats,
+      valueHistory: valueHistory ?? this.valueHistory,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -51,29 +57,33 @@ class PlatformStat {
   const PlatformStat(this.count, this.value);
 }
 
+class ValueSnapshot {
+  final DateTime date;
+  final double totalValue;
+  ValueSnapshot(this.date, this.totalValue);
+}
+
 final gameStatsProvider = Provider<HomeState>((ref) {
-  final gamesAsync = ref.watch(allGamesProvider);
+  final gamesAsync = ref.watch(libraryStreamProvider);
   return gamesAsync.when(
     data: (games) {
       double total = 0.0;
-      Map<String, double> values = {'playstation': 0, 'steam': 0, 'nintendo': 0, 'epic': 0};
-      Map<String, int> counts = {'playstation': 0, 'steam': 0, 'nintendo': 0, 'epic': 0};
+      Map<String, double> values = {'ps_disc': 0, 'psn': 0, 'steam': 0, 'nintendo': 0, 'epic': 0};
+      Map<String, int> counts = {'ps_disc': 0, 'psn': 0, 'steam': 0, 'nintendo': 0, 'epic': 0};
 
       for (final g in games) {
         final val = g.activeMarketValue ?? 0.0;
         total += val;
         
-        String group = 'steam';
-        if (g.platform.value.startsWith('ps')) {
-          group = 'playstation';
-        } else if (g.platform.value == 'nintendo') {
-          group = 'nintendo';
-        } else if (g.platform.value == 'epic') {
-          group = 'epic';
-        }
+        // Map granular internal platform values to dashboard summary categories
+        String group = g.platform.value;
+        if (group == 'ps4_physical' || group == 'ps5_physical') group = 'ps_disc';
+        if (group == 'ps4_digital' || group == 'ps5_digital') group = 'psn';
         
-        values[group] = (values[group] ?? 0.0) + val;
-        counts[group] = (counts[group] ?? 0) + 1;
+        if (values.containsKey(group)) {
+          values[group] = (values[group] ?? 0.0) + val;
+          counts[group] = (counts[group] ?? 0) + 1;
+        }
       }
 
       final stats = values.map((key, value) => MapEntry(key, PlatformStat(counts[key]!, value)));
@@ -82,7 +92,7 @@ final gameStatsProvider = Provider<HomeState>((ref) {
         isLoading: false,
         totalValuation: total,
         totalGames: games.length,
-        hidePricing: false, // Default, will be overridden by controller
+        hidePricing: false,
         platformStats: stats,
       );
     },
@@ -102,9 +112,27 @@ class HomeController extends Notifier<HomeState> {
   @override
   HomeState build() {
     final stats = ref.watch(gameStatsProvider);
-    // Persist local UI state like hidePricing
-    // We can use a separate provider for hidePricing too for better optimization
+    _fetchHistory();
     return stats.copyWith(hidePricing: stateOrNull?.hidePricing ?? false);
+  }
+
+  Future<void> _fetchHistory() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('value_snapshots')
+          .select()
+          .order('snapped_at', ascending: true)
+          .limit(30);
+      
+      final history = (response as List).map((e) => ValueSnapshot(
+        DateTime.parse(e['snapped_at'] as String),
+        (e['total_value'] as num).toDouble(),
+      )).toList();
+
+      state = state.copyWith(valueHistory: history);
+    } catch (_) {
+      // Fail silently for history
+    }
   }
 
   void togglePricingVisibility() {

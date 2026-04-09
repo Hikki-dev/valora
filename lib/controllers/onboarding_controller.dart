@@ -14,6 +14,9 @@ class OnboardingState {
 
   OnboardingState({required this.type, this.lastSeenCount = 0});
 
+  bool get shouldShow => type != OnboardingType.none;
+  bool get isFull => type == OnboardingType.full;
+
   static OnboardingState none() => OnboardingState(type: OnboardingType.none);
 }
 

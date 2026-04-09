@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,18 +7,24 @@ import 'app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // SECURE: Values injected at build time, not bundled as files
+  const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+
+  // Validate at startup
+  if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
+    debugPrint('❌ Startup Error: Missing build-time env vars.');
+    debugPrint('Run with: flutter run --dart-define-from-file=.env.build');
+  }
+
   try {
-    // Load environment variables
-    await dotenv.load(fileName: ".env");
-    
     // Initialize Supabase
     await Supabase.initialize(
-      url: dotenv.env['SUPABASE_URL'] ?? "",
-      anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? "",
+      url: supabaseUrl,
+      anonKey: supabaseAnonKey,
     );
   } catch (e) {
     debugPrint("Startup Error: $e");
-    // We still call runApp so the app doesn't just 'disappear' with a white screen
   }
 
   runApp(const ProviderScope(child: ValoraApp()));

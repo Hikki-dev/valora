@@ -1,4 +1,12 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { corsHeaders } from '../_shared/cors.ts'
 
-// Keep-warm function called by pg_cron
-Deno.serve(() => new Response('ok', { status: 200 }))
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  return new Response(
+    JSON.stringify({ status: 'up', timestamp: new Date().toISOString() }),
+    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  )
+})

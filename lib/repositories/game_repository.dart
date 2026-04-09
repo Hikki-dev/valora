@@ -141,4 +141,18 @@ class GameRepository {
   Future<void> deleteGame(String id) async {
     await _client.from('games').delete().eq('id', id);
   }
+
+  Stream<List<Game>> getGamesStream() {
+    return _client
+        .from('games_with_valuations')
+        .stream(primaryKey: ['id'])
+        .order('added_at', ascending: false)
+        .map((response) => response
+            .map((e) => Game.fromJson(e))
+            .toList());
+  }
 }
+
+final libraryStreamProvider = StreamProvider<List<Game>>((ref) {
+  return ref.watch(gameRepositoryProvider).getGamesStream();
+});

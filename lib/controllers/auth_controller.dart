@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io' show Platform;
 
@@ -49,8 +48,8 @@ class AuthController extends Notifier<AsyncValue<User?>> {
         );
       } else {
         // Mobile flow: ID Token (Seamless/Native)
-        final webClientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
-        final iosClientId = dotenv.env['GOOGLE_IOS_CLIENT_ID'];
+        final webClientId = const String.fromEnvironment('GOOGLE_WEB_CLIENT_ID');
+        final iosClientId = const String.fromEnvironment('GOOGLE_IOS_CLIENT_ID');
         
         final GoogleSignIn googleSignIn = GoogleSignIn(
           clientId: Platform.isIOS ? iosClientId : null, // Handled automatically on Android

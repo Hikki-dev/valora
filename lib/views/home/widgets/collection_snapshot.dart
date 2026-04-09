@@ -18,109 +18,111 @@ class CollectionSnapshotWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 450,
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0A0A0F),
-        borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3), width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.cyanAccent.withValues(alpha: 0.1),
-            blurRadius: 40,
-            spreadRadius: 10,
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'VALORA',
-            style: TextStyle(
-              color: Colors.cyanAccent,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 10,
-              fontSize: 18,
+    return SingleChildScrollView(
+      child: Container(
+        width: 450,
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0A0A0F),
+          borderRadius: BorderRadius.circular(40),
+          border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3), width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.cyanAccent.withValues(alpha: 0.1),
+              blurRadius: 40,
+              spreadRadius: 10,
             ),
-          ),
-          const SizedBox(height: 32),
-          const Text(
-            'TOTAL COLLECTION VALUE',
-            style: TextStyle(
-              color: Colors.white38,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 2,
-              fontSize: 12,
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'VALORA',
+              style: TextStyle(
+                color: Colors.cyanAccent,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 10,
+                fontSize: 18,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            currency.format(totalValuation),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 56,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -2,
+            const SizedBox(height: 32),
+            const Text(
+              'TOTAL COLLECTION VALUE',
+              style: TextStyle(
+                color: Colors.white38,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+                fontSize: 12,
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Across $totalGames unique titles',
-            style: const TextStyle(color: Colors.white54, fontSize: 16),
-          ),
-          
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 32),
-            child: Divider(color: Colors.white10),
-          ),
-          
-          const Row(
-            children: [
-              Icon(Icons.diamond_outlined, color: Colors.cyanAccent, size: 20),
-              SizedBox(width: 12),
-              Text(
-                'CROWN JEWELS',
-                style: TextStyle(
-                  color: Colors.cyanAccent,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2,
-                  fontSize: 14,
+            const SizedBox(height: 8),
+            Text(
+              currency.format(totalValuation),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 56,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -2,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Across $totalGames unique titles',
+              style: const TextStyle(color: Colors.white54, fontSize: 16),
+            ),
+            
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 32),
+              child: Divider(color: Colors.white10),
+            ),
+            
+            const Row(
+              children: [
+                Icon(Icons.diamond_outlined, color: Colors.cyanAccent, size: 20),
+                SizedBox(width: 12),
+                Text(
+                  'CROWN JEWELS',
+                  style: TextStyle(
+                    color: Colors.cyanAccent,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 2,
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          
-          // Top 10 list
-          if (top10Games.isEmpty)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 40),
-                child: Text('No games found in collection', style: TextStyle(color: Colors.white24)),
-              ),
-            )
-          else
-            ...top10Games.asMap().entries.map((entry) {
-              final index = entry.key;
-              final game = entry.value;
-              return _buildGameRow(context, game, index + 1);
-            }),
-          
-          // Add extra space if the list is short to maintain a premium "card" look
-          if (top10Games.isNotEmpty && top10Games.length < 5)
-            SizedBox(height: (5 - top10Games.length) * 20.0),
-          
-          const SizedBox(height: 40),
-          const Center(
-            child: Text(
-              'GENERATED BY VALORA',
-              style: TextStyle(color: Colors.white24, fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 2),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+            
+            // Top 10 list
+            if (top10Games.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 40),
+                  child: Text('No games found in collection', style: TextStyle(color: Colors.white24)),
+                ),
+              )
+            else
+              ...top10Games.asMap().entries.map((entry) {
+                final index = entry.key;
+                final game = entry.value;
+                return _buildGameRow(context, game, index + 1);
+              }),
+            
+            // Add extra space if the list is short to maintain a premium "card" look
+            if (top10Games.isNotEmpty && top10Games.length < 5)
+              SizedBox(height: (5 - top10Games.length) * 20.0),
+            
+            const SizedBox(height: 40),
+            const Center(
+              child: Text(
+                'GENERATED BY VALORA',
+                style: TextStyle(color: Colors.white24, fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 2),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
