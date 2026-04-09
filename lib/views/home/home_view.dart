@@ -201,7 +201,7 @@ class HomeView extends ConsumerWidget {
              context, 
              ref,
              state,
-             title: 'PlayStation Discs', 
+             title: 'PlayStation', 
              filter: 'playstation', 
              iconWidget: const FaIcon(FontAwesomeIcons.playstation, color: Colors.blueAccent, size: 28),
              iconBgColor: const Color(0xFF0D47A1), 

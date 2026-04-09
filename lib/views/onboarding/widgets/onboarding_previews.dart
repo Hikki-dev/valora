@@ -55,7 +55,7 @@ class MockSnapshotCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 32),
-          _buildRow('PlayStation Discs', '\$682', Colors.blueAccent),
+          _buildRow('PlayStation', '\$682', Colors.blueAccent),
           const SizedBox(height: 10),
           _buildRow('Steam Library', '\$743', Colors.white70),
           const SizedBox(height: 10),
@@ -242,7 +242,7 @@ class MockPlatformList extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildItem('Playstation Discs', '12 games', '\$682', const Color(0xFF0D47A1), Icons.videogame_asset),
+        _buildItem('PlayStation', '12 games', '\$682', const Color(0xFF0D47A1), Icons.videogame_asset),
         const SizedBox(height: 12),
         _buildItem('Steam', '45 games', '\$743', const Color(0xFF171A21), Icons.laptop),
         const SizedBox(height: 12),

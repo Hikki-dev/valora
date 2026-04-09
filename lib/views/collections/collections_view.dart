@@ -76,7 +76,7 @@ class CollectionsView extends ConsumerWidget {
   const CollectionsView({super.key, this.platformFilter});
 
   String _getPlatformTitle() {
-    if (platformFilter == 'playstation') return 'PlayStation Discs';
+    if (platformFilter == 'playstation') return 'PlayStation';
     if (platformFilter == 'steam') return 'Steam Library';
     if (platformFilter == 'epic') return 'Epic Games';
     if (platformFilter == 'nintendo') return 'Nintendo';
