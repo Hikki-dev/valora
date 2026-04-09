@@ -39,9 +39,15 @@ final filteredGamesProvider = FutureProvider.family
 
       var filtered = allGames.where((g) {
         if (platformFilter != null && platformFilter.isNotEmpty) {
+          final p = g.platform.value;
+          
           if (platformFilter == 'playstation') {
-            if (!g.platform.value.startsWith('ps')) return false;
-          } else if (g.platform.value != platformFilter) {
+            if (!p.startsWith('ps')) return false;
+          } else if (platformFilter == 'ps_disc') {
+            if (p != 'ps4_physical' && p != 'ps5_physical') return false;
+          } else if (platformFilter == 'psn') {
+            if (p != 'ps4_digital' && p != 'ps5_digital') return false;
+          } else if (p != platformFilter) {
             return false;
           }
         }
