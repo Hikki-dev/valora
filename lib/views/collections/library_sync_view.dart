@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../services/library_sync_service.dart';
 import '../../models/game.dart';
@@ -199,9 +200,34 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
                 ],
               ),
               const SizedBox(height: 8),
-              Text(
-                '1. Go to your Steam Profile\n2. Right-click and "Copy Page URL"\n3. Paste it at steamid.io to get your "SteamID64"',
-                style: TextStyle(color: textColor.withValues(alpha: 0.4), fontSize: 12, height: 1.5),
+              RichText(
+                text: TextSpan(
+                  style: TextStyle(color: textColor.withValues(alpha: 0.4), fontSize: 12, height: 1.5),
+                  children: [
+                    const TextSpan(text: '1. Go to your Steam Profile\n2. Right-click and "Copy Page URL"\n3. Paste it at '),
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: GestureDetector(
+                        onTap: () async {
+                          final url = Uri.parse('https://steamid.io');
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url, mode: LaunchMode.externalApplication);
+                          }
+                        },
+                        child: Text(
+                          'steamid.io',
+                          style: TextStyle(
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.blueAccent.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const TextSpan(text: ' to get your "SteamID64"'),
+                  ],
+                ),
               ),
             ],
           ),

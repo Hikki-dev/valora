@@ -59,18 +59,20 @@ class OnboardingController extends Notifier<OnboardingState> {
     debugPrint('[Onboarding] Local Device Last Seen: $localLastSeen');
     debugPrint('[Onboarding] Seen Changelog Items: $lastSeenChangelogCount');
 
-    // Decision Logic:
-    // If supabaseLastSeen is null, it's a completely new user -> Full Intro
-    // If they haven't seen all changelog items -> Changelog
-    
-    if (supabaseLastSeen == null) {
-      debugPrint('[Onboarding] ✅ Decision: FULL INTRO (New Account)');
+    // Decision Logic: Hybrid Approach (Remote + Local)
+    // If BOTH are null, it's a completely new user -> Full Intro
+    // If local says we've seen it, trust local as a fallback for FULL INTRO
+    final hasOnboardedRemotely = supabaseLastSeen != null;
+    final hasOnboardedLocally = localLastSeen != null;
+
+    if (!hasOnboardedRemotely && !hasOnboardedLocally) {
+      debugPrint('[Onboarding] ✅ Decision: FULL INTRO (Syncing/New Account)');
       state = OnboardingState(type: OnboardingType.full);
     } else if (lastSeenChangelogCount < OnboardingContent.changelog.length) {
        debugPrint('[Onboarding] ✅ Decision: CHANGELOG (New items found)');
        state = OnboardingState(type: OnboardingType.changelog, lastSeenCount: lastSeenChangelogCount);
     } else {
-      debugPrint('[Onboarding] 💤 Decision: NONE (Everything seen)');
+      debugPrint('[Onboarding] 💤 Decision: NONE (Already seen remotely or locally)');
       state = OnboardingState.none();
     }
     _hasChecked = true;
