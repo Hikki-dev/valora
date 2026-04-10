@@ -1,7 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:uuid/uuid.dart';
@@ -15,9 +14,11 @@ import '../../core/currency_provider.dart';
 import '../../services/price_service.dart';
 import '../../services/search_alias_service.dart';
 import 'widgets/game_box_3d.dart';
+import 'package:shimmer/shimmer.dart';
 import 'barcode_scanner_view.dart';
 import 'library_sync_view.dart';
 import '../../services/barcode_service.dart';
+import 'dart:async';
 
 
 
@@ -150,11 +151,23 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       // 1. Try Direct Search
       final firstResults = await _fetchCheapShark(cleanQuery);
       
+      final ownedIds = ref.read(libraryStreamProvider).value
+          ?.map((g) => g.externalId)
+          .whereType<String>()
+          .toSet() ?? {};
+
       if (firstResults.isNotEmpty) {
+        firstResults.sort((a, b) {
+          final aOwned = ownedIds.contains(a['gameID']?.toString());
+          final bOwned = ownedIds.contains(b['gameID']?.toString());
+          if (aOwned && !bOwned) return -1;
+          if (!aOwned && bOwned) return 1;
+          return 0;
+        });
+
         if (mounted) {
           setState(() {
             _searchResults = firstResults;
-            // _isSearching = false;
           });
         }
         return;
@@ -166,10 +179,17 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         debugPrint('[Search] No results for "$cleanQuery", trying expanded: "$expandedQuery"');
         final secondResults = await _fetchCheapShark(expandedQuery);
         
+        secondResults.sort((a, b) {
+          final aOwned = ownedIds.contains(a['gameID']?.toString());
+          final bOwned = ownedIds.contains(b['gameID']?.toString());
+          if (aOwned && !bOwned) return -1;
+          if (!aOwned && bOwned) return 1;
+          return 0;
+        });
+
         if (mounted) {
           setState(() {
             _searchResults = secondResults;
-            // _isSearching = false;
             _searchModeLabel = secondResults.isNotEmpty ? 'Results for "$expandedQuery"' : null;
           });
         }
@@ -180,25 +200,24 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       if (mounted) {
         setState(() {
           _searchResults = [];
-          // _isSearching = false;
         });
       }
     } catch (e) {
       debugPrint('[Search] Exception: $e');
-      // if (mounted) setState(() => _isSearching = false);
     }
   }
 
   Future<List<dynamic>> _fetchCheapShark(String title) async {
     try {
-      final url = 'https://www.cheapshark.com/api/1.0/games?title=${Uri.encodeComponent(title)}&limit=15';
-      debugPrint('[Search] Hitting API: $url');
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        return json.decode(response.body) as List<dynamic>;
+      final response = await Supabase.instance.client.functions.invoke(
+        'search-games',
+        body: {'query': title, 'limit': 15},
+      );
+      if (response.status == 200) {
+        return List<dynamic>.from(response.data as List);
       }
     } catch (e) {
-      debugPrint('[Search] Fetch error: $e');
+      debugPrint('[Search] Edge function error: $e');
     }
     return [];
   }
@@ -390,49 +409,45 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       final service = BarcodeService();
       final result = await service.fetchGameByUPC(upc);
       
-      if (result != null && mounted) {
-        setState(() {
-          // _isSearching = false;
-          _selectedGame = {
-            'external': result['title'],
-            'gameID': 'upc_$upc',
-            'thumb': result['thumb'],
-          };
-          _titleController.text = result['title'];
-          _format = 'Physical';
-          _region = 'R1 (USA)';
-          _conditionValue = GameCondition.cib;
-          _inputCurrency = 'USD'; 
-          _priceController.clear();
-          _estimatedValueController.clear();
-          _customImageUrlController.text = result['thumb'];
-          _configuring = true;
-        });
-
-        // Trigger an automatic price scrape if it's a physical disc
-        final tempGame = Game(
-          id: '',
-          collectionId: '',
-          userId: '',
-          title: result['title'],
-          platform: AppPlatform.ps5Physical, // Default for disc scanning
-          condition: GameCondition.cib,
-        );
-        _scrapePhysicalPrice(tempGame);
+        if (mounted) {
+          HapticFeedback.mediumImpact();
+          setState(() {
+            _selectedGame = {
+              'external': result?['title'],
+              'gameID': 'upc_$upc',
+              'thumb': result?['thumb'],
+            };
+            _titleController.text = result?['title'] ?? '';
+            _format = 'Physical';
+            _region = 'R1 (USA)';
+            _conditionValue = GameCondition.cib;
+            _inputCurrency = 'USD'; 
+            _priceController.clear();
+            _estimatedValueController.clear();
+            _customImageUrlController.text = result?['thumb'] ?? '';
+            _configuring = true;
+          });
+          
+          // Trigger an automatic price scrape if it's a physical disc
+          final tempGame = Game(
+            id: '',
+            collectionId: '',
+            userId: '',
+            title: result?['title'] ?? '',
+            platform: AppPlatform.ps5Physical, // Default for disc scanning
+            condition: GameCondition.cib,
+          );
+          unawaited(_scrapePhysicalPrice(tempGame));
+        }
       } else {
         if (mounted) {
-          if (!mounted) return;
-          if (mounted) {
-            if (!mounted) return;
-          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Could not identify game from barcode. Try searching manually.')),
-            );
-          }
+            const SnackBar(content: Text('Could not identify game from barcode. Try searching manually.')),
+          );
         }
       }
     }
-  }
+  
 
   Widget _buildSearchPhase(Color textColor) {
 
@@ -590,21 +605,21 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
               child: const Icon(Icons.sync_alt, color: Colors.white, size: 28),
             ),
             const SizedBox(width: 20),
-            Expanded(
+            const Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'BULK IMPORT',
                     style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 2),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  SizedBox(height: 4),
+                  Text(
                     'Connect your Steam library',
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                   ),
-                  const SizedBox(height: 2),
-                  const Text(
+                  SizedBox(height: 2),
+                  Text(
                     'Import your entire collection in seconds',
                     style: TextStyle(color: Colors.white70, fontSize: 12),
                   ),
@@ -913,12 +928,17 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                         ),
                       ),
                       if (_isScraping)
-                        const Padding(
-                          padding: EdgeInsets.only(right: 16.0),
-                          child: SizedBox(
+                        Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: Shimmer.fromColors(
+                            baseColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                            highlightColor: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                            child: Container(
                               width: 16,
                               height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2)),
+                              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                            ),
+                          ),
                         ),
                     ],
                   ),
@@ -968,17 +988,17 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         ),
         const SizedBox(height: 32),
 
-        _isSaving ? Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor)) : 
         ElevatedButton(
-          onPressed: _saveGame,
+          onPressed: _isSaving ? null : _saveGame,
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).primaryColor,
             foregroundColor: Theme.of(context).colorScheme.surface,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: Text(widget.isWishlistMode ? 'Add to Wishlist' : 'Confirm & Save', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-
+          child: _isSaving 
+            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            : Text(widget.isWishlistMode ? 'Add to Wishlist' : 'Confirm & Save', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         ),
       ],
     );

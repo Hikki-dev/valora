@@ -23,7 +23,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
     final isDark = theme.brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
     final secondaryTextColor = textColor.withValues(alpha: 0.6);
-    final primaryColor = Colors.amber;
+    const primaryColor = Colors.amber;
     
     List<OnboardingContent> contents;
     if (widget.isFull) {

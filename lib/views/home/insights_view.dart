@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../repositories/game_repository.dart';
@@ -38,7 +39,7 @@ class InsightsView extends ConsumerWidget {
         ),
         child: gamesAsync.when(
           data: (games) => _buildContent(context, ref, games, textColor),
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => _buildSkeleton(context, isDark),
           error: (e, _) => Center(child: Text('Error: $e')),
         ),
       ),
@@ -138,5 +139,34 @@ class InsightsView extends ConsumerWidget {
         ],
       ),
     ).animate().fadeIn(delay: (rank * 50).ms).slideX(begin: 0.1, end: 0);
+  }
+
+  Widget _buildSkeleton(BuildContext context, bool isDark) {
+    final baseColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
+    final highlightColor = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 120, 24, 40),
+      child: Shimmer.fromColors(
+        baseColor: baseColor,
+        highlightColor: highlightColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(width: 150, height: 12, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+            const SizedBox(height: 12),
+            Container(width: 250, height: 32, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8))),
+            const SizedBox(height: 24),
+            ...List.generate(5, (index) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Container(
+                height: 84,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+              ),
+            )),
+          ],
+        ),
+      ),
+    );
   }
 }

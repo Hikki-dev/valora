@@ -202,21 +202,34 @@ class HomeView extends ConsumerWidget {
             style: TextStyle(color: mutatedTextColor(textColor), fontSize: 16)
           ),
           const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-               color: Colors.green.withValues(alpha: 0.15),
-               borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-               mainAxisSize: MainAxisSize.min,
-               children: [
-                 const Icon(Icons.star, color: Colors.green, size: 14),
-                 const SizedBox(width: 4),
-                 const Text('+\$42 this week', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 13)),
-               ],
-            ),
-          ),
+          const SizedBox(height: 12),
+          Consumer(builder: (context, ref, _) {
+            final delta = ref.watch(homeControllerProvider.select((s) => s.weeklyDelta));
+            if (delta == 0.0) return const SizedBox.shrink();
+            final isGain = delta >= 0;
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                 color: (isGain ? AppTheme.gainGreen : AppTheme.lossRed).withValues(alpha: 0.15),
+                 borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                 mainAxisSize: MainAxisSize.min,
+                 children: [
+                   Icon(isGain ? Icons.trending_up : Icons.trending_down,
+                       color: isGain ? AppTheme.gainGreen : AppTheme.lossRed, size: 14),
+                   const SizedBox(width: 4),
+                   Text(
+                     '${isGain ? '+' : ''}${ref.watch(currencyProvider).format(delta)} this week',
+                     style: TextStyle(
+                       color: isGain ? AppTheme.gainGreen : AppTheme.lossRed,
+                       fontWeight: FontWeight.bold, fontSize: 13
+                     )
+                   ),
+                 ],
+              ),
+            );
+          }),
           const SizedBox(height: 12),
           Consumer(
             builder: (context, ref, _) {

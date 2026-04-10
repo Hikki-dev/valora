@@ -21,6 +21,16 @@ class HomeState {
     this.errorMessage,
   });
 
+  double get weeklyDelta {
+    if (valueHistory.length < 2) return 0.0;
+    final latest = valueHistory.last.totalValue;
+    // Calculate difference from 7 snapshots ago (or first if less than 7)
+    final weekAgo = valueHistory.length >= 7
+        ? valueHistory[valueHistory.length - 7].totalValue
+        : valueHistory.first.totalValue;
+    return latest - weekAgo;
+  }
+
   factory HomeState.initial() => HomeState(
         isLoading: true,
         totalValuation: 0.0,
@@ -113,7 +123,9 @@ class HomeController extends Notifier<HomeState> {
   HomeState build() {
     final stats = ref.watch(gameStatsProvider);
     _fetchHistory();
-    return stats.copyWith(hidePricing: stateOrNull?.hidePricing ?? false);
+    return stats.copyWith(
+        hidePricing: stateOrNull?.hidePricing ?? false,
+        valueHistory: stateOrNull?.valueHistory ?? []);
   }
 
   Future<void> _fetchHistory() async {

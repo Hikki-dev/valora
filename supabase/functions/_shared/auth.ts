@@ -6,46 +6,17 @@ export async function verifyUser(req: Request) {
     throw new Error('Missing or invalid Authorization header')
   }
 
-  const internalSecret = req.headers.get('X-Internal-Secret')
-  const isInternal = internalSecret === Deno.env.get('VALORA_INTERNAL_KEY')
-
-  // Initialize Supabase client
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_ANON_KEY')!,
-    {
-      global: {
-        headers: { Authorization: authHeader },
-      },
-    }
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user }, error } = await supabase.auth.getUser(token)
 
-  if (!user && !isInternal) {
-    console.error('Auth verification failed:', error?.message ?? 'No user found')
+  if (error || !user) {
     throw new Error(`Unauthorized: ${error?.message ?? 'Invalid session'}`)
   }
 
-  // If we are internal but token failed, we might still need a user_id.
-  // We can extract it from the JWT payload without strictly verifying the signature
-  // if the internal handshake has already proven this request is from our app.
-  let finalUser = user
-  if (!finalUser && isInternal) {
-    try {
-      const token = authHeader.replace('Bearer ', '')
-      const [_header, payload, _sig] = token.split('.')
-      const decodedPayload = JSON.parse(atob(payload))
-      finalUser = { id: decodedPayload.sub } as any
-      console.log('Using internal secret with extracted user_id:', finalUser?.id)
-    } catch (e) {
-      console.error('Failed to extract user_id even with internal secret:', e)
-      throw new Error('Unauthorized: Cannot identify user')
-    }
-  }
-
-  return { user: finalUser!, supabase }
+  return { user, supabase }
 }

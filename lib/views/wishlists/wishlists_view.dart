@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../repositories/wishlist_repository.dart';
@@ -114,7 +115,7 @@ class WishlistsView extends ConsumerWidget {
                         },
                       );
                     },
-                    loading: () => Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor)),
+                    loading: () => _buildSkeleton(context, isDark, isDesktop),
                     error: (err, st) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.red))),
                   ),
                 ),
@@ -306,6 +307,32 @@ class WishlistsView extends ConsumerWidget {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildSkeleton(BuildContext context, bool isDark, bool isDesktop) {
+    final baseColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
+    final highlightColor = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1);
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: isDesktop 
+        ? GridView.builder(
+            padding: const EdgeInsets.all(0),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 24,
+              mainAxisExtent: 160,
+            ),
+            itemCount: 4,
+            itemBuilder: (_, __) => Container(margin: const EdgeInsets.only(bottom: 24), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24))),
+          )
+        : ListView.builder(
+            padding: const EdgeInsets.all(24),
+            itemCount: 6,
+            itemBuilder: (_, __) => Container(margin: const EdgeInsets.only(bottom: 20), height: 160, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24))),
+          ),
     );
   }
 }

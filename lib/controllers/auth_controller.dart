@@ -48,8 +48,8 @@ class AuthController extends Notifier<AsyncValue<User?>> {
         );
       } else {
         // Mobile flow: ID Token (Seamless/Native)
-        final webClientId = const String.fromEnvironment('GOOGLE_WEB_CLIENT_ID');
-        final iosClientId = const String.fromEnvironment('GOOGLE_IOS_CLIENT_ID');
+        const webClientId = String.fromEnvironment('GOOGLE_WEB_CLIENT_ID');
+        const iosClientId = String.fromEnvironment('GOOGLE_IOS_CLIENT_ID');
         
         final GoogleSignIn googleSignIn = GoogleSignIn(
           clientId: Platform.isIOS ? iosClientId : null, // Handled automatically on Android

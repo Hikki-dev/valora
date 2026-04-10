@@ -10,7 +10,7 @@
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="valora">
+  <meta name="apple-mobile-web-app-title" content="Valora">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
@@ -39,51 +39,34 @@
       align-items: center;
       z-index: 9999;
       transition: opacity 0.5s ease-out;
-      background-color: #0A0A0F;
+      background: radial-gradient(circle at center, #1A1A24 0%, #0A0A0F 100%);
     }
 
-    /* Desktop View */
-    @media (min-width: 769px) {
-      #valora-splash {
-        background-image: url('assets/icon/batman.jpg');
-        background-size: cover;
-        background-position: center;
-      }
-      #valora-splash::after {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: radial-gradient(circle, transparent 20%, #0A0A0F 100%);
-      }
-    }
-
-    /* Mobile View */
-    @media (max-width: 768px) {
-      #logo-container {
-        width: 150px;
-        height: 150px;
-        background-image: url('assets/icon/Spalsh.webp');
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        animation: pulse 2.5s infinite ease-in-out;
-      }
+    #logo-container {
+      width: 180px;
+      height: 180px;
+      background-image: url('assets/icon/Spalsh.webp');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      animation: pulse 2.5s infinite ease-in-out;
+      filter: drop-shadow(0 0 15px rgba(245, 166, 35, 0.2));
     }
 
     @keyframes pulse {
-      0% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.2)); }
-      50% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 25px rgba(0, 255, 255, 0.6)); }
-      100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.2)); }
+      0% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(245, 166, 35, 0.1)); }
+      50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 30px rgba(245, 166, 35, 0.4)); }
+      100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(245, 166, 35, 0.1)); }
     }
 
     .shimmer-text {
       color: white;
       font-family: 'Inter', sans-serif;
       font-weight: 900;
-      letter-spacing: 12px;
-      margin-top: 24px;
-      font-size: 14px;
-      opacity: 0.6;
+      letter-spacing: 8px;
+      margin-top: 32px;
+      font-size: 12px;
+      opacity: 0.4;
       text-transform: uppercase;
       z-index: 10;
     }
@@ -92,12 +75,11 @@
 <body>
   <div id="valora-splash">
     <div id="logo-container"></div>
-    <div class="shimmer-text">Loading Valora</div>
+    <div class="shimmer-text">Initializing Collection</div>
   </div>
 
   <script src="flutter_bootstrap.js" async></script>
   <script>
-    // Robust splash removal
     function removeSplash() {
       const splash = document.getElementById('valora-splash');
       if (splash) {
@@ -106,16 +88,13 @@
       }
     }
 
-    // fallback timer: if Flutter takes > 8s, force clear the splash
-    const fallbackTimer = setTimeout(removeSplash, 8000);
+    const fallbackTimer = setTimeout(removeSplash, 10000);
 
-    // This custom event is sent from Flutter app.dart after first frame
     window.addEventListener('flutter-first-frame', function() {
       clearTimeout(fallbackTimer);
       removeSplash();
     });
 
-    // Handle Service Worker updates
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         window.location.reload();

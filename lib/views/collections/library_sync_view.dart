@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../services/library_sync_service.dart';
@@ -152,7 +153,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        FaIcon(FontAwesomeIcons.steam, color: Colors.white, size: 64).animate().scale(delay: 200.ms),
+        const FaIcon(FontAwesomeIcons.steam, color: Colors.white, size: 64).animate().scale(delay: 200.ms),
         const SizedBox(height: 32),
         Text(
           'Sync your Steam library in seconds.',
@@ -189,10 +190,10 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              const Row(
                 children: [
                   Icon(Icons.help_outline, color: Colors.blueAccent, size: 16),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(
                     'How to find your Steam ID?',
                     style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 13),
@@ -245,7 +246,15 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
               elevation: 0,
             ),
             child: _isLoading 
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                ? Shimmer.fromColors(
+                    baseColor: Colors.white.withValues(alpha: 0.2),
+                    highlightColor: Colors.white.withValues(alpha: 0.5),
+                    child: Container(
+                      height: 20,
+                      width: 120,
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                    ),
+                  )
                 : const Text('FIND MY GAMES', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
           ),
         ),
@@ -312,7 +321,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
               if (conflictCount > 0) ...[
                 Row(
                   children: [
-                    Icon(Icons.info_outline, color: Colors.blueAccent, size: 18),
+                    const Icon(Icons.info_outline, color: Colors.blueAccent, size: 18),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -335,7 +344,15 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   child: _isLoading 
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? Shimmer.fromColors(
+                          baseColor: Colors.white.withValues(alpha: 0.2),
+                          highlightColor: Colors.white.withValues(alpha: 0.5),
+                          child: Container(
+                            height: 20,
+                            width: 140,
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                          ),
+                        )
                       : Text(
                           conflictCount > 0 ? 'FINALIZE & IMPORT' : 'SAVE TO COLLECTION',
                           style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1),
@@ -426,8 +443,8 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
                 const SizedBox(height: 12),
                 Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)))),
                 const SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
                     'Which version should we keep?',
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24),
@@ -438,7 +455,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
                   child: Text(
                     'We found "${newGame.title}" in your collection already.',
-                    style: TextStyle(color: Colors.white54, fontSize: 14),
+                    style: const TextStyle(color: Colors.white54, fontSize: 14),
                     textAlign: TextAlign.center,
                   ),
                 ),

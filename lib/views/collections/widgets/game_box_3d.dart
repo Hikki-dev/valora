@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 class GameBox3D extends StatefulWidget {
   final String? coverUrl;
@@ -163,7 +164,11 @@ class _GameBox3DState extends State<GameBox3D> {
       color: const Color(0xFF1E1E2C),
       child: Center(
       child: loading
-          ? const CircularProgressIndicator(strokeWidth: 2, color: Colors.cyanAccent)
+          ? Shimmer.fromColors(
+              baseColor: Colors.white.withValues(alpha: 0.05),
+              highlightColor: Colors.white.withValues(alpha: 0.1),
+              child: Container(color: Colors.white),
+            )
           : Padding(
               padding: const EdgeInsets.all(8.0),
               child: FittedBox(

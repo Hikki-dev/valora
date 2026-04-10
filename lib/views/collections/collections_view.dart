@@ -147,14 +147,14 @@ class CollectionsView extends ConsumerWidget {
                         context.go('/');
                       }
                     },
-                    child: Row(
+                    child: const Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.chevron_left,
                           color: Colors.orangeAccent,
                           size: 24,
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Text(
                           'Back',
                           style: TextStyle(
@@ -168,7 +168,7 @@ class CollectionsView extends ConsumerWidget {
                   ),
                   Text(
                     _getPlatformTitle(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       color: Colors.orangeAccent,
                       fontSize: 16,
@@ -392,7 +392,7 @@ class CollectionsView extends ConsumerWidget {
                   error: (err, st) => Center(
                     child: Text(
                       'Error: $err',
-                      style: TextStyle(color: Colors.redAccent),
+                      style: const TextStyle(color: Colors.redAccent),
                     ),
                   ),
                 ),
@@ -413,19 +413,26 @@ class CollectionsView extends ConsumerWidget {
     Color textColor,
     Color mutedTextColor,
   ) {
-    Color cardBgColor = cardColor;
-    if (game.title.toLowerCase().contains('spider')) {
-      cardBgColor = Colors.red.withValues(alpha: 0.05);
-    } else if (game.title.toLowerCase().contains('horizon') ||
-        game.title.toLowerCase().contains('zelda')) {
-      cardBgColor = Colors.green.withValues(alpha: 0.05);
-    } else if (game.title.toLowerCase().contains('elden') ||
-        game.title.toLowerCase().contains('dark')) {
-      cardBgColor = Colors.purple.withValues(alpha: 0.05);
-    } else if (game.title.toLowerCase().contains('god') ||
-        game.platform.value.startsWith('ps')) {
-      cardBgColor = const Color(0xFF0D47A1).withValues(alpha: 0.2);
+    Color accentColor = cardColor;
+    final platformVal = game.platform.value;
+    
+    if (platformVal.startsWith('ps')) {
+      accentColor = const Color(0xFF00439C); // PlayStation Blue
+    } else if (platformVal.startsWith('nintendo') || platformVal.startsWith('switch')) {
+      accentColor = const Color(0xFFE60012); // Nintendo Red
+    } else if (platformVal == 'steam') {
+      accentColor = const Color(0xFF171A21); // Steam Dark
+    } else if (platformVal == 'epic') {
+      accentColor = const Color(0xFF303030); // Epic Dark
     }
+
+    // Easter egg override
+    if (game.title.toLowerCase().contains('spider-man')) {
+      accentColor = Colors.red.shade900;
+    }
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBgColor = accentColor.withValues(alpha: isDark ? 0.3 : 0.08);
 
     return GestureDetector(
       onTapDown: (_) {

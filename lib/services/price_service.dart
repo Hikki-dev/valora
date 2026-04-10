@@ -54,7 +54,6 @@ class PriceService {
         },
         headers: {
           'Authorization': 'Bearer ${_client.auth.currentSession?.accessToken}',
-          'X-Internal-Secret': 'vlr_9a2b5c7d8e1f4a3b92837465',
         },
       );
 
@@ -100,9 +99,20 @@ class PriceService {
     await fetchPrices(game, force: true);
   }
 
-  /// Bulk refresh for a list of games (optimally handled concurrently)
+  /// Bulk refresh for a list of games (chunked to avoid rate limiting)
   Future<void> fetchPricesBatch(List<Game> games) async {
-    final futures = games.map((g) => fetchPrices(g));
-    await Future.wait(futures);
+    const int chunkSize = 5;
+    for (var i = 0; i < games.length; i += chunkSize) {
+      final end = (i + chunkSize < games.length) ? i + chunkSize : games.length;
+      final chunk = games.sublist(i, end);
+      
+      debugPrint('[PriceService] Batching chunk ${i ~/ chunkSize + 1} (${chunk.length} items)...');
+      await Future.wait(chunk.map((g) => fetchPrices(g)));
+      
+      if (end < games.length) {
+        // Small delay between chunks to let the server breathe
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+    }
   }
 }

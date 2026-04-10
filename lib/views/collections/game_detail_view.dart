@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../models/game.dart';
 import '../../models/price_data.dart';
@@ -48,7 +49,7 @@ class GameDetailView extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: gameAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => _buildSkeleton(context),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (game) {
           if (game == null) {
@@ -228,6 +229,39 @@ class GameDetailView extends ConsumerWidget {
       }
     }
   }
+  
+  Widget _buildSkeleton(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
+    final highlightColor = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1);
+
+    return SingleChildScrollView(
+      child: Shimmer.fromColors(
+        baseColor: baseColor,
+        highlightColor: highlightColor,
+        child: Column(
+          children: [
+            Container(height: 350, color: Colors.white),
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(width: 220, height: 36, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8))),
+                  const SizedBox(height: 12),
+                  Container(width: 140, height: 18, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6))),
+                  const SizedBox(height: 48),
+                  Container(height: 140, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24))),
+                  const SizedBox(height: 24),
+                  Container(height: 110, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24))),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -378,7 +412,7 @@ class _FallbackHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = _gradientForPlatform(game.platform);
+    final colors = gradientForPlatform(game.platform);
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -393,7 +427,7 @@ class _FallbackHero extends StatelessWidget {
     );
   }
 
-  List<Color> _gradientForPlatform(AppPlatform p) {
+  List<Color> gradientForPlatform(AppPlatform p) {
     if (p.isPlayStation) {
       return [const Color(0xFF003087), const Color(0xFF001A4B)];
     }
@@ -478,18 +512,18 @@ class _PriceRows extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (prices == null) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Text('No market data available for this title.',
-            style: TextStyle(color: mutedColor, fontSize: 14)),
-      );
-    }
+    final emptyState = Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text('No market data available for this title.',
+          style: TextStyle(color: mutedColor, fontSize: 14)),
+    );
+  
+    if (prices == null) return emptyState;
 
     if (game.platform.isPhysical) {
       return Column(
@@ -596,7 +630,7 @@ class _PriceRow extends StatelessWidget {
             ],
           ),
           Text(
-            price != null ? currency.format(price ?? 0.0) : '—',
+            '—',
             style: TextStyle(
               color: priceColor,
               fontWeight: FontWeight.w900,
@@ -625,12 +659,16 @@ class _PriceRowsSkeleton extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Center(
-                child: SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(strokeWidth: 2.5),
-            )),
+            child: Shimmer.fromColors(
+              baseColor: Colors.white.withValues(alpha: 0.05),
+              highlightColor: Colors.white.withValues(alpha: 0.1),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -756,14 +794,14 @@ class _ProfitLossCard extends StatelessWidget {
             children: [
               _CompareRow(
                 label: 'You paid',
-                value: currency.format(paid),
+                value: currency.format(game.priceLoose ?? 0),
                 textColor: textColor,
                 mutedColor: mutedColor,
               ),
               const SizedBox(height: 14),
               _CompareRow(
                 label: 'Current market',
-                value: currency.format(valued),
+                value: currency.format(game.priceComplete ?? 0),
                 textColor: textColor,
                 mutedColor: mutedColor,
               ),
@@ -935,7 +973,7 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  bool shouldRebuild(covariant _GameHeaderDelegate oldDelegate) {
+  bool shouldRebuild(_GameHeaderDelegate oldDelegate) {
     return oldDelegate.game != game || 
            oldDelegate.textColor != textColor ||
            oldDelegate.topPadding != topPadding;

@@ -12,9 +12,13 @@ class WishlistRepository {
   WishlistRepository(this._client);
 
   Future<List<WishlistItem>> getWishlist() async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return [];
+    
     final response = await _client
         .from('wishlists')
         .select()
+        .eq('user_id', userId)
         .order('added_at', ascending: false);
     
     return (response as List<dynamic>)
