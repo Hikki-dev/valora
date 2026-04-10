@@ -102,7 +102,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
         },
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: textColor.withOpacity(0.5),
+        unselectedItemColor: textColor.withValues(alpha: 0.5),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.library_books), label: 'Library'),
@@ -122,7 +122,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
       width: 260,
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF14141A) : Colors.white,
-        border: Border(right: BorderSide(color: textColor.withOpacity(0.05))),
+        border: Border(right: BorderSide(color: textColor.withValues(alpha: 0.05))),
       ),
       child: Column(
         children: [
@@ -136,7 +136,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.15),
+                      color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(Icons.auto_graph, color: Theme.of(context).primaryColor, size: 24),
@@ -207,21 +207,21 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? activeColor.withOpacity(0.1) : Colors.transparent,
+            color: isSelected ? activeColor.withValues(alpha: 0.1) : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [
               Icon(
                 icon, 
-                color: isSelected ? activeColor : textColor.withOpacity(0.5),
+                color: isSelected ? activeColor : textColor.withValues(alpha: 0.5),
                 size: 20,
               ),
               const SizedBox(width: 16),
               Text(
                 label,
                 style: TextStyle(
-                  color: isSelected ? textColor : textColor.withOpacity(0.5),
+                  color: isSelected ? textColor : textColor.withValues(alpha: 0.5),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   fontSize: 15,
                 ),
@@ -236,7 +236,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
   Widget _buildSidebarAction(BuildContext context, IconData icon, String label, VoidCallback onTap, {bool isDestructive = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final color = isDestructive ? Colors.redAccent : textColor.withOpacity(0.6);
+    final color = isDestructive ? Colors.redAccent : textColor.withValues(alpha: 0.6);
 
     return InkWell(
       onTap: onTap,

@@ -40,10 +40,10 @@ class GameDetailView extends ConsumerWidget {
     final currency = ref.watch(currencyProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final mutedColor = textColor.withOpacity(0.5);
+    final mutedColor = textColor.withValues(alpha: 0.5);
     final cardColor = isDark
-        ? Colors.white.withOpacity(0.06)
-        : Colors.black.withOpacity(0.04);
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.04);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -210,13 +210,22 @@ class GameDetailView extends ConsumerWidget {
       ),
     );
     if (confirm == true && context.mounted) {
-      await ref.read(gameRepositoryProvider).deleteGame(game.id);
+      // Pass the userId for ownership verification
+      await ref.read(gameRepositoryProvider).deleteGame(game.id, game.userId);
       
-      // Invalidate providers to force a fresh fetch in the library
+      // Force immediate UI refresh
       ref.invalidate(libraryStreamProvider);
       ref.invalidate(allGamesProvider);
       
-      if (context.mounted) context.pop();
+      if (context.mounted) {
+        context.pop(); // Returns to the collection view
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${game.title} removed from collection'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 }
@@ -265,7 +274,7 @@ class _HeroBanner extends ConsumerWidget {
                         image: imageProvider,
                         fit: BoxFit.cover,
                         colorFilter: ColorFilter.mode(
-                          Colors.black.withOpacity(0.5),
+                          Colors.black.withValues(alpha: 0.5),
                           BlendMode.darken,
                         ),
                       ),
@@ -304,7 +313,7 @@ class _HeroBanner extends ConsumerWidget {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Colors.black.withOpacity(0.8),
+                  Colors.black.withValues(alpha: 0.8),
                   Colors.black,
                 ],
                 stops: const [0.4, 0.8, 1.0],
@@ -349,7 +358,7 @@ class _HeroBanner extends ConsumerWidget {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -409,13 +418,13 @@ class _Badge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: primary
-            ? (Colors.greenAccent[700] ?? Colors.green).withOpacity(0.15)
-            : Colors.white.withOpacity(0.1),
+            ? (Colors.greenAccent[700] ?? Colors.green).withValues(alpha: 0.15)
+            : Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: primary
-              ? (Colors.greenAccent[400] ?? Colors.green).withOpacity(0.3)
-              : Colors.white.withOpacity(0.15),
+              ? (Colors.greenAccent[400] ?? Colors.green).withValues(alpha: 0.3)
+              : Colors.white.withValues(alpha: 0.15),
         ),
       ),
       child: Text(
@@ -566,7 +575,7 @@ class _PriceRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isUserCondition
-              ? Colors.orangeAccent.withOpacity(0.25)
+              ? Colors.orangeAccent.withValues(alpha: 0.25)
               : Colors.transparent,
           width: 2,
         ),
@@ -613,7 +622,7 @@ class _PriceRowsSkeleton extends StatelessWidget {
           child: Container(
             height: 72,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
+              color: Colors.white.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Center(
@@ -774,10 +783,10 @@ class _ProfitLossCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: diffColor.withOpacity(0.1),
+                      color: diffColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                          color: diffColor.withOpacity(0.3), width: 1),
+                          color: diffColor.withValues(alpha: 0.3), width: 1),
                     ),
                     child: Text(
                       '$diffSign${currency.format(diff.abs())}',
@@ -879,7 +888,7 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
                   icon: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.4),
+                      color: Colors.black.withValues(alpha: 0.4),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.chevron_left, color: Colors.orangeAccent, size: 24),
@@ -909,7 +918,7 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
                   icon: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.4),
+                      color: Colors.black.withValues(alpha: 0.4),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.refresh, color: Colors.white, size: 20),

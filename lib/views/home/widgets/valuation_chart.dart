@@ -42,7 +42,7 @@ class ValuationChart extends ConsumerWidget {
               dotData: const FlDotData(show: false),
               belowBarData: BarAreaData(
                 show: true,
-                color: accentColor.withOpacity(0.1),
+                color: accentColor.withValues(alpha: 0.1),
               ),
             ),
           ],

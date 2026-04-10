@@ -95,10 +95,10 @@ class CollectionsView extends ConsumerWidget {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final mutedTextColor = textColor.withOpacity(0.5);
+    final mutedTextColor = textColor.withValues(alpha: 0.5);
     final cardColor = isDark
-        ? Colors.white.withOpacity(0.05)
-        : Colors.black.withOpacity(0.05);
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.05);
 
     final width = MediaQuery.sizeOf(context).width;
     final isDesktop = width >= 900;
@@ -197,7 +197,7 @@ class CollectionsView extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: cardColor,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: textColor.withOpacity(0.05)),
+                  border: Border.all(color: textColor.withValues(alpha: 0.05)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min, // Hug the content
@@ -241,7 +241,7 @@ class CollectionsView extends ConsumerWidget {
                     Container(
                       width: 1,
                       height: 40,
-                      color: textColor.withOpacity(0.1),
+                      color: textColor.withValues(alpha: 0.1),
                     ),
                     const SizedBox(width: 32),
                     Column(
@@ -333,13 +333,13 @@ class CollectionsView extends ConsumerWidget {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide(
-                      color: textColor.withOpacity(0.05),
+                      color: textColor.withValues(alpha: 0.05),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide(
-                      color: textColor.withOpacity(0.05),
+                      color: textColor.withValues(alpha: 0.05),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
@@ -415,16 +415,16 @@ class CollectionsView extends ConsumerWidget {
   ) {
     Color cardBgColor = cardColor;
     if (game.title.toLowerCase().contains('spider')) {
-      cardBgColor = Colors.red.withOpacity(0.05);
+      cardBgColor = Colors.red.withValues(alpha: 0.05);
     } else if (game.title.toLowerCase().contains('horizon') ||
         game.title.toLowerCase().contains('zelda')) {
-      cardBgColor = Colors.green.withOpacity(0.05);
+      cardBgColor = Colors.green.withValues(alpha: 0.05);
     } else if (game.title.toLowerCase().contains('elden') ||
         game.title.toLowerCase().contains('dark')) {
-      cardBgColor = Colors.purple.withOpacity(0.05);
+      cardBgColor = Colors.purple.withValues(alpha: 0.05);
     } else if (game.title.toLowerCase().contains('god') ||
         game.platform.value.startsWith('ps')) {
-      cardBgColor = const Color(0xFF0D47A1).withOpacity(0.2);
+      cardBgColor = const Color(0xFF0D47A1).withValues(alpha: 0.2);
     }
 
     return GestureDetector(
@@ -439,7 +439,7 @@ class CollectionsView extends ConsumerWidget {
           decoration: BoxDecoration(
             color: cardColor,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: textColor.withOpacity(0.05)),
+            border: Border.all(color: textColor.withValues(alpha: 0.05)),
           ),
           clipBehavior: Clip.hardEdge,
           child: Material(
@@ -526,8 +526,8 @@ class CollectionsView extends ConsumerWidget {
 
   Widget _buildShimmerGrid(bool isDesktop) {
     return Shimmer.fromColors(
-      baseColor: Colors.white.withOpacity(0.05),
-      highlightColor: Colors.white.withOpacity(0.1),
+      baseColor: Colors.white.withValues(alpha: 0.05),
+      highlightColor: Colors.white.withValues(alpha: 0.1),
       child: GridView.builder(
         padding: const EdgeInsets.only(bottom: 24),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -554,7 +554,7 @@ class CollectionsView extends ConsumerWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).primaryColor.withOpacity(0.5),
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
             blurRadius: 20,
             spreadRadius: 2,
             offset: const Offset(0, 4),

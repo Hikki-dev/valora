@@ -142,8 +142,8 @@ class GameRepository {
     });
   }
 
-  Future<void> deleteGame(String id) async {
-    await _client.from('games').delete().eq('id', id);
+  Future<void> deleteGame(String id, String userId) async {
+    await _client.from('games').delete().eq('id', id).eq('user_id', userId);
   }
 
   Stream<List<Game>> getGamesStream(String userId) {

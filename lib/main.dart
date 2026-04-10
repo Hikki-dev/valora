@@ -13,19 +13,55 @@ void main() async {
 
   // Validate at startup
   if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
-    debugPrint('❌ Startup Error: Missing build-time env vars.');
-    debugPrint('Run with: flutter run --dart-define-from-file=.env.build');
+    runApp(MaterialApp(
+      home: Scaffold(
+        backgroundColor: const Color(0xFF09090B),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.redAccent, size: 64),
+                const SizedBox(height: 24),
+                const Text(
+                  'Configuration Missing',
+                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'The Supabase URL and Key were not found.\n\nPlease run with the following flag:',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const SelectableText(
+                    'flutter run --dart-define-from-file=.env.build',
+                    style: TextStyle(color: Colors.orangeAccent, fontFamily: 'monospace'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ));
+    return;
   }
 
   try {
-    // Initialize Supabase with matching timeout to avoid hanging splash
     await Supabase.initialize(
       url: supabaseUrl,
       anonKey: supabaseAnonKey,
     ).timeout(const Duration(seconds: 10));
   } catch (e) {
     debugPrint("Startup Error (Supabase): $e");
-    // We continue so the app can at least show the login/offline state
   }
 
   runApp(const ProviderScope(child: ValoraApp()));

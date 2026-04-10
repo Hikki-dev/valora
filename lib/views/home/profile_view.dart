@@ -40,7 +40,7 @@ class ProfileView extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.15),
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -76,7 +76,7 @@ class ProfileView extends ConsumerWidget {
         border: Border.all(color: Theme.of(context).primaryColor, width: 3),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).primaryColor.withOpacity(0.2),
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
             blurRadius: 30,
             spreadRadius: 5,
           ),
@@ -116,9 +116,9 @@ class ProfileView extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +148,7 @@ class ProfileView extends ConsumerWidget {
         children: [
           Text(
             title,
-            style: TextStyle(color: textColor.withOpacity(0.4), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5),
+            style: TextStyle(color: textColor.withValues(alpha: 0.4), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5),
           ),
         ],
       ),
@@ -160,12 +160,12 @@ class ProfileView extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.03),
+        color: Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
-          Icon(icon, color: textColor.withOpacity(0.4), size: 20),
+          Icon(icon, color: textColor.withValues(alpha: 0.4), size: 20),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
@@ -176,7 +176,7 @@ class ProfileView extends ConsumerWidget {
           Text(
             value,
             style: TextStyle(
-              color: isAction ? Theme.of(context).primaryColor : textColor.withOpacity(0.4), 
+              color: isAction ? Theme.of(context).primaryColor : textColor.withValues(alpha: 0.4), 
               fontSize: 13,
               fontWeight: isAction ? FontWeight.bold : FontWeight.normal,
             ),
