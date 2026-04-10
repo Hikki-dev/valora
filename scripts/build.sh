@@ -22,7 +22,7 @@ flutter pub get
 
 # 4. Build Web App
 echo "Building Flutter Web (Release)..."
-flutter build web --release
+flutter build web --release --web-renderer auto
 
 # 5. Verification
 if [ ! -d "build/web" ]; then

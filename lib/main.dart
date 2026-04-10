@@ -18,13 +18,14 @@ void main() async {
   }
 
   try {
-    // Initialize Supabase
+    // Initialize Supabase with matching timeout to avoid hanging splash
     await Supabase.initialize(
       url: supabaseUrl,
       anonKey: supabaseAnonKey,
-    );
+    ).timeout(const Duration(seconds: 10));
   } catch (e) {
-    debugPrint("Startup Error: $e");
+    debugPrint("Startup Error (Supabase): $e");
+    // We continue so the app can at least show the login/offline state
   }
 
   runApp(const ProviderScope(child: ValoraApp()));
