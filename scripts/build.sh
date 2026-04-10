@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# Ensure scripts directory is in path for helper scripts if needed
+# Exit on error
+set -e
+
+# Ensure scripts directory is in path for helper scripts
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # 1. Install/Setup Flutter
@@ -19,7 +22,20 @@ flutter pub get
 
 # 4. Build Web App
 echo "Building Flutter Web (Release)..."
-# We add --pwa-strategy offline-first if needed, or other flags
 flutter build web --release
+
+# 5. Verification
+if [ ! -d "build/web" ]; then
+    echo "Error: build/web directory not found!"
+    exit 1
+fi
+
+if [ ! -f "build/web/index.html" ]; then
+    echo "Error: build/web/index.html not found!"
+    exit 1
+fi
+
+echo "Detailed contents of build/web:"
+ls -la build/web
 
 echo "Build complete! Output is in build/web"
