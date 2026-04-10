@@ -2,13 +2,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/game.dart';
 import '../models/price_data.dart';
+import '../controllers/auth_controller.dart';
 
 final gameRepositoryProvider = Provider<GameRepository>((ref) {
   return GameRepository(Supabase.instance.client);
 });
 
 final allGamesProvider = FutureProvider<List<Game>>((ref) async {
-  return ref.read(gameRepositoryProvider).getGames();
+  final user = ref.watch(authControllerProvider).value;
+  if (user == null) return [];
+  return ref.read(gameRepositoryProvider).getGames(user.id);
 });
 
 class GameRepository {
@@ -16,10 +19,11 @@ class GameRepository {
 
   GameRepository(this._client);
 
-  Future<List<Game>> getGames() async {
+  Future<List<Game>> getGames(String userId) async {
     final response = await _client
         .from('games_with_valuations')
         .select()
+        .eq('user_id', userId)
         .order('added_at', ascending: false);
     
     return (response as List<dynamic>)
@@ -142,10 +146,11 @@ class GameRepository {
     await _client.from('games').delete().eq('id', id);
   }
 
-  Stream<List<Game>> getGamesStream() {
+  Stream<List<Game>> getGamesStream(String userId) {
     return _client
         .from('games_with_valuations')
         .stream(primaryKey: ['id'])
+        .eq('user_id', userId)
         .order('added_at', ascending: false)
         .map((response) => response
             .map((e) => Game.fromJson(e))
@@ -154,5 +159,7 @@ class GameRepository {
 }
 
 final libraryStreamProvider = StreamProvider<List<Game>>((ref) {
-  return ref.watch(gameRepositoryProvider).getGamesStream();
+  final user = ref.watch(authControllerProvider).value;
+  if (user == null) return Stream.value([]);
+  return ref.watch(gameRepositoryProvider).getGamesStream(user.id);
 });

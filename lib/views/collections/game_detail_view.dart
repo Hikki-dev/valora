@@ -211,6 +211,11 @@ class GameDetailView extends ConsumerWidget {
     );
     if (confirm == true && context.mounted) {
       await ref.read(gameRepositoryProvider).deleteGame(game.id);
+      
+      // Invalidate providers to force a fresh fetch in the library
+      ref.invalidate(libraryStreamProvider);
+      ref.invalidate(allGamesProvider);
+      
       if (context.mounted) context.pop();
     }
   }
