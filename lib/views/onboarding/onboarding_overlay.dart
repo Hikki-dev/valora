@@ -22,7 +22,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final secondaryTextColor = textColor.withValues(alpha: 0.6);
+    final secondaryTextColor = textColor.withOpacity(0.6);
     final primaryColor = Colors.amber;
     
     List<OnboardingContent> contents;
@@ -49,7 +49,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
     final isLastPage = _currentPage == contents.length - 1;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.98),
+      backgroundColor: theme.scaffoldBackgroundColor.withOpacity(0.98),
       body: SafeArea(
         child: Column(
           children: [
@@ -94,7 +94,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                           child: OutlinedButton(
                             onPressed: () => _pageController.previousPage(duration: 300.ms, curve: Curves.easeInOut),
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: textColor.withValues(alpha: 0.1)),
+                              side: BorderSide(color: textColor.withOpacity(0.1)),
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
@@ -113,7 +113,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isLastPage ? primaryColor : textColor.withValues(alpha: 0.05),
+                            backgroundColor: isLastPage ? primaryColor : textColor.withOpacity(0.05),
                              elevation: 0,
                              padding: const EdgeInsets.symmetric(vertical: 16),
                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -154,7 +154,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
+                          color: Colors.black.withOpacity(0.3),
                           blurRadius: 40,
                           spreadRadius: 10,
                         ),
@@ -174,9 +174,9 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                   child: Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: textColor.withValues(alpha: 0.05),
+                      color: textColor.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: textColor.withValues(alpha: 0.1)),
+                      border: Border.all(color: textColor.withOpacity(0.1)),
                     ),
                     child: content.icon,
                   ),
@@ -234,7 +234,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
           width: isActive ? 24 : 8,
           height: 8,
           decoration: BoxDecoration(
-            color: isActive ? primaryColor : textColor.withValues(alpha: 0.1),
+            color: isActive ? primaryColor : textColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(4),
           ),
         );

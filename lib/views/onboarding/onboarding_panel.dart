@@ -53,7 +53,7 @@ class OnboardingPanel extends ConsumerWidget {
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 itemCount: contents.length,
-                separatorBuilder: (_, _ ) => const SizedBox(height: 32),
+                separatorBuilder: (_, __) => const SizedBox(height: 32),
                 itemBuilder: (context, index) {
                   final item = contents[index];
                   return Column(

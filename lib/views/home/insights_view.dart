@@ -47,7 +47,7 @@ class InsightsView extends ConsumerWidget {
 
   Widget _buildContent(BuildContext context, WidgetRef ref, List<Game> games, Color textColor) {
     if (games.isEmpty) {
-      return Center(child: Text('No games in collection', style: TextStyle(color: textColor.withValues(alpha: 0.5))));
+      return Center(child: Text('No games in collection', style: TextStyle(color: textColor.withOpacity(0.5))));
     }
 
     final sortedGames = List<Game>.from(games);
@@ -86,7 +86,7 @@ class InsightsView extends ConsumerWidget {
             Text(title, style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 13, color: Colors.cyanAccent)),
           ],
         ),
-        Text(subtitle, style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 24, fontWeight: FontWeight.w900)),
+        Text(subtitle, style: TextStyle(color: textColor.withOpacity(0.5), fontSize: 24, fontWeight: FontWeight.w900)),
       ],
     );
   }
@@ -97,13 +97,13 @@ class InsightsView extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: textColor.withValues(alpha: 0.05),
+        color: textColor.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: textColor.withValues(alpha: 0.1)),
+        border: Border.all(color: textColor.withOpacity(0.1)),
       ),
       child: Row(
         children: [
-          Text('#$rank', style: TextStyle(color: isTop ? Colors.cyanAccent : textColor.withValues(alpha: 0.3), fontWeight: FontWeight.w900, fontSize: 18)),
+          Text('#$rank', style: TextStyle(color: isTop ? Colors.cyanAccent : textColor.withOpacity(0.3), fontWeight: FontWeight.w900, fontSize: 18)),
           const SizedBox(width: 16),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -112,8 +112,8 @@ class InsightsView extends ConsumerWidget {
               width: 45,
               height: 60,
               fit: BoxFit.cover,
-              placeholder: (context, url) => Container(color: textColor.withValues(alpha: 0.1)),
-              errorWidget: (context, url, error) => Icon(Icons.image_not_supported, size: 20, color: textColor.withValues(alpha: 0.3)),
+              placeholder: (context, url) => Container(color: textColor.withOpacity(0.1)),
+              errorWidget: (context, url, error) => Icon(Icons.image_not_supported, size: 20, color: textColor.withOpacity(0.3)),
             ),
           ),
           const SizedBox(width: 12),
@@ -122,7 +122,7 @@ class InsightsView extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(game.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 15)),
-                Text(game.platform.label, style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 12)),
+                Text(game.platform.label, style: TextStyle(color: textColor.withOpacity(0.5), fontSize: 12)),
               ],
             ),
           ),

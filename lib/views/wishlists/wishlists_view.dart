@@ -76,12 +76,12 @@ class WishlistsView extends ConsumerWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.auto_awesome, size: 64, color: Theme.of(context).primaryColor.withValues(alpha: 0.3)),
+                              Icon(Icons.auto_awesome, size: 64, color: Theme.of(context).primaryColor.withOpacity(0.3)),
                               const SizedBox(height: 16),
                               Text(
                                 "Your wishlist is empty.\nLet's track some deals!",
                                 textAlign: TextAlign.center,
-                                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.5), fontSize: 16, fontWeight: FontWeight.w500),
+                                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.5), fontSize: 16, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
@@ -129,7 +129,7 @@ class WishlistsView extends ConsumerWidget {
 
   Widget _buildWishlistItem(BuildContext context, WidgetRef ref, WishlistItem item, int index) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04);
+    final cardColor = isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.04);
     final currency = ref.watch(currencyProvider);
 
     return Container(
@@ -137,7 +137,7 @@ class WishlistsView extends ConsumerWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.02)),
+        border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.02)),
       ),
       clipBehavior: Clip.hardEdge,
       child: Material(
@@ -158,7 +158,7 @@ class WishlistsView extends ConsumerWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 4)),
+                        BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4)),
                       ],
                     ),
                     clipBehavior: Clip.hardEdge,
@@ -182,7 +182,7 @@ class WishlistsView extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                          color: Theme.of(context).primaryColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -240,7 +240,7 @@ class WishlistsView extends ConsumerWidget {
                       if (item.currentPrice == null)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
-                          child: Text('Awaiting digital price point...', style: TextStyle(color: Colors.cyanAccent.withValues(alpha: 0.5), fontSize: 11, fontStyle: FontStyle.italic)),
+                          child: Text('Awaiting digital price point...', style: TextStyle(color: Colors.cyanAccent.withOpacity(0.5), fontSize: 11, fontStyle: FontStyle.italic)),
                         ),
                     ],
                   ),
@@ -287,7 +287,7 @@ class WishlistsView extends ConsumerWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
+            color: Theme.of(context).primaryColor.withOpacity(0.5),
             blurRadius: 20,
             spreadRadius: 2,
             offset: const Offset(0, 4),

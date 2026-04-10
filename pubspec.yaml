@@ -26,7 +26,7 @@ dependencies:
   font_awesome_flutter: ^10.8.0
 
   # Charts
-  fl_chart: ^0.70.2
+  fl_chart: ^0.69.0
 
   # Images
   cached_network_image: ^3.4.1

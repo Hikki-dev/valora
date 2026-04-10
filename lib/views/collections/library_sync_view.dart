@@ -122,7 +122,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
       child: Scaffold(
-        backgroundColor: Colors.black.withValues(alpha: 0.6),
+        backgroundColor: Colors.black.withOpacity(0.6),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -162,7 +162,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
         const SizedBox(height: 12),
         Text(
           'We\'ll only see your public game list. No passwords or sensitive data are ever touched.',
-          style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 14),
+          style: TextStyle(color: textColor.withOpacity(0.5), fontSize: 14),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 48),
@@ -172,7 +172,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
             labelText: 'Your Steam ID (64-bit)',
             hintText: 'e.g. 76561198...',
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.05),
+            fillColor: Colors.white.withOpacity(0.05),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
             prefixIcon: const Icon(Icons.person_outline, color: Colors.blueAccent),
           ),
@@ -182,9 +182,9 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withValues(alpha: 0.05),
+            color: Colors.blueAccent.withOpacity(0.05),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.1)),
+            border: Border.all(color: Colors.blueAccent.withOpacity(0.1)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,7 +202,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
               const SizedBox(height: 8),
               RichText(
                 text: TextSpan(
-                  style: TextStyle(color: textColor.withValues(alpha: 0.4), fontSize: 12, height: 1.5),
+                  style: TextStyle(color: textColor.withOpacity(0.4), fontSize: 12, height: 1.5),
                   children: [
                     const TextSpan(text: '1. Go to your Steam Profile\n2. Right-click and "Copy Page URL"\n3. Paste it at '),
                     WidgetSpan(
@@ -220,7 +220,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
                             color: Colors.blueAccent,
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.underline,
-                            decorationColor: Colors.blueAccent.withValues(alpha: 0.5),
+                            decorationColor: Colors.blueAccent.withOpacity(0.5),
                           ),
                         ),
                       ),
@@ -272,7 +272,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
                 ),
                 Text(
                   '$newCount new, $conflictCount already in collection',
-                  style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 14),
+                  style: TextStyle(color: textColor.withOpacity(0.5), fontSize: 14),
                 ),
               ],
             ),
@@ -304,7 +304,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: Colors.white.withOpacity(0.05),
             borderRadius: BorderRadius.circular(24),
           ),
           child: Column(
@@ -317,7 +317,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
                     Expanded(
                       child: Text(
                         'We found some duplicates. Tap them to choose which details to keep.',
-                        style: TextStyle(color: textColor.withValues(alpha: 0.6), fontSize: 12),
+                        style: TextStyle(color: textColor.withOpacity(0.6), fontSize: 12),
                       ),
                     ),
                   ],
@@ -357,11 +357,11 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: hasConflict 
-              ? (isOverwriting ? Colors.orange.withValues(alpha: 0.1) : Colors.blueAccent.withValues(alpha: 0.05))
-              : Colors.white.withValues(alpha: 0.05),
+              ? (isOverwriting ? Colors.orange.withOpacity(0.1) : Colors.blueAccent.withOpacity(0.05))
+              : Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(16),
           border: hasConflict && isOverwriting 
-              ? Border.all(color: Colors.orange.withValues(alpha: 0.3)) 
+              ? Border.all(color: Colors.orange.withOpacity(0.3)) 
               : null,
         ),
         child: Row(
@@ -382,7 +382,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: isOverwriting ? Colors.orange : Colors.blueAccent.withValues(alpha: 0.2),
+                        color: isOverwriting ? Colors.orange : Colors.blueAccent.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -396,7 +396,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
               ),
             ),
             if (hasConflict)
-              Icon(Icons.chevron_right, color: textColor.withValues(alpha: 0.2), size: 16),
+              Icon(Icons.chevron_right, color: textColor.withOpacity(0.2), size: 16),
           ],
         ),
       ),
@@ -511,9 +511,9 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isSelected ? Colors.blueAccent.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+              color: isSelected ? Colors.blueAccent.withOpacity(0.1) : Colors.white.withOpacity(0.05),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isSelected ? Colors.blueAccent : Colors.white.withValues(alpha: 0.1), width: 2),
+              border: Border.all(color: isSelected ? Colors.blueAccent : Colors.white.withOpacity(0.1), width: 2),
             ),
             child: Column(
               children: [

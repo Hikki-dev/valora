@@ -340,7 +340,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
     return Container(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       decoration: BoxDecoration(
-        color: bgColor.withValues(alpha: 0.95),
+        color: bgColor.withOpacity(0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
@@ -356,7 +356,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                         constraints: const BoxConstraints(maxWidth: 500),
                         child: Card(
                           elevation: 12,
-                          shadowColor: Colors.black.withValues(alpha: 0.5),
+                          shadowColor: Colors.black.withOpacity(0.5),
                           color: isDark ? const Color(0xFF1A1A24) : Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           child: Padding(
@@ -452,7 +452,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                 color: textColor,
               ),
             ),
-            IconButton(icon: Icon(Icons.close, color: textColor.withValues(alpha: 0.5)), onPressed: () => Navigator.pop(context))
+            IconButton(icon: Icon(Icons.close, color: textColor.withOpacity(0.5)), onPressed: () => Navigator.pop(context))
           ],
         ),
         const SizedBox(height: 16),
@@ -473,8 +473,8 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                          if (p != 'All') _uiPlatform = p;
                       });
                     },
-                    backgroundColor: textColor.withValues(alpha: 0.05),
-                    selectedColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                    backgroundColor: textColor.withOpacity(0.05),
+                    selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
                     showCheckmark: false,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                  ),
@@ -491,7 +491,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
           decoration: InputDecoration(
             hintText: 'Type a game title...',
-            hintStyle: TextStyle(color: textColor.withValues(alpha: 0.3)),
+            hintStyle: TextStyle(color: textColor.withOpacity(0.3)),
             prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
             suffixIcon: (_selectedPlatformFilter.contains('PlayStation') || _selectedPlatformFilter == 'Nintendo') && !widget.isWishlistMode
                 ? IconButton(
@@ -502,7 +502,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                 : null,
 
             filled: true,
-            fillColor: textColor.withValues(alpha: 0.05),
+            fillColor: textColor.withOpacity(0.05),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
           ),
 
@@ -511,7 +511,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         if (_searchModeLabel != null)
            Padding(
              padding: const EdgeInsets.only(bottom: 8.0),
-             child: Text(_searchModeLabel!, style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 13, fontStyle: FontStyle.italic)),
+             child: Text(_searchModeLabel!, style: TextStyle(color: textColor.withOpacity(0.5), fontSize: 13, fontStyle: FontStyle.italic)),
            ),
         
         Expanded(
@@ -530,7 +530,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                     const SizedBox(height: 24),
                     Text(
                       'Your next masterpiece awaits.', 
-                      style: TextStyle(color: textColor.withValues(alpha: 0.2), fontStyle: FontStyle.italic, fontSize: 13)
+                      style: TextStyle(color: textColor.withOpacity(0.2), fontStyle: FontStyle.italic, fontSize: 13)
                     ),
                   ],
                 ),
@@ -562,7 +562,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           gradient: LinearGradient(
             colors: [
               Theme.of(context).primaryColor,
-              Theme.of(context).primaryColor.withValues(alpha: 0.6),
+              Theme.of(context).primaryColor.withOpacity(0.6),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -570,7 +570,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+              color: Theme.of(context).primaryColor.withOpacity(0.3),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -581,7 +581,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: Colors.white.withOpacity(0.2),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.sync_alt, color: Colors.white, size: 28),
@@ -625,9 +625,9 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
     
     return Container(
       decoration: BoxDecoration(
-        color: textColor.withValues(alpha: 0.03),
+        color: textColor.withOpacity(0.03),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: textColor.withValues(alpha: 0.05)),
+        border: Border.all(color: textColor.withOpacity(0.05)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -660,7 +660,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
             : null,
         trailing: Container(
 
-          decoration: BoxDecoration(shape: BoxShape.circle, color: Theme.of(context).primaryColor.withValues(alpha: 0.1)),
+          decoration: BoxDecoration(shape: BoxShape.circle, color: Theme.of(context).primaryColor.withOpacity(0.1)),
           child: IconButton(
             icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).primaryColor, size: 18),
             onPressed: () {
@@ -737,7 +737,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                       style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
                       decoration: InputDecoration(
                         labelText: 'Game Title',
-                        labelStyle: TextStyle(color: textColor.withValues(alpha: 0.5)),
+                        labelStyle: TextStyle(color: textColor.withOpacity(0.5)),
                         isDense: true,
                         border: InputBorder.none,
                       ),
@@ -751,7 +751,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                      onChanged: (_) => setState(() {}),
                      decoration: InputDecoration(
                         labelText: 'Custom Image URL',
-                        labelStyle: TextStyle(color: textColor.withValues(alpha: 0.5)),
+                        labelStyle: TextStyle(color: textColor.withOpacity(0.5)),
                         isDense: true,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                      ),
@@ -784,7 +784,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Platform', style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 12)),
+                  Text('Platform', style: TextStyle(color: textColor.withOpacity(0.5), fontSize: 12)),
                   DropdownButton<String>(
                     value: _uiPlatform,
                     isExpanded: true,
@@ -851,13 +851,13 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                         style: TextStyle(color: textColor),
                         decoration: InputDecoration(
                           labelText: widget.isWishlistMode ? 'Target Price (Alert me below this)' : 'Purchase Price (Optional)',
-                          labelStyle: TextStyle(color: textColor.withValues(alpha: 0.5)),
+                          labelStyle: TextStyle(color: textColor.withOpacity(0.5)),
                           prefixIcon: Icon(
                             widget.isWishlistMode ? Icons.notifications_active : (_inputCurrency == 'USD' ? Icons.attach_money : Icons.money), 
                             color: Theme.of(context).primaryColor
                           ),
                           filled: true,
-                          fillColor: textColor.withValues(alpha: 0.05),
+                          fillColor: textColor.withOpacity(0.05),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                         ),
                       ),
@@ -869,7 +869,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         decoration: BoxDecoration(
-                          color: textColor.withValues(alpha: 0.05),
+                          color: textColor.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: DropdownButtonHideUnderline(
@@ -898,12 +898,12 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                         decoration: InputDecoration(
                           labelText: 'eBay Market Average (Optional)',
                           labelStyle:
-                              TextStyle(color: textColor.withValues(alpha: 0.5)),
+                              TextStyle(color: textColor.withOpacity(0.5)),
                           prefixIcon: Icon(
                               Icons.trending_up,
                               color: Theme.of(context).primaryColor),
                           filled: true,
-                          fillColor: textColor.withValues(alpha: 0.05),
+                          fillColor: textColor.withOpacity(0.05),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none),
@@ -929,9 +929,9 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                           decoration: InputDecoration(
                             labelText: 'Publisher',
                             labelStyle: TextStyle(
-                                color: textColor.withValues(alpha: 0.5)),
+                                color: textColor.withOpacity(0.5)),
                             filled: true,
-                            fillColor: textColor.withValues(alpha: 0.05),
+                            fillColor: textColor.withOpacity(0.05),
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none),
@@ -947,9 +947,9 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                           decoration: InputDecoration(
                             labelText: 'Year',
                             labelStyle: TextStyle(
-                                color: textColor.withValues(alpha: 0.5)),
+                                color: textColor.withOpacity(0.5)),
                             filled: true,
-                            fillColor: textColor.withValues(alpha: 0.05),
+                            fillColor: textColor.withOpacity(0.05),
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none),
@@ -985,7 +985,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 12)),
+        Text(label, style: TextStyle(color: textColor.withOpacity(0.5), fontSize: 12)),
         DropdownButton<String>(
           value: currentValue,
           isExpanded: true,
