@@ -21,8 +21,9 @@ echo "Running flutter pub get..."
 flutter pub get
 
 # 4. Build Web App
-echo "Building Flutter Web (Release)..."
-flutter build web --release --web-renderer auto
+echo "Building Flutter Web (Release) with Auto renderer..."
+flutter build web --release --web-renderer auto --no-pub
+echo "Build command finished with status: $?"
 
 # 5. Verification
 if [ ! -d "build/web" ]; then
