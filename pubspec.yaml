@@ -22,8 +22,8 @@ dependencies:
   # UI & Animation
   flutter_animate: ^4.5.2
   shimmer: ^3.0.0
-  flutter_svg: ^2.0.10
-  font_awesome_flutter: ^10.8.0
+  flutter_svg: 2.0.10+1
+  font_awesome_flutter: 10.8.0
 
   # Charts
   fl_chart: ^0.69.0
