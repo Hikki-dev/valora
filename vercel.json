@@ -29,10 +29,6 @@
         {
           "key": "Strict-Transport-Security",
           "value": "max-age=63072000; includeSubDomains; preload"
-        },
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://fonts.gstatic.com https://www.gstatic.com https://store.steampowered.com https://www.cheapshark.com https://www.pricecharting.com; img-src * data: blob:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline'"
         }
       ]
     }

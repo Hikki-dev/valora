@@ -22,7 +22,7 @@ flutter pub get
 
 # 4. Build Web App
 echo "Building Flutter Web (Release) with Auto renderer..."
-flutter build web --release --web-renderer auto --no-pub
+flutter build web --release --web-renderer auto --no-pub --dart-define-from-file=.env.build
 echo "Build command finished with status: $?"
 
 # 5. Verification
