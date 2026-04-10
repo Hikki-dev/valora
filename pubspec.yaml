@@ -35,16 +35,16 @@ dependencies:
   google_sign_in: ^6.2.1
 
   # Device & Platform
-  package_info_plus: ^9.0.1
-  shared_preferences: ^2.5.5
-  path_provider: ^2.1.5
+  package_info_plus: ^8.2.1
+  shared_preferences: ^2.3.5
+  path_provider: ^2.1.4
 
   # Scanner
-  mobile_scanner: ^6.0.3
+  mobile_scanner: ^5.2.4
 
   # Sharing
   screenshot: ^3.0.0
-  share_plus: ^10.1.1
+  share_plus: ^10.0.2
 
   # Networking
   http: ^1.6.0
