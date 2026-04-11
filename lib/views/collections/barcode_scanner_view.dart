@@ -45,7 +45,7 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
             top: 60,
             left: 20,
             child: CircleAvatar(
-              backgroundColor: Colors.black.withValues(alpha: 0.5),
+              backgroundColor: Colors.black.withOpacity(0.5),
               child: IconButton(
                 icon: const Icon(Icons.close, color: Colors.white),
                 onPressed: () => Navigator.pop(context),
@@ -60,10 +60,10 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
   Widget _buildOverlay(BuildContext context) {
     return Column(
       children: [
-        Expanded(child: Container(color: Colors.black.withValues(alpha: 0.7))),
+        Expanded(child: Container(color: Colors.black.withOpacity(0.7))),
         Row(
           children: [
-            Expanded(child: Container(color: Colors.black.withValues(alpha: 0.7))),
+            Expanded(child: Container(color: Colors.black.withOpacity(0.7))),
             Container(
               width: 280,
               height: 180,
@@ -72,19 +72,19 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.amber.withValues(alpha: 0.2),
+                    color: Colors.amber.withOpacity(0.2),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
                 ],
               ),
             ),
-            Expanded(child: Container(color: Colors.black.withValues(alpha: 0.7))),
+            Expanded(child: Container(color: Colors.black.withOpacity(0.7))),
           ],
         ),
         Expanded(
           child: Container(
-            color: Colors.black.withValues(alpha: 0.7),
+            color: Colors.black.withOpacity(0.7),
             width: double.infinity,
             child: const Center(
               child: Column(

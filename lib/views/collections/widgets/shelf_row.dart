@@ -26,9 +26,9 @@ class ShelfRow extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.white.withValues(alpha: 0.15),
-                    Colors.white.withValues(alpha: 0.05),
-                    Colors.black.withValues(alpha: 0.1),
+                    Colors.white.withOpacity(0.15),
+                    Colors.white.withOpacity(0.05),
+                    Colors.black.withOpacity(0.1),
                   ],
                 ),
                 borderRadius: const BorderRadius.only(
@@ -37,18 +37,18 @@ class ShelfRow extends StatelessWidget {
                 ),
                 border: Border(
                   top: BorderSide(
-                    color: Colors.cyanAccent.withValues(alpha: 0.4),
+                    color: Colors.cyanAccent.withOpacity(0.4),
                     width: 1.5,
                   ),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.cyanAccent.withValues(alpha: 0.1),
+                    color: Colors.cyanAccent.withOpacity(0.1),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.5),
+                    color: Colors.black.withOpacity(0.5),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   )

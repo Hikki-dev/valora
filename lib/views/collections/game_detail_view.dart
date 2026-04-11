@@ -48,10 +48,10 @@ class GameDetailView extends ConsumerWidget {
     final currency = ref.watch(currencyProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final mutedColor = textColor.withValues(alpha: 0.5);
+    final mutedColor = textColor.withOpacity(0.5);
     final cardColor = isDark
-        ? Colors.white.withValues(alpha: 0.06)
-        : Colors.black.withValues(alpha: 0.04);
+        ? Colors.white.withOpacity(0.06)
+        : Colors.black.withOpacity(0.04);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -247,8 +247,8 @@ class GameDetailView extends ConsumerWidget {
   
   Widget _buildSkeleton(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
-    final highlightColor = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1);
+    final baseColor = isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05);
+    final highlightColor = isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.1);
 
     return SingleChildScrollView(
       child: Shimmer.fromColors(
@@ -323,7 +323,7 @@ class _HeroBanner extends ConsumerWidget {
                         image: imageProvider,
                         fit: BoxFit.cover,
                         colorFilter: ColorFilter.mode(
-                          Colors.black.withValues(alpha: 0.5),
+                          Colors.black.withOpacity(0.5),
                           BlendMode.darken,
                         ),
                       ),
@@ -362,7 +362,7 @@ class _HeroBanner extends ConsumerWidget {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Colors.black.withValues(alpha: 0.8),
+                  Colors.black.withOpacity(0.8),
                   Colors.black,
                 ],
                 stops: const [0.4, 0.8, 1.0],
@@ -407,7 +407,7 @@ class _HeroBanner extends ConsumerWidget {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.6),
+                    color: Colors.white.withOpacity(0.6),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -467,13 +467,13 @@ class _Badge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: primary
-            ? (Colors.greenAccent[700] ?? Colors.green).withValues(alpha: 0.15)
-            : Colors.white.withValues(alpha: 0.1),
+            ? (Colors.greenAccent[700] ?? Colors.green).withOpacity(0.15)
+            : Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: primary
-              ? (Colors.greenAccent[400] ?? Colors.green).withValues(alpha: 0.3)
-              : Colors.white.withValues(alpha: 0.15),
+              ? (Colors.greenAccent[400] ?? Colors.green).withOpacity(0.3)
+              : Colors.white.withOpacity(0.15),
         ),
       ),
       child: Text(
@@ -624,7 +624,7 @@ class _PriceRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isUserCondition
-              ? Colors.orangeAccent.withValues(alpha: 0.25)
+              ? Colors.orangeAccent.withOpacity(0.25)
               : Colors.transparent,
           width: 2,
         ),
@@ -671,12 +671,12 @@ class _PriceRowsSkeleton extends StatelessWidget {
           child: Container(
             height: 72,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
+              color: Colors.white.withOpacity(0.05),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Shimmer.fromColors(
-              baseColor: Colors.white.withValues(alpha: 0.05),
-              highlightColor: Colors.white.withValues(alpha: 0.1),
+              baseColor: Colors.white.withOpacity(0.05),
+              highlightColor: Colors.white.withOpacity(0.1),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -845,10 +845,10 @@ class _ProfitLossCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: diffColor.withValues(alpha: 0.1),
+                      color: diffColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                          color: diffColor.withValues(alpha: 0.3), width: 1),
+                          color: diffColor.withOpacity(0.3), width: 1),
                     ),
                     child: Text(
                       '$diffSign${currency.format(diff.abs())}',
@@ -950,7 +950,7 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
                   icon: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.4),
+                      color: Colors.black.withOpacity(0.4),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.chevron_left, color: Colors.orangeAccent, size: 24),
@@ -980,7 +980,7 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
                   icon: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.4),
+                      color: Colors.black.withOpacity(0.4),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.refresh, color: Colors.white, size: 20),

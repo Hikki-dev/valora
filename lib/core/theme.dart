@@ -39,8 +39,8 @@ class AppTheme {
         surface: surface1,
         surfaceContainer: surface2,
       ),
-      hoverColor: accentAmber.withValues(alpha: 0.1),
-      cardTheme: CardThemeData(
+      hoverColor: accentAmber.withOpacity(0.1),
+      cardTheme: CardTheme(
         color: surface1,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

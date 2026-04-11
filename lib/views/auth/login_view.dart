@@ -71,8 +71,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
     final textColor = isDark ? Colors.white : Colors.black87;
     
     // Liquid Glass Aesthetics
-    final containerBg = isDark ? Colors.black.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.85);
-    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1);
+    final containerBg = isDark ? Colors.black.withOpacity(0.6) : Colors.white.withOpacity(0.85);
+    final borderColor = isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.1);
     
     final width = MediaQuery.sizeOf(context).width;
     final isDesktop = width >= 900;
@@ -101,9 +101,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withValues(alpha: 0.3),
-                  Colors.black.withValues(alpha: 0.5),
-                  Colors.black.withValues(alpha: 0.9),
+                  Colors.black.withOpacity(0.3),
+                  Colors.black.withOpacity(0.5),
+                  Colors.black.withOpacity(0.9),
                 ],
                 stops: const [0.0, 0.4, 1.0],
               ),
@@ -136,7 +136,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                         _isLogin ? 'COLLECTION VALUATION ENGINE' : 'JOIN THE ARCHIVE', 
                         key: ValueKey<bool>(_isLogin),
                         style: TextStyle(
-                          color: Colors.amber.withValues(alpha: 0.8), 
+                          color: Colors.amber.withOpacity(0.8), 
                           fontSize: 12, 
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2.0
@@ -155,7 +155,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                         border: Border.all(color: borderColor),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.4),
+                            color: Colors.black.withOpacity(0.4),
                             blurRadius: 30,
                             spreadRadius: 5,
                           ),
@@ -175,7 +175,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                               style: TextStyle(color: textColor),
                               decoration: InputDecoration(
                                 labelText: 'Email',
-                                labelStyle: TextStyle(color: textColor.withValues(alpha: 0.5)),
+                                labelStyle: TextStyle(color: textColor.withOpacity(0.5)),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(color: borderColor)
@@ -193,7 +193,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                               style: TextStyle(color: textColor),
                               decoration: InputDecoration(
                                 labelText: 'Password',
-                                labelStyle: TextStyle(color: textColor.withValues(alpha: 0.5)),
+                                labelStyle: TextStyle(color: textColor.withOpacity(0.5)),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(color: borderColor)
@@ -205,7 +205,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                                    color: textColor.withValues(alpha: 0.5),
+                                    color: textColor.withOpacity(0.5),
                                   ),
                                   onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                                 )
@@ -221,7 +221,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                 style: TextStyle(color: textColor),
                                 decoration: InputDecoration(
                                   labelText: 'Confirm Password',
-                                  labelStyle: TextStyle(color: textColor.withValues(alpha: 0.5)),
+                                  labelStyle: TextStyle(color: textColor.withOpacity(0.5)),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide(color: borderColor)
@@ -239,8 +239,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
                             const SizedBox(height: 32),
                             if (authState.isLoading)
                               Shimmer.fromColors(
-                                baseColor: textColor.withValues(alpha: 0.1),
-                                highlightColor: textColor.withValues(alpha: 0.2),
+                                baseColor: textColor.withOpacity(0.1),
+                                highlightColor: textColor.withOpacity(0.2),
                                 child: Container(
                                   height: 54,
                                   decoration: BoxDecoration(
@@ -274,7 +274,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                  Expanded(child: Divider(color: borderColor)),
                                  Padding(
                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                   child: Text('OR', style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 12, fontWeight: FontWeight.bold)),
+                                   child: Text('OR', style: TextStyle(color: textColor.withOpacity(0.5), fontSize: 12, fontWeight: FontWeight.bold)),
                                  ),
                                  Expanded(child: Divider(color: borderColor)),
                               ],
@@ -333,10 +333,10 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.redAccent.withValues(alpha: 0.9),
+                    color: Colors.redAccent.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 20)
+                      BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20)
                     ]
                   ),
                   child: Text(

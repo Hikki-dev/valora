@@ -12,10 +12,10 @@ class MockSnapshotCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0A0A0F),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.3), width: 1.5),
+        border: Border.all(color: Colors.amber.withOpacity(0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.amber.withValues(alpha: 0.1),
+            color: Colors.amber.withOpacity(0.1),
             blurRadius: 30,
             spreadRadius: 2,
           ),
@@ -89,7 +89,7 @@ class MockSearchList extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0F0F14),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -97,7 +97,7 @@ class MockSearchList extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
+              color: Colors.white.withOpacity(0.05),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Row(
@@ -116,9 +116,9 @@ class MockSearchList extends StatelessWidget {
            Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.02),
+              color: Colors.white.withOpacity(0.02),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+              border: Border.all(color: Colors.white.withOpacity(0.05)),
             ),
             child: const Row(
               children: [
@@ -137,9 +137,9 @@ class MockSearchList extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: Colors.white.withOpacity(0.03),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: Row(
         children: [
@@ -147,7 +147,7 @@ class MockSearchList extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.2),
+              color: color.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.videogame_asset, color: Colors.white24, size: 24),
@@ -184,7 +184,7 @@ class MockPriceList extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0F0F14),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -207,9 +207,9 @@ class MockPriceList extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: Colors.white.withOpacity(0.03),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: highlight ? Colors.amber.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.05), width: highlight ? 2 : 1),
+        border: Border.all(color: highlight ? Colors.amber.withOpacity(0.3) : Colors.white.withOpacity(0.05), width: highlight ? 2 : 1),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -258,7 +258,7 @@ class MockPlatformList extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0F0F14),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: Row(
         children: [
@@ -301,7 +301,7 @@ class MockSharingPreview extends StatelessWidget {
            decoration: BoxDecoration(
              color: const Color(0xFF0A0A0F),
              borderRadius: BorderRadius.circular(32),
-             border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3), width: 2),
+             border: Border.all(color: Colors.cyanAccent.withOpacity(0.3), width: 2),
            ),
            child: const Column(
              mainAxisSize: MainAxisSize.min,
@@ -359,7 +359,7 @@ class MockSyncPreview extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0F0F14),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.1)),
+        border: Border.all(color: Colors.amber.withOpacity(0.1)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -373,7 +373,7 @@ class MockSyncPreview extends StatelessWidget {
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: Colors.greenAccent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
+                decoration: BoxDecoration(color: Colors.greenAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
                 child: const Text('SECURE', style: TextStyle(color: Colors.greenAccent, fontSize: 9, fontWeight: FontWeight.bold)),
               ),
             ],
@@ -417,7 +417,7 @@ class MockSyncPreview extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: active ? progress : 0,
-            backgroundColor: Colors.white.withValues(alpha: 0.05),
+            backgroundColor: Colors.white.withOpacity(0.05),
             valueColor: AlwaysStoppedAnimation<Color>(active ? Colors.amber : Colors.white10),
             minHeight: 4,
           ),

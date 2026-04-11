@@ -345,7 +345,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Colors.black.withOpacity(0.3),
             blurRadius: 40,
             offset: const Offset(0, -10),
           ),
@@ -393,10 +393,10 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           style: TextStyle(color: textColor, fontSize: 18),
           decoration: InputDecoration(
             hintText: 'Search for a game title...',
-            hintStyle: TextStyle(color: textColor.withValues(alpha: 0.3)),
-            prefixIcon: Icon(Icons.search, color: textColor.withValues(alpha: 0.5)),
+            hintStyle: TextStyle(color: textColor.withOpacity(0.3)),
+            prefixIcon: Icon(Icons.search, color: textColor.withOpacity(0.5)),
             filled: true,
-            fillColor: textColor.withValues(alpha: 0.05),
+            fillColor: textColor.withOpacity(0.05),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
@@ -413,7 +413,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           if (_searchModeLabel != null)
              Padding(
                padding: const EdgeInsets.only(bottom: 12.0),
-               child: Text(_searchModeLabel!, style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 12, fontStyle: FontStyle.italic)),
+               child: Text(_searchModeLabel!, style: TextStyle(color: textColor.withOpacity(0.5), fontSize: 12, fontStyle: FontStyle.italic)),
              ),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 350),
@@ -429,11 +429,11 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
             padding: const EdgeInsets.symmetric(vertical: 32.0),
             child: Column(
               children: [
-                Icon(Icons.search_off, size: 48, color: textColor.withValues(alpha: 0.2)),
+                Icon(Icons.search_off, size: 48, color: textColor.withOpacity(0.2)),
                 const SizedBox(height: 16),
                 Text('No matches found. Try expanding your search.', 
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: textColor.withValues(alpha: 0.4))),
+                  style: TextStyle(color: textColor.withOpacity(0.4))),
               ],
             ),
           ),
@@ -452,9 +452,9 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
     
     return Container(
       decoration: BoxDecoration(
-        color: textColor.withValues(alpha: 0.03),
+        color: textColor.withOpacity(0.03),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: textColor.withValues(alpha: 0.05)),
+        border: Border.all(color: textColor.withOpacity(0.05)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
