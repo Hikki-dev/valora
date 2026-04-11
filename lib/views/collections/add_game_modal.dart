@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:async';
-import 'dart:ui';
 
 import 'library_sync_view.dart';
 import '../../models/game.dart';
@@ -449,7 +447,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                       builder: (context) => LibrarySyncView(),
                     );
                   },
-                  icon: FaIcon(FontAwesomeIcons.steam, size: 16, color: Colors.blueAccent),
+                  icon: const FaIcon(FontAwesomeIcons.steam, size: 16, color: Colors.blueAccent),
                   label: const Text('SYNC YOUR ENTIRE STEAM LIBRARY', style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold)),
                 ),
               ],
