@@ -130,15 +130,15 @@ class OnboardingContent {
         ),
         OnboardingContent(
           title: 'WHAT\'S NEW',
-          subtitle: 'Performance & Mastery (v1.1.0)',
+          subtitle: 'Speed & Security Update (v1.1.0)',
           description:
-              'Valora has been completely re-engineered for speed, responsiveness, and security.',
+              'We have finished some major improvements to make Valora faster and easier to use.',
           bulletPoints: [
-            'WASM Engine: Up to 2x faster execution on web platforms',
-            'Responsive Excellence: New 3-tier sidebar, rail, and mobile layouts',
-            'Security Hardening: Core RLS policies for maximum data isolation',
-            'Memory Caching: Optimized image handling for smoother scrolling',
-            'Social Snapshots: Premium sharing for your top collection assets'
+            'Lightning Speed: Browsing on the web is now twice as fast',
+            'Better Layouts: Now looks great on your Tablet and Desktop',
+            'Improved Security: Your collection is now even safer and more private',
+            'Smoother Scrolling: Images load better so you can scroll faster',
+            'Snapshot Sharing: Easily share a beautiful summary of your best games'
           ],
           icon: const FaIcon(FontAwesomeIcons.gaugeHigh,
               size: 48, color: Colors.amber),
