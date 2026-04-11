@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../controllers/home_controller.dart';
@@ -16,6 +17,7 @@ class ProfileView extends ConsumerWidget {
     final currency = ref.watch(currencyProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
+    final mutedColor = textColor.withValues(alpha: 0.5);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -65,13 +67,29 @@ class ProfileView extends ConsumerWidget {
             _buildSettingTile(context, Icons.calendar_today, 'Joined',
                 _formatDate(user?.createdAt), textColor),
             const SizedBox(height: 32),
+            _buildSectionHeader('APPLICATION', mutedColor),
+            const SizedBox(height: 12),
+            FutureBuilder<PackageInfo>(
+              future: PackageInfo.fromPlatform(),
+              builder: (context, snapshot) {
+                final version = snapshot.data?.version ?? '...';
+                return _buildSettingTile(
+                  context,
+                  Icons.info_outline,
+                  'About Valora',
+                  'v$version',
+                  textColor,
+                );
+              },
+            ),
+            _buildSettingTile(
+                context, Icons.security, 'Privacy Policy', '', textColor),
+            const SizedBox(height: 32),
             _buildSectionHeader('SUPPORT', textColor),
             const SizedBox(height: 16),
             _buildSettingTile(context, Icons.help_outline, 'Help & Feedback',
                 'Submit a ticket', textColor,
                 isAction: true),
-            _buildSettingTile(context, Icons.info_outline, 'About Valora',
-                'v1.0.0', textColor),
             const SizedBox(height: 40),
           ],
         ),

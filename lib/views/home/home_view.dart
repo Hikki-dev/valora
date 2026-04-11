@@ -11,6 +11,7 @@ import '../../controllers/auth_controller.dart';
 import '../../core/theme.dart';
 import '../../core/currency_provider.dart';
 import '../../models/game.dart';
+import '../collections/widgets/game_box_3d.dart';
 import '../../repositories/game_repository.dart';
 import '../../services/share_service.dart';
 import '../../services/update_service.dart';
@@ -234,7 +235,7 @@ class HomeView extends ConsumerWidget {
                     onPressed: () async {
                       final gamesAsync =
                           await ref.read(allGamesProvider.future);
-                      final sortedGames = List<Game>.from(gamesAsync);
+                      final List<Game> sortedGames = List<Game>.from(gamesAsync as Iterable);
                       sortedGames.sort((a, b) => (b.activeMarketValue ?? 0)
                           .compareTo(a.activeMarketValue ?? 0));
                       final top10 = sortedGames.take(10).toList();
@@ -313,11 +314,9 @@ class HomeView extends ConsumerWidget {
               style:
                   TextStyle(color: mutatedTextColor(textColor), fontSize: 16)),
           const SizedBox(height: 12),
-          const SizedBox(height: 12),
           Consumer(builder: (context, ref, _) {
-            final delta =
-                ref.watch(homeControllerProvider.select((s) => s.weeklyDelta));
-            if (delta == 0.0) return const SizedBox.shrink();
+            final stats = ref.watch(homeControllerProvider);
+            final delta = stats.weeklyDelta;
             final isGain = delta >= 0;
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -354,10 +353,108 @@ class HomeView extends ConsumerWidget {
             },
           ),
           const SizedBox(height: 40),
+
+          // FEAT 2D: PORTFOLIO PERFORMANCE
+          Consumer(builder: (context, ref, _) {
+            final games = ref.watch(libraryStreamProvider).value ?? <Game>[];
+            final withPurchasePrice =
+                games.where((g) => g.purchasePrice != null).toList();
+            final totalInvested =
+                withPurchasePrice.fold(0.0, (s, g) => s + (g.purchasePrice ?? 0));
+            final totalMarket = withPurchasePrice.fold(
+                0.0, (s, g) => s + (g.activeMarketValue ?? 0));
+            final totalGain = totalMarket - totalInvested;
+            final isGain = totalGain >= 0;
+
+            if (withPurchasePrice.isEmpty) return const SizedBox.shrink();
+
+            final gainColor = isGain ? Colors.greenAccent : Colors.redAccent;
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 24),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: gainColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: gainColor.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(isGain ? Icons.trending_up : Icons.trending_down,
+                      color: gainColor, size: 32),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('PORTFOLIO PERFORMANCE',
+                            style: TextStyle(
+                                color: gainColor.withValues(alpha: 0.7),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.5)),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${isGain ? '+' : ''}${ref.watch(currencyProvider).format(totalGain)} on ${withPurchasePrice.length} tracked games',
+                          style: TextStyle(
+                              color: gainColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+
+          // FEAT 2E: RECENTLY ADDED
+          Consumer(builder: (context, ref, _) {
+            final games = ref.watch(libraryStreamProvider).value ?? <Game>[];
+            if (games.isEmpty) return const SizedBox.shrink();
+            final recent = games.take(5).toList();
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 12),
+                Text('RECENTLY ADDED',
+                    style: TextStyle(
+                        fontSize: 13,
+                        letterSpacing: 2,
+                        fontWeight: FontWeight.w700,
+                        color: mutedTextColor)),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 135,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: recent.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (context, i) {
+                      final g = recent[i];
+                      return GestureDetector(
+                        onTap: () => context.push('/game/${g.id}'),
+                        child: SizedBox(
+                          width: 90,
+                          child: GameBox3D(coverUrl: g.coverUrl, title: g.title),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 32),
+              ],
+            );
+          }),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('COLLECTIONS',
+              Text('PLATFORMS',
                   style: TextStyle(
                       fontSize: 13,
                       letterSpacing: 2,

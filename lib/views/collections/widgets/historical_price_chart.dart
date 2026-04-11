@@ -45,7 +45,11 @@ class HistoricalPriceChart extends ConsumerWidget {
 
     // Extract relevant data points based on condition
     final spots = _getSpots();
-    if (spots.length < 2) {
+    if (spots.isEmpty) {
+      // Prevent StateError if all historical records parse as exactly $0 baseline
+      return const SizedBox();
+    }
+    if (spots.length == 1) {
       return _buildSingleDataState(
           context, spots.first.y, accentColor, currency);
     }

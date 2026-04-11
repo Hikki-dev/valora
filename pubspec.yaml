@@ -30,6 +30,7 @@ dependencies:
 
   # Images
   cached_network_image: ^3.4.1
+  flutter_cache_manager: ^3.4.1
 
   # Auth
   google_sign_in: ^6.3.0

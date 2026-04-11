@@ -91,6 +91,7 @@ class Game {
   final String? source;
   final DateTime? fetchedAt;
   final double? currentValue;
+  final String? notes;
 
   Game({
     required this.id,
@@ -116,6 +117,7 @@ class Game {
     this.source,
     this.fetchedAt,
     this.currentValue,
+    this.notes,
   });
 
   factory Game.fromJson(Map<String, dynamic> json) {
@@ -145,6 +147,7 @@ class Game {
           ? DateTime.tryParse(json['fetched_at'] as String)
           : null,
       currentValue: (json['current_value'] as num?)?.toDouble(),
+      notes: json['notes'] as String?,
     );
   }
 
@@ -164,6 +167,7 @@ class Game {
       'condition': condition.label,
       'purchase_price': purchasePrice,
       'estimated_value': estimatedValue,
+      'notes': notes,
     };
   }
 
@@ -191,6 +195,7 @@ class Game {
     String? source,
     DateTime? fetchedAt,
     double? currentValue,
+    String? notes,
   }) {
     return Game(
       id: id ?? this.id,
@@ -216,6 +221,7 @@ class Game {
       source: source ?? this.source,
       fetchedAt: fetchedAt ?? this.fetchedAt,
       currentValue: currentValue ?? this.currentValue,
+      notes: notes ?? this.notes,
     );
   }
 

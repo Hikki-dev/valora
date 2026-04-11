@@ -19,6 +19,7 @@ CREATE INDEX IF NOT EXISTS idx_price_history_game_date ON public.price_history(g
 ALTER TABLE public.price_history ENABLE ROW LEVEL SECURITY;
 
 -- Allow users to see only their own game price history (via games table ownership)
+DROP POLICY IF EXISTS "Users can view private price history of their games" ON public.price_history;
 CREATE POLICY "Users can view private price history of their games"
 ON public.price_history FOR SELECT
 TO authenticated
@@ -31,6 +32,7 @@ USING (
 );
 
 -- The Edge Function will handle insertions (service_role or authenticated with proper logic)
+DROP POLICY IF EXISTS "Users can insert price history for their games" ON public.price_history;
 CREATE POLICY "Users can insert price history for their games"
 ON public.price_history FOR INSERT
 TO authenticated

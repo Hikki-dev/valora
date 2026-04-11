@@ -465,20 +465,12 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
             ),
           ),
         ],
-        if (!_isSearching &&
-            _searchResults.isEmpty &&
-            _titleController.text.length > 2)
+        // Steam Sync permanently visible as requested
+        if (!_isSearching && _titleController.text.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 32.0),
             child: Column(
               children: [
-                Icon(Icons.search_off,
-                    size: 48, color: textColor.withValues(alpha: 0.2)),
-                const SizedBox(height: 16),
-                Text('No matches found. Try expanding your search.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: textColor.withValues(alpha: 0.4))),
-                const SizedBox(height: 32),
                 const Text('HAVE A STEAM ACCOUNT?',
                     style: TextStyle(
                         color: Colors.white24,
@@ -501,6 +493,22 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                           color: Colors.blueAccent,
                           fontWeight: FontWeight.bold)),
                 ),
+              ],
+            ),
+          ),
+        if (!_isSearching &&
+            _searchResults.isEmpty &&
+            _titleController.text.length > 2)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32.0),
+            child: Column(
+              children: [
+                Icon(Icons.search_off,
+                    size: 48, color: textColor.withValues(alpha: 0.2)),
+                const SizedBox(height: 16),
+                Text('No matches found. Try expanding your search.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: textColor.withValues(alpha: 0.4))),
               ],
             ),
           ),

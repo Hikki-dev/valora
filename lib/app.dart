@@ -17,6 +17,29 @@ import 'controllers/onboarding_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'core/currency_provider.dart';
 
+final wishlistDealCountProvider = FutureProvider.autoDispose<int>((ref) async {
+  final user = Supabase.instance.client.auth.currentUser;
+  if (user == null) return 0;
+  try {
+    final res = await Supabase.instance.client
+        .from('wishlists')
+        .select('id, current_price, target_price')
+        .eq('alerted', false);
+    
+    int count = 0;
+    for (var item in res) {
+      if (item['current_price'] != null && item['target_price'] != null) {
+        if ((item['current_price'] as num) <= (item['target_price'] as num)) {
+          count++;
+        }
+      }
+    }
+    return count;
+  } catch (e) {
+    return 0;
+  }
+});
+
 class RouterNotifier extends ChangeNotifier {
   RouterNotifier() {
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
@@ -99,14 +122,19 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               selectedItemColor: Theme.of(context).primaryColor,
               unselectedItemColor: textColor.withValues(alpha: 0.5),
-              items: const [
-                BottomNavigationBarItem(
+              items: [
+                const BottomNavigationBarItem(
                     icon: Icon(Icons.home_rounded), label: 'Home'),
-                BottomNavigationBarItem(
+                const BottomNavigationBarItem(
                     icon: Icon(Icons.library_books), label: 'Library'),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.favorite), label: 'Wishlist'),
-                BottomNavigationBarItem(
+                    icon: Badge(
+                      isLabelVisible: ref.watch(wishlistDealCountProvider).valueOrNull != null && ref.watch(wishlistDealCountProvider).value! > 0,
+                      label: Text('${ref.watch(wishlistDealCountProvider).valueOrNull ?? 0}'),
+                      child: const Icon(Icons.favorite),
+                    ),
+                    label: 'Wishlist'),
+                const BottomNavigationBarItem(
                     icon: Icon(Icons.person), label: 'Profile'),
               ],
             )
@@ -329,9 +357,12 @@ final routerProvider = Provider<GoRouter>((ref) {
                 child: GameDetailView(gameId: gameId),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(opacity: animation, child: child);
+                  return FadeTransition(
+                    opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                    child: child,
+                  );
                 },
-                transitionDuration: const Duration(milliseconds: 200),
+                transitionDuration: const Duration(milliseconds: 300),
               );
             },
           ),

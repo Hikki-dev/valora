@@ -24,10 +24,12 @@ class PriceData {
       };
 
   factory PriceData.fromJson(Map<String, dynamic> json) => PriceData(
-        loosePrice: (json['loose'] as num?)?.toDouble(),
-        cibPrice: (json['cib'] as num?)?.toDouble(),
-        newPrice: (json['new'] as num?)?.toDouble(),
-        digitalPrice: (json['digital'] as num?)?.toDouble(),
+        loosePrice: (json['price_loose'] as num? ?? json['loose'] as num?)?.toDouble(),
+        cibPrice: (json['price_complete'] as num? ?? json['cib'] as num?)
+            ?.toDouble(),
+        newPrice: (json['price_new'] as num? ?? json['new'] as num?)?.toDouble(),
+        digitalPrice: (json['price_digital'] as num? ?? json['digital'] as num?)
+            ?.toDouble(),
         source: json['source'] as String? ?? 'Unknown',
       );
 

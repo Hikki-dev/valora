@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:async';
 import '../models/game.dart';
 import '../models/price_data.dart';
 import '../controllers/auth_controller.dart';
@@ -173,6 +174,10 @@ class GameRepository {
         .toList();
   }
 
+  Future<void> updateGame(Game game) async {
+    await _client.from('games').update(game.toJson()).eq('id', game.id);
+  }
+
   Future<void> deleteGame(String id, String userId) async {
     await _client.from('games').delete().eq('id', id).eq('user_id', userId);
   }
@@ -185,10 +190,45 @@ class GameRepository {
         .order('added_at', ascending: false)
         .map((response) => response.map((e) => Game.fromJson(e)).toList());
   }
+
+  Stream<void> valuationUpdateStream(String userId) {
+    final controller = StreamController<void>();
+
+    final channel = _client
+        .channel('valuations_$userId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'valuations',
+          callback: (payload) {
+            if (!controller.isClosed) {
+              controller.add(null);
+            }
+          },
+        )
+        .subscribe();
+
+    controller.onCancel = () {
+      _client.removeChannel(channel);
+      controller.close();
+    };
+
+    return controller.stream;
+  }
 }
 
 final libraryStreamProvider = StreamProvider<List<Game>>((ref) {
   final user = ref.watch(authControllerProvider).value;
   if (user == null) return Stream.value([]);
-  return ref.watch(gameRepositoryProvider).getGamesStream(user.id);
+
+  // Setup realtime listener to invalidate the stream on valuation changes
+  final repo = ref.read(gameRepositoryProvider);
+  ref.listen(StreamProvider((ref) => repo.valuationUpdateStream(user.id)),
+      (prev, next) {
+    if (next is AsyncData) {
+      ref.invalidateSelf();
+    }
+  });
+
+  return repo.getGamesStream(user.id);
 });

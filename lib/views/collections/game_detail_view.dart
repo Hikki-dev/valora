@@ -11,6 +11,9 @@ import '../../services/price_service.dart';
 import '../../repositories/game_repository.dart';
 import '../../core/currency_provider.dart';
 import 'widgets/historical_price_chart.dart';
+import 'edit_game_sheet.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 // Provider that loads a single game and triggers a background price refresh
 final gameDetailProvider = FutureProvider.autoDispose.family<Game?, String>(
@@ -22,11 +25,26 @@ final gameDetailProvider = FutureProvider.autoDispose.family<Game?, String>(
 );
 
 // Provider that returns the live PriceData for a game (uses cache when fresh)
-final gamePricesProvider =
-    FutureProvider.autoDispose.family<PriceData?, String>(
+final gamePricesProvider = FutureProvider.autoDispose.family<PriceData?, String>(
   (ref, gameId) async {
     final game = await ref.watch(gameDetailProvider(gameId).future);
     if (game == null) return null;
+
+    // Let the screen paint first, then fetch prices
+    // This makes the game detail feel instant on open
+    await Future.delayed(const Duration(milliseconds: 150));
+
+    // Only fetch if the price cache is stale — no unnecessary calls
+    if (!game.isPriceCacheStale) {
+      // Return cached data from the game model directly
+      return PriceData(
+        loosePrice: game.priceLoose,
+        cibPrice: game.priceComplete,
+        newPrice: game.priceNew,
+        digitalPrice: game.priceDigital,
+        source: game.source ?? 'cache',
+      );
+    }
 
     return ref.read(priceServiceProvider).fetchPrices(game);
   },
@@ -118,6 +136,7 @@ class GameDetailView extends ConsumerWidget {
             textColor: textColor,
             mutedColor: mutedColor,
             topPadding: MediaQuery.paddingOf(context).top,
+            ref: ref, // Pass ref here
           ),
         ),
 
@@ -682,7 +701,7 @@ class _PriceRow extends StatelessWidget {
             ],
           ),
           Text(
-            '—',
+            price != null ? currency.format(price!) : '—',
             style: TextStyle(
               color: priceColor,
               fontWeight: FontWeight.w900,
@@ -946,6 +965,8 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Color mutedColor;
   final double topPadding;
 
+  final WidgetRef ref; // Added ref
+
   _GameHeaderDelegate({
     required this.game,
     required this.onBack,
@@ -953,6 +974,7 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
     required this.textColor,
     required this.mutedColor,
     required this.topPadding,
+    required this.ref,
   });
 
   @override
@@ -1032,10 +1054,43 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
                       color: Colors.black.withValues(alpha: 0.4),
                       shape: BoxShape.circle,
                     ),
+                    child: const Icon(Icons.edit_outlined,
+                        color: Colors.white, size: 20),
+                  ),
+                  onPressed: () => showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => EditGameSheet(game: game),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      shape: BoxShape.circle,
+                    ),
                     child: const Icon(Icons.refresh,
                         color: Colors.white, size: 20),
                   ),
-                  onPressed: onRefresh,
+                  onPressed: () async {
+                    if (!kIsWeb) {
+                      await HapticFeedback.lightImpact();
+                    }
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Refreshing metadata...'),
+                            duration: Duration(seconds: 1)),
+                      );
+                    }
+                    await ref
+                        .read(priceServiceProvider)
+                        .refreshGameMetadata(game);
+                    ref.invalidate(gameDetailProvider(game.id));
+                  },
                 ),
                 const SizedBox(width: 8),
               ],
