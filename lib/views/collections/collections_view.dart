@@ -8,6 +8,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../repositories/game_repository.dart';
 import '../../models/game.dart';
 import 'add_game_modal.dart';
+import 'library_sync_view.dart';
+import 'game_detail_view.dart';
 import '../../core/currency_provider.dart';
 
 class SelectedSubCategory extends Notifier<String> {
@@ -371,10 +373,10 @@ class CollectionsView extends ConsumerWidget {
                                 onPressed: () {
                                   showDialog(
                                     context: context,
-                                    builder: (context) => const LibrarySyncView(),
+                                    builder: (context) => LibrarySyncView(),
                                   );
                                 },
-                                icon: const FaIcon(FontAwesomeIcons.steam, size: 18),
+                                icon: FaIcon(FontAwesomeIcons.steam, size: 18),
                                 label: const Text('SYNC STEAM LIBRARY'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blueAccent,
