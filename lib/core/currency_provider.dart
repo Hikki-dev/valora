@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,7 +31,7 @@ class CurrencyState {
 class CurrencyNotifier extends Notifier<CurrencyState> {
   @override
   CurrencyState build() {
-    Future.microtask(() => _init());
+    unawaited(_init());
     return CurrencyState(currency: AppCurrency.usd, lkrRate: 300.0);
   }
 

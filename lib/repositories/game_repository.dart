@@ -101,7 +101,7 @@ class GameRepository {
         .eq('platform', platform.value);
     
     return (response as List<dynamic>)
-        .map((e) => e['external_id'] as String?)
+        .map((e) => (e as Map<String, dynamic>)['external_id'] as String?)
         .where((id) => id != null)
         .cast<String>()
         .toSet();
@@ -128,7 +128,7 @@ class GameRepository {
     }
   }
 
-  /// Manually update valuation for a game.
+  /// Manually update valuation for a game and log to history.
   Future<void> updateValuation(String userId, String gameId, PriceData data) async {
     await _client.from('valuations').upsert({
       'game_id': gameId,
@@ -140,6 +140,26 @@ class GameRepository {
       'source': data.source,
       'fetched_at': DateTime.now().toIso8601String(),
     });
+
+    // Also log to history for trend tracking
+    await _client.from('price_history').insert({
+      'game_id': gameId,
+      'price_loose': data.loosePrice,
+      'price_complete': data.cibPrice,
+      'price_new': data.newPrice,
+      'price_digital': data.digitalPrice,
+      'source': data.source,
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getPriceHistory(String gameId) async {
+    final response = await _client
+        .from('price_history')
+        .select()
+        .eq('game_id', gameId)
+        .order('fetched_at', ascending: true);
+    
+    return (response as List<dynamic>).map((e) => e as Map<String, dynamic>).toList();
   }
 
   Future<void> deleteGame(String id, String userId) async {

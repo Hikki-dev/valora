@@ -10,6 +10,8 @@ import '../../models/price_data.dart';
 import '../../services/price_service.dart';
 import '../../repositories/game_repository.dart';
 import '../../core/currency_provider.dart';
+import 'widgets/historical_price_chart.dart';
+import 'dart:async';
 
 // Provider that loads a single game and triggers a background price refresh
 final gameDetailProvider = FutureProvider.autoDispose.family<Game?, String>(
@@ -27,6 +29,12 @@ final gamePricesProvider = FutureProvider.autoDispose.family<PriceData?, String>
     if (game == null) return null;
 
     return ref.read(priceServiceProvider).fetchPrices(game);
+  },
+);
+
+final gameHistoryProvider = FutureProvider.autoDispose.family<List<Map<String, dynamic>>, String>(
+  (ref, gameId) async {
+    return ref.read(gameRepositoryProvider).getPriceHistory(gameId);
   },
 );
 
@@ -133,6 +141,14 @@ class GameDetailView extends ConsumerWidget {
                   isDark: isDark,
                 ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.05, end: 0),
               ),
+
+              const SizedBox(height: 16),
+
+              // TREND section
+              ref.watch(gameHistoryProvider(game.id)).maybeWhen(
+                    data: (history) => HistoricalPriceChart(game: game, history: history),
+                    orElse: () => const SizedBox.shrink(),
+                  ),
 
               const SizedBox(height: 28),
 

@@ -1,6 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../repositories/game_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:async';
 
 class HomeState {
   final bool isLoading;
@@ -118,11 +117,10 @@ final gameStatsProvider = Provider<HomeState>((ref) {
   );
 });
 
-class HomeController extends Notifier<HomeState> {
   @override
   HomeState build() {
     final stats = ref.watch(gameStatsProvider);
-    _fetchHistory();
+    unawaited(_fetchHistory());
     return stats.copyWith(
         hidePricing: stateOrNull?.hidePricing ?? false,
         valueHistory: stateOrNull?.valueHistory ?? []);
@@ -136,10 +134,13 @@ class HomeController extends Notifier<HomeState> {
           .order('snapped_at', ascending: true)
           .limit(30);
       
-      final history = (response as List).map((e) => ValueSnapshot(
-        DateTime.parse(e['snapped_at'] as String),
-        (e['total_value'] as num).toDouble(),
-      )).toList();
+      final history = (response as List).map((e) {
+        final item = e as Map<String, dynamic>;
+        return ValueSnapshot(
+          DateTime.parse(item['snapped_at'] as String),
+          (item['total_value'] as num).toDouble(),
+        );
+      }).toList();
 
       state = state.copyWith(valueHistory: history);
     } catch (_) {

@@ -180,8 +180,10 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         final secondResults = await _fetchCheapShark(expandedQuery);
         
         secondResults.sort((a, b) {
-          final aOwned = ownedIds.contains(a['gameID']?.toString());
-          final bOwned = ownedIds.contains(b['gameID']?.toString());
+          final aMap = a as Map<String, dynamic>;
+          final bMap = b as Map<String, dynamic>;
+          final aOwned = ownedIds.contains(aMap['gameID']?.toString());
+          final bOwned = ownedIds.contains(bMap['gameID']?.toString());
           if (aOwned && !bOwned) return -1;
           if (!aOwned && bOwned) return 1;
           return 0;
@@ -634,12 +636,14 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
   }
 
 
-  Widget _buildSearchResultRow(dynamic game, Color textColor, int index) {
-    String? steamAppId = game['steamAppID'];
-    String? thumb = steamAppId != null && steamAppId.isNotEmpty 
+  Widget _buildSearchResultRow(dynamic gameObj, Color textColor, int index) {
+    final game = gameObj as Map<String, dynamic>;
+    final String? steamAppId = game['steamAppID']?.toString();
+    final String? thumb = steamAppId != null && steamAppId.isNotEmpty 
         ? 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/$steamAppId/library_600x900.jpg'
-        : game['thumb'];
-    String title = game['external'] ?? 'Unknown Title';
+        : game['thumb']?.toString();
+    final String title = game['external']?.toString() ?? 'Unknown Title';
+    final String gameId = game['gameID']?.toString() ?? '';
     
     return Container(
       decoration: BoxDecoration(
@@ -652,7 +656,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         leading: SizedBox(
           width: 50, 
           child: Hero(
-            tag: 'search_preview_${game['gameID']}',
+            tag: 'search_preview_$gameId',
             child: GameBox3D(coverUrl: thumb, title: title),
           ),
         ),

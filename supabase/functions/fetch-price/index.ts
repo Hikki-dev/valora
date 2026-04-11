@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       priceData = await fetchCheapShark(body.title, body.platform)
     }
 
-    // 6. Upsert to DB and return
+    // 6. Upsert to DB
     const { data: valuation, error: upsertError } = await supabase
       .from('valuations')
       .upsert(
@@ -88,6 +88,10 @@ Deno.serve(async (req) => {
       .single()
 
     if (upsertError) throw upsertError
+
+    // 7. Continuous History Logging (Free personal trend tracking)
+    // We log every fresh fetch to build a high-resolution chart over time
+    edgeLogHistory(supabase, body.gameId, priceData);
 
     return new Response(JSON.stringify(valuation), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -170,5 +174,30 @@ async function fetchCheapShark(title: string, platform: string) {
     price_digital:  price,
     source:         'cheapshark',
     currency:       'USD',
+  }
+}
+
+/**
+ * Helper to log price history without blocking the main response.
+ * This is the engine that builds free historical trends over time.
+ */
+async function edgeLogHistory(supabase: any, gameId: string, priceData: any) {
+  try {
+    const { error } = await supabase
+      .from('price_history')
+      .insert({
+        game_id: gameId,
+        price_loose:    priceData.price_loose,
+        price_complete: priceData.price_complete,
+        price_new:      priceData.price_new,
+        price_digital:  priceData.price_digital,
+        source:         priceData.source,
+      });
+
+    if (error) {
+      console.warn(`[HistoryLog] Skip/Error for ${gameId}: ${error.message}`);
+    }
+  } catch (err) {
+    console.error(`[HistoryLog] Critical failure for ${gameId}:`, err);
   }
 }
