@@ -87,7 +87,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
     // Heroic responsive assets
     final backgroundImage =
-        isDesktop ? 'assets/icon/batman.jpg' : 'assets/icon/Spalsh.webp';
+        isDesktop ? 'assets/icon/batman.jpg' : 'assets/icon/Splash.webp';
 
     return Scaffold(
       backgroundColor: Colors.black, // Dark foundation for the image stack

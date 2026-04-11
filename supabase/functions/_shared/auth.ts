@@ -29,7 +29,21 @@ export async function verifyUser(req: Request) {
     const errorMsg = error?.message ?? 'Invalid session';
     console.error(`[Auth] Verification failed: ${errorMsg}`);
     console.debug(`[Auth] URL: ${Deno.env.get('SUPABASE_URL')}`);
-    console.debug(`[Auth] Token prefix: ${token.substring(0, 10)}...`);
+    
+    // Safety: Inspect token properties without verifying (to debug 401s)
+    try {
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1]));
+        console.debug(`[Auth Debug] ISS: ${payload.iss}`);
+        console.debug(`[Auth Debug] SUB: ${payload.sub}`);
+        console.debug(`[Auth Debug] ROLE: ${payload.role}`);
+        console.debug(`[Auth Debug] EXP: ${new Date(payload.exp * 1000).toISOString()}`);
+      }
+    } catch (e) {
+      console.debug(`[Auth Debug] Could not parse token: ${e}`);
+    }
+
     throw new Error(`Unauthorized: ${errorMsg}`);
   }
 
