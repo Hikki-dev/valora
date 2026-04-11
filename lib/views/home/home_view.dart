@@ -14,6 +14,7 @@ import 'insights_view.dart';
 import '../../models/game.dart';
 import '../../repositories/game_repository.dart';
 import '../../services/share_service.dart';
+import '../../services/update_service.dart';
 import 'widgets/collection_snapshot.dart';
 import 'widgets/valuation_chart.dart';
 import '../onboarding/onboarding_panel.dart';
@@ -100,6 +101,77 @@ class HomeView extends ConsumerWidget {
               }
               return const SizedBox.shrink();
             },
+          ),
+          // UPDATE NOTIFICATION
+          if (!isDesktop) // Only show on mobile
+          Positioned(
+            bottom: 24,
+            left: 24,
+            right: 24,
+            child: FutureBuilder<UpdateInfo?>(
+              future: UpdateService().checkForUpdate(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data!.isUpdateAvailable) {
+                  final info = snapshot.data!;
+                  return GestureDetector(
+                    onTap: () async {
+                      final url = Uri.parse(info.downloadUrl);
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blueAccent.withOpacity(0.4),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.system_update_alt, color: Colors.white, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'Update Available',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                                Text(
+                                  'New version ${info.latestVersion} is out!',
+                                  style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'DOWNLOAD',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 10),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ).animate().slideY(begin: 1, end: 0, duration: 800.ms, curve: Curves.easeOutBack);
+                }
+                return const SizedBox.shrink();
+              },
+            ),
           ),
         ],
       ),
