@@ -28,8 +28,9 @@ class PriceService {
       if (expiresAt != null) {
         final secondsRemaining =
             expiresAt - (DateTime.now().millisecondsSinceEpoch ~/ 1000);
-        if (secondsRemaining > 60)
+        if (secondsRemaining > 60) {
           return; // More than 1 minute left, we're fine
+        }
       } else {
         return; // No expiry info, assume valid
       }

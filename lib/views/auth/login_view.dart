@@ -130,9 +130,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Valora',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'Syne',
                         fontSize: 64,
                         fontWeight: FontWeight.w900,

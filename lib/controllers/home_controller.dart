@@ -100,9 +100,12 @@ final gameStatsProvider = Provider<HomeState>((ref) {
 
         // Map granular internal platform values to dashboard summary categories
         String group = g.platform.value;
-        if (group == 'ps4_physical' || group == 'ps5_physical')
+        if (group == 'ps4_physical' || group == 'ps5_physical') {
           group = 'ps_disc';
-        if (group == 'ps4_digital' || group == 'ps5_digital') group = 'psn';
+        }
+        if (group == 'ps4_digital' || group == 'ps5_digital') {
+          group = 'psn';
+        }
 
         if (values.containsKey(group)) {
           values[group] = (values[group] ?? 0.0) + val;

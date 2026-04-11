@@ -32,7 +32,7 @@ dependencies:
   cached_network_image: ^3.4.1
 
   # Auth
-  google_sign_in: ^6.2.1
+  google_sign_in: ^6.3.0
 
   # Device & Platform
   package_info_plus: ^8.3.1
@@ -40,7 +40,7 @@ dependencies:
   path_provider: ^2.1.4
 
   # Scanner
-  mobile_scanner: ^5.2.3
+  mobile_scanner: ^7.2.0
 
   # Sharing
   screenshot: ^3.0.0

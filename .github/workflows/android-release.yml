@@ -48,7 +48,7 @@ jobs:
           name: Valora ${{ steps.get_version.outputs.VERSION }}
           body: "Automatic build triggered by push to main. Download the APK below to update Valora on your phone."
           draft: false
-          prerelease: true
+          prerelease: false
           files: |
             build/app/outputs/flutter-apk/app-release.apk
         env:

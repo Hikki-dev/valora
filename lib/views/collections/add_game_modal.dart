@@ -99,12 +99,22 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
   String _platformToUiString(AppPlatform platform) {
     if (platform == AppPlatform.ps4Physical ||
-        platform == AppPlatform.ps4Digital) return 'PlayStation 4';
+        platform == AppPlatform.ps4Digital) {
+      return 'PlayStation 4';
+    }
     if (platform == AppPlatform.ps5Physical ||
-        platform == AppPlatform.ps5Digital) return 'PlayStation 5';
-    if (platform == AppPlatform.nintendo) return 'Nintendo';
-    if (platform == AppPlatform.steam) return 'Steam';
-    if (platform == AppPlatform.epic) return 'Epic Games';
+        platform == AppPlatform.ps5Digital) {
+      return 'PlayStation 5';
+    }
+    if (platform == AppPlatform.nintendo) {
+      return 'Nintendo';
+    }
+    if (platform == AppPlatform.steam) {
+      return 'Steam';
+    }
+    if (platform == AppPlatform.epic) {
+      return 'Epic Games';
+    }
     return 'PlayStation 5';
   }
 
