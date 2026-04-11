@@ -10,7 +10,7 @@ const RequestSchema = z.object({
   externalId: z.string().min(1).max(128).regex(
     /^[a-zA-Z0-9_\-\s:]+$/,
     'externalId contains invalid characters'
-  ),
+  ).nullable().optional(),
   title:       z.string().min(1).max(200),
   forceRefresh: z.boolean().optional().default(false),
 })
@@ -70,11 +70,21 @@ Deno.serve(async (req) => {
     let priceData: Record<string, any>
 
     if (body.platform === 'ps_disc') {
-      priceData = await fetchPriceCharting(body.externalId)
+      if (!body.externalId) {
+        // Fall back to title-based search if no externalId
+        priceData = await fetchPriceChartingByTitle(body.title);
+      } else {
+        priceData = await fetchPriceCharting(body.externalId);
+      }
     } else if (body.platform === 'steam') {
-      priceData = await fetchSteam(body.externalId)
+      if (!body.externalId) {
+        return new Response(JSON.stringify({ error: 'Steam games require an externalId' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      priceData = await fetchSteam(body.externalId);
     } else {
-      priceData = await fetchCheapShark(body.title, body.platform)
+      priceData = await fetchCheapShark(body.title, body.platform);
     }
 
     // 6. Upsert to DB
@@ -128,6 +138,33 @@ async function fetchPriceCharting(externalId: string) {
     price_loose:    (d['loose-price']   ?? 0) / 100,
     price_complete: (d['cib-price']     ?? 0) / 100,
     price_new:      (d['new-price']     ?? 0) / 100,
+    price_digital:  null,
+    source:         'pricecharting',
+    currency:       'USD',
+  }
+}
+
+async function fetchPriceChartingByTitle(title: string) {
+  const token = Deno.env.get('PRICE_CHARTING_TOKEN') ?? 
+    'c0b53bce27c1bdab90b1605249e600dc43dfd1d5'
+  
+  const res = await fetch(
+    `https://www.pricecharting.com/api/products?q=${encodeURIComponent(title)}&t=${token}`,
+    { headers: { 'User-Agent': 'Valora/1.0' } }
+  )
+  if (!res.ok) throw new Error(`PriceCharting search error: ${res.status}`)
+  const d = await res.json()
+  const product = d.products?.[0]
+  
+  if (!product) return { 
+    price_loose: null, price_complete: null, price_new: null, price_digital: null, 
+    source: 'pricecharting', currency: 'USD' 
+  }
+  
+  return {
+    price_loose:    (product['loose-price']   ?? 0) / 100,
+    price_complete: (product['cib-price']     ?? 0) / 100,
+    price_new:      (product['new-price']     ?? 0) / 100,
     price_digital:  null,
     source:         'pricecharting',
     currency:       'USD',

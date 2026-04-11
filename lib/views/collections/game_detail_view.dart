@@ -753,7 +753,7 @@ class _ValuationCard extends StatelessWidget {
           if (updatedLabel.isNotEmpty) ...[
             const SizedBox(height: 10),
             Text(
-              'Updated $updatedLabel · $source',
+              'Updated $updatedLabel · ${_friendlySource(source)}',
               style: TextStyle(
                 color: mutedColor,
                 fontSize: 12,
@@ -764,6 +764,15 @@ class _ValuationCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _friendlySource(String source) {
+    switch (source.toLowerCase()) {
+      case 'pricecharting': return 'PriceCharting (eBay avg)';
+      case 'steam': return 'Steam Store';
+      case 'cheapshark': return 'CheapShark';
+      default: return source;
+    }
   }
 }
 
@@ -809,14 +818,14 @@ class _ProfitLossCard extends StatelessWidget {
             children: [
               _CompareRow(
                 label: 'You paid',
-                value: currency.format(game.priceLoose ?? 0),
+                value: currency.format(paid),
                 textColor: textColor,
                 mutedColor: mutedColor,
               ),
               const SizedBox(height: 14),
               _CompareRow(
                 label: 'Current market',
-                value: currency.format(game.priceComplete ?? 0),
+                value: currency.format(valued),
                 textColor: textColor,
                 mutedColor: mutedColor,
               ),
