@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ShelfRow extends StatelessWidget {
   final List<Widget> children;
-  
+
   const ShelfRow({super.key, required this.children});
 
   @override
@@ -56,21 +56,24 @@ class ShelfRow extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Row of Games
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0), // shelf margin
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0), // shelf margin
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.end,
-              children: children.map((child) => 
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: child,
-                  ),
-                ),
-              ).toList(),
+              children: children
+                  .map(
+                    (child) => Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: child,
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
           ),
         ],

@@ -13,15 +13,13 @@ class ProfileRepository {
         .select()
         .eq('id', userId)
         .maybeSingle();
-    
+
     if (response == null) return null;
     return Profile.fromJson(response);
   }
 
   Future<void> updateProfile(Profile profile) async {
-    await _supabase
-        .from('profiles')
-        .upsert(profile.toJson());
+    await _supabase.from('profiles').upsert(profile.toJson());
   }
 }
 

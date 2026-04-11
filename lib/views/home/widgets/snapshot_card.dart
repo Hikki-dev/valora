@@ -10,14 +10,15 @@ class SnapshotCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch<HomeState>(homeControllerProvider);
     final currency = ref.watch(currencyProvider);
-    
+
     return Container(
       width: 400,
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
         color: const Color(0xFF0A0A0F),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3), width: 2),
+        border: Border.all(
+            color: Colors.cyanAccent.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -53,11 +54,16 @@ class SnapshotCard extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 48),
-          _buildPlatformRow('PlayStation', state.platformStats['playstation']?.count ?? 0, Colors.blueAccent),
+          _buildPlatformRow(
+              'PlayStation',
+              state.platformStats['playstation']?.count ?? 0,
+              Colors.blueAccent),
           const SizedBox(height: 12),
-          _buildPlatformRow('Steam', state.platformStats['steam']?.count ?? 0, Colors.white70),
+          _buildPlatformRow('Steam', state.platformStats['steam']?.count ?? 0,
+              Colors.white70),
           const SizedBox(height: 12),
-          _buildPlatformRow('Nintendo', state.platformStats['nintendo']?.count ?? 0, Colors.redAccent),
+          _buildPlatformRow('Nintendo',
+              state.platformStats['nintendo']?.count ?? 0, Colors.redAccent),
           const SizedBox(height: 48),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -65,8 +71,16 @@ class SnapshotCard extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('GAMES', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
-                  Text('${state.totalGames}', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900)),
+                  const Text('GAMES',
+                      style: TextStyle(
+                          color: Colors.white38,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold)),
+                  Text('${state.totalGames}',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900)),
                 ],
               ),
               const Icon(Icons.qr_code, color: Colors.cyanAccent, size: 40),
@@ -80,9 +94,15 @@ class SnapshotCard extends ConsumerWidget {
   Widget _buildPlatformRow(String label, int count, Color color) {
     return Row(
       children: [
-        Container(width: 4, height: 20, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2))),
+        Container(
+            width: 4,
+            height: 20,
+            decoration: BoxDecoration(
+                color: color, borderRadius: BorderRadius.circular(2))),
         const SizedBox(width: 12),
-        Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold)),
         const Spacer(),
         Text('$count items', style: const TextStyle(color: Colors.white38)),
       ],

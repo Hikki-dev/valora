@@ -46,7 +46,8 @@ class HistoricalPriceChart extends ConsumerWidget {
     // Extract relevant data points based on condition
     final spots = _getSpots();
     if (spots.length < 2) {
-       return _buildSingleDataState(context, spots.first.y, accentColor, currency);
+      return _buildSingleDataState(
+          context, spots.first.y, accentColor, currency);
     }
 
     final minY = spots.map((s) => s.y).reduce(min);
@@ -60,8 +61,14 @@ class HistoricalPriceChart extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-             _StatItem(label: 'HISTORICAL HIGH', value: currency.format(maxY), color: Colors.greenAccent),
-             _StatItem(label: 'HISTORICAL LOW', value: currency.format(minY), color: Colors.redAccent),
+            _StatItem(
+                label: 'HISTORICAL HIGH',
+                value: currency.format(maxY),
+                color: Colors.greenAccent),
+            _StatItem(
+                label: 'HISTORICAL LOW',
+                value: currency.format(minY),
+                color: Colors.redAccent),
           ],
         ),
         const SizedBox(height: 16),
@@ -121,13 +128,17 @@ class HistoricalPriceChart extends ConsumerWidget {
               ],
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
-                  getTooltipColor: (_) => isDark ? const Color(0xFF1E1E22) : Colors.white,
+                  getTooltipColor: (_) =>
+                      isDark ? const Color(0xFF1E1E22) : Colors.white,
                   getTooltipItems: (touchedSpots) {
                     return touchedSpots.map((spot) {
                       if (spot.barIndex == 0 && game.purchasePrice != null) {
-                         return LineTooltipItem('Investment\n${currency.format(spot.y)}', const TextStyle(color: Colors.white54, fontSize: 10));
+                        return LineTooltipItem(
+                            'Investment\n${currency.format(spot.y)}',
+                            const TextStyle(
+                                color: Colors.white54, fontSize: 10));
                       }
-                      
+
                       final data = history[spot.x.toInt()];
                       final dateStr = _formatTimestamp(data['fetched_at']);
                       return LineTooltipItem(
@@ -149,30 +160,36 @@ class HistoricalPriceChart extends ConsumerWidget {
   }
 
   List<FlSpot> _getSpots() {
-    return history.asMap().entries.map((e) {
-      final data = e.value;
-      double price = 0;
-      if (game.platform.isDigital) {
-        price = (data['price_digital'] as num?)?.toDouble() ?? 0;
-      } else {
-        switch (game.condition) {
-          case GameCondition.loose:
-            price = (data['price_loose'] as num?)?.toDouble() ?? 0;
-            break;
-          case GameCondition.cib:
-          case GameCondition.boxed:
-            price = (data['price_complete'] as num?)?.toDouble() ?? 0;
-            break;
-          case GameCondition.new_:
-            price = (data['price_new'] as num?)?.toDouble() ?? 0;
-            break;
-        }
-      }
-      return FlSpot(e.key.toDouble(), price);
-    }).where((s) => s.y > 0).toList();
+    return history
+        .asMap()
+        .entries
+        .map((e) {
+          final data = e.value;
+          double price = 0;
+          if (game.platform.isDigital) {
+            price = (data['price_digital'] as num?)?.toDouble() ?? 0;
+          } else {
+            switch (game.condition) {
+              case GameCondition.loose:
+                price = (data['price_loose'] as num?)?.toDouble() ?? 0;
+                break;
+              case GameCondition.cib:
+              case GameCondition.boxed:
+                price = (data['price_complete'] as num?)?.toDouble() ?? 0;
+                break;
+              case GameCondition.new_:
+                price = (data['price_new'] as num?)?.toDouble() ?? 0;
+                break;
+            }
+          }
+          return FlSpot(e.key.toDouble(), price);
+        })
+        .where((s) => s.y > 0)
+        .toList();
   }
 
-  Widget _buildSingleDataState(BuildContext context, double price, Color color, CurrencyState currency) {
+  Widget _buildSingleDataState(
+      BuildContext context, double price, Color color, CurrencyState currency) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -181,17 +198,23 @@ class HistoricalPriceChart extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.trending_up, color: color.withValues(alpha: 0.5), size: 24),
+          Icon(Icons.trending_up,
+              color: color.withValues(alpha: 0.5), size: 24),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('TRENDING DATA', style: TextStyle(color: Colors.white38, fontSize: 10, letterSpacing: 1)),
+                const Text('TRENDING DATA',
+                    style: TextStyle(
+                        color: Colors.white38, fontSize: 10, letterSpacing: 1)),
                 const SizedBox(height: 4),
                 Text(
                   'Currently stable at ${currency.format(price)}',
-                  style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -220,16 +243,27 @@ class _StatItem extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _StatItem({required this.label, required this.value, required this.color});
+  const _StatItem(
+      {required this.label, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 9, letterSpacing: 1, fontWeight: FontWeight.w800)),
+        Text(label,
+            style: const TextStyle(
+                color: Colors.white38,
+                fontSize: 9,
+                letterSpacing: 1,
+                fontWeight: FontWeight.w800)),
         const SizedBox(height: 4),
-        Text(value, style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.w900, fontFamily: 'Inter')),
+        Text(value,
+            style: TextStyle(
+                color: color,
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+                fontFamily: 'Inter')),
       ],
     );
   }

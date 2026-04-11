@@ -8,12 +8,14 @@ import 'package:path_provider/path_provider.dart';
 class ShareService {
   final ScreenshotController _screenshotController = ScreenshotController();
 
-  Future<void> shareSnapshot(BuildContext context, Widget snapshotWidget) async {
+  Future<void> shareSnapshot(
+      BuildContext context, Widget snapshotWidget) async {
     try {
       if (!context.mounted) return;
 
       final RenderBox? box = context.findRenderObject() as RenderBox?;
-      final sharePositionOrigin = box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+      final sharePositionOrigin =
+          box != null ? box.localToGlobal(Offset.zero) & box.size : null;
 
       if (kIsWeb) {
         // Screenshots are not supported in the HTML renderer. Use text sharing.
@@ -35,7 +37,8 @@ class ShareService {
 
       // Save to a temporary file for Native platforms
       final directory = await getTemporaryDirectory();
-      final imagePath = '${directory.path}/valora_snapshot_${DateTime.now().millisecondsSinceEpoch}.png';
+      final imagePath =
+          '${directory.path}/valora_snapshot_${DateTime.now().millisecondsSinceEpoch}.png';
       final imageFile = File(imagePath);
       await imageFile.writeAsBytes(imageBuffer);
 
@@ -45,12 +48,13 @@ class ShareService {
         text: 'Check out my Valora collection valuation!',
         sharePositionOrigin: sharePositionOrigin,
       );
-
     } catch (e) {
       debugPrint('[ShareService] Error sharing snapshot: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to generate snapshot: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Failed to generate snapshot: $e'),
+              backgroundColor: Colors.red),
         );
       }
     }

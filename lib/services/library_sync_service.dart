@@ -25,12 +25,13 @@ class SteamLibraryProvider implements LibraryProvider {
 
       if (response.status != 200) {
         final data = response.data as Map<String, dynamic>;
-        throw Exception('Sync service error: ${data['error'] ?? 'Unknown error'}');
+        throw Exception(
+            'Sync service error: ${data['error'] ?? 'Unknown error'}');
       }
 
       final data = response.data as Map<String, dynamic>;
       final List<dynamic> gamesData = data['games'] ?? [];
-      
+
       return gamesData.map((gObj) {
         final g = gObj as Map<String, dynamic>;
         final String? externalId = g['externalId']?.toString();
@@ -39,7 +40,7 @@ class SteamLibraryProvider implements LibraryProvider {
           collectionId: userId,
           userId: userId,
           title: g['title']?.toString() ?? 'Unknown Steam Game',
-          coverUrl: externalId != null 
+          coverUrl: externalId != null
               ? 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/$externalId/library_600x900.jpg'
               : g['coverUrl']?.toString(),
           platform: AppPlatform.steam,
@@ -49,7 +50,8 @@ class SteamLibraryProvider implements LibraryProvider {
       }).toList();
     } on FunctionException catch (e) {
       if (e.status == 404) {
-        throw Exception('Library syncing hasn\'t been deployed to your server yet. Please follow the instructions in the walkthrough!');
+        throw Exception(
+            'Library syncing hasn\'t been deployed to your server yet. Please follow the instructions in the walkthrough!');
       }
       throw Exception('Could not connect to sync service: ${e.reasonPhrase}');
     } catch (e) {

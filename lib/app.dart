@@ -16,7 +16,6 @@ import 'controllers/onboarding_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'core/currency_provider.dart';
 
-
 class RouterNotifier extends ChangeNotifier {
   RouterNotifier() {
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
@@ -24,8 +23,6 @@ class RouterNotifier extends ChangeNotifier {
     });
   }
 }
-
-
 
 class MainLayout extends ConsumerStatefulWidget {
   final Widget child;
@@ -50,7 +47,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     final location = GoRouterState.of(context).uri.path;
     final width = MediaQuery.sizeOf(context).width;
     final isDesktop = width >= 900;
-    
+
     int currentIndex = 0;
     if (location.startsWith('/collections')) currentIndex = 1;
     if (location.startsWith('/wishlists')) currentIndex = 2;
@@ -89,30 +86,35 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
 
     return Scaffold(
       body: body,
-      bottomNavigationBar: onboardingState.type == OnboardingType.none 
+      bottomNavigationBar: onboardingState.type == OnboardingType.none
           ? BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          if (index == 0) context.go('/');
-          if (index == 1) context.go('/collections');
-          if (index == 2) context.go('/wishlists');
-          if (index == 3) context.go('/profile');
-        },
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: textColor.withValues(alpha: 0.5),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.library_books), label: 'Library'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Wishlist'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-        )
-      : null,
+              currentIndex: currentIndex,
+              onTap: (index) {
+                if (index == 0) context.go('/');
+                if (index == 1) context.go('/collections');
+                if (index == 2) context.go('/wishlists');
+                if (index == 3) context.go('/profile');
+              },
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              selectedItemColor: Theme.of(context).primaryColor,
+              unselectedItemColor: textColor.withValues(alpha: 0.5),
+              items: const [
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.home_rounded), label: 'Home'),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.library_books), label: 'Library'),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.favorite), label: 'Wishlist'),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.person), label: 'Profile'),
+              ],
+            )
+          : null,
     );
   }
 
-  Widget _buildSidebar(BuildContext context, WidgetRef ref, int currentIndex, bool isDark) {
+  Widget _buildSidebar(
+      BuildContext context, WidgetRef ref, int currentIndex, bool isDark) {
     final themeToggleIcon = isDark ? Icons.light_mode : Icons.dark_mode;
     final textColor = isDark ? Colors.white : Colors.black87;
 
@@ -120,7 +122,8 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
       width: 260,
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF14141A) : Colors.white,
-        border: Border(right: BorderSide(color: textColor.withValues(alpha: 0.05))),
+        border:
+            Border(right: BorderSide(color: textColor.withValues(alpha: 0.05))),
       ),
       child: Column(
         children: [
@@ -134,10 +137,13 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
+                      color: Theme.of(context)
+                          .primaryColor
+                          .withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(Icons.auto_graph, color: Theme.of(context).primaryColor, size: 24),
+                    child: Icon(Icons.auto_graph,
+                        color: Theme.of(context).primaryColor, size: 24),
                   ),
                   const SizedBox(width: 12),
                   Text(
@@ -154,35 +160,30 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
             ),
           ),
           const SizedBox(height: 10),
-          _buildSidebarItem(context, Icons.home_rounded, 'Home', currentIndex == 0, () => context.go('/')),
-          _buildSidebarItem(context, Icons.library_books, 'Library', currentIndex == 1, () => context.go('/collections')),
-          _buildSidebarItem(context, Icons.favorite, 'Wishlist', currentIndex == 2, () => context.go('/wishlists')),
-          _buildSidebarItem(context, Icons.person, 'Profile', currentIndex == 3, () => context.go('/profile')),
+          _buildSidebarItem(context, Icons.home_rounded, 'Home',
+              currentIndex == 0, () => context.go('/')),
+          _buildSidebarItem(context, Icons.library_books, 'Library',
+              currentIndex == 1, () => context.go('/collections')),
+          _buildSidebarItem(context, Icons.favorite, 'Wishlist',
+              currentIndex == 2, () => context.go('/wishlists')),
+          _buildSidebarItem(context, Icons.person, 'Profile', currentIndex == 3,
+              () => context.go('/profile')),
           const Spacer(),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                _buildSidebarAction(context, themeToggleIcon, 'Toggle Theme',
+                    () => ref.read(themeProvider.notifier).toggle()),
                 _buildSidebarAction(
-                  context, 
-                  themeToggleIcon, 
-                  'Toggle Theme', 
-                  () => ref.read(themeProvider.notifier).toggle()
-                ),
-                _buildSidebarAction(
-                  context, 
-                  Icons.currency_exchange, 
-                  'Currency', 
-                  () => ref.read(currencyProvider.notifier).toggleCurrency()
-                ),
+                    context,
+                    Icons.currency_exchange,
+                    'Currency',
+                    () => ref.read(currencyProvider.notifier).toggleCurrency()),
                 const Divider(height: 32),
-                _buildSidebarAction(
-                  context, 
-                  Icons.logout, 
-                  'Sign Out', 
-                  () => ref.read(authControllerProvider.notifier).signOut(),
-                  isDestructive: true
-                ),
+                _buildSidebarAction(context, Icons.logout, 'Sign Out',
+                    () => ref.read(authControllerProvider.notifier).signOut(),
+                    isDestructive: true),
               ],
             ),
           ),
@@ -191,7 +192,8 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     );
   }
 
-  Widget _buildSidebarItem(BuildContext context, IconData icon, String label, bool isSelected, VoidCallback onTap) {
+  Widget _buildSidebarItem(BuildContext context, IconData icon, String label,
+      bool isSelected, VoidCallback onTap) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final activeColor = Theme.of(context).primaryColor;
     final textColor = isDark ? Colors.white : Colors.black87;
@@ -205,21 +207,25 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? activeColor.withValues(alpha: 0.1) : Colors.transparent,
+            color: isSelected
+                ? activeColor.withValues(alpha: 0.1)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [
               Icon(
-                icon, 
-                color: isSelected ? activeColor : textColor.withValues(alpha: 0.5),
+                icon,
+                color:
+                    isSelected ? activeColor : textColor.withValues(alpha: 0.5),
                 size: 20,
               ),
               const SizedBox(width: 16),
               Text(
                 label,
                 style: TextStyle(
-                  color: isSelected ? textColor : textColor.withValues(alpha: 0.5),
+                  color:
+                      isSelected ? textColor : textColor.withValues(alpha: 0.5),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   fontSize: 15,
                 ),
@@ -231,10 +237,13 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     );
   }
 
-  Widget _buildSidebarAction(BuildContext context, IconData icon, String label, VoidCallback onTap, {bool isDestructive = false}) {
+  Widget _buildSidebarAction(
+      BuildContext context, IconData icon, String label, VoidCallback onTap,
+      {bool isDestructive = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final color = isDestructive ? Colors.redAccent : textColor.withValues(alpha: 0.6);
+    final color =
+        isDestructive ? Colors.redAccent : textColor.withValues(alpha: 0.6);
 
     return InkWell(
       onTap: onTap,
@@ -269,7 +278,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final session = Supabase.instance.client.auth.currentSession;
       final isLoggingIn = state.uri.toString() == '/login';
-      
+
       if (session == null && !isLoggingIn) return '/login';
       if (session != null && isLoggingIn) return '/';
       return null;
@@ -277,29 +286,34 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/login',
-        pageBuilder: (context, state) => const NoTransitionPage(child: LoginView()),
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: LoginView()),
       ),
       ShellRoute(
         builder: (context, state, child) => MainLayout(child: child),
         routes: [
           GoRoute(
             path: '/',
-            pageBuilder: (context, state) => const NoTransitionPage(child: HomeView()),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: HomeView()),
           ),
           GoRoute(
             path: '/collections',
             pageBuilder: (context, state) {
               final platform = state.uri.queryParameters['platform'];
-              return NoTransitionPage(child: CollectionsView(platformFilter: platform));
+              return NoTransitionPage(
+                  child: CollectionsView(platformFilter: platform));
             },
           ),
           GoRoute(
             path: '/wishlists',
-            pageBuilder: (context, state) => const NoTransitionPage(child: WishlistsView()),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: WishlistsView()),
           ),
           GoRoute(
             path: '/profile',
-            pageBuilder: (context, state) => const NoTransitionPage(child: ProfileView()),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ProfileView()),
           ),
           GoRoute(
             path: '/game/:id',
@@ -307,7 +321,8 @@ final routerProvider = Provider<GoRouter>((ref) {
               final gameId = state.pathParameters['id']!;
               return CustomTransitionPage(
                 child: GameDetailView(gameId: gameId),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
                   return FadeTransition(opacity: animation, child: child);
                 },
                 transitionDuration: const Duration(milliseconds: 200),
@@ -343,7 +358,7 @@ class ValoraApp extends ConsumerWidget {
       // Signal to the web container that the first frame is rendered
       PlatformUtils.signalFirstFrame();
     });
-    
+
     return MaterialApp.router(
       title: 'Valora',
       theme: AppTheme.lightTheme,

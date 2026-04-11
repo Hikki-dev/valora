@@ -20,14 +20,16 @@ class PriceService {
 
   Future<void> _ensureValidSession() async {
     final session = _client.auth.currentSession;
-    
+
     // Check if session exists and has at least 60 seconds remaining
     // (avoids a race where the token expires mid-request)
     if (session != null && !session.isExpired) {
       final expiresAt = session.expiresAt;
       if (expiresAt != null) {
-        final secondsRemaining = expiresAt - (DateTime.now().millisecondsSinceEpoch ~/ 1000);
-        if (secondsRemaining > 60) return; // More than 1 minute left, we're fine
+        final secondsRemaining =
+            expiresAt - (DateTime.now().millisecondsSinceEpoch ~/ 1000);
+        if (secondsRemaining > 60)
+          return; // More than 1 minute left, we're fine
       } else {
         return; // No expiry info, assume valid
       }
@@ -38,7 +40,8 @@ class PriceService {
       return _refreshFuture;
     }
 
-    debugPrint('[PriceService] Session expiring soon or expired. Refreshing...');
+    debugPrint(
+        '[PriceService] Session expiring soon or expired. Refreshing...');
     _refreshFuture = _client.auth.refreshSession().then((_) {
       _refreshFuture = null;
       debugPrint('[PriceService] Session refreshed successfully.');
@@ -53,7 +56,8 @@ class PriceService {
 
   /// Fetches the latest price for a game via the centralized Edge Function.
   /// This handles caching, rate limiting, and multi-source lookups (Steam, PriceCharting, CheapShark).
-  Future<PriceData?> fetchPrices(Game game, {bool force = false, int retryCount = 0}) async {
+  Future<PriceData?> fetchPrices(Game game,
+      {bool force = false, int retryCount = 0}) async {
     try {
       await _ensureValidSession();
 
@@ -61,7 +65,8 @@ class PriceService {
       // Do NOT rely on the SDK's internal reference — it can be stale.
       final accessToken = _client.auth.currentSession?.accessToken;
       if (accessToken == null) {
-        debugPrint('[PriceService] No access token available for "${game.title}".');
+        debugPrint(
+            '[PriceService] No access token available for "${game.title}".');
         return null;
       }
 
@@ -82,24 +87,30 @@ class PriceService {
       if (response.status == 401 && retryCount == 0) {
         // Token was valid when we read it, but the function still rejected it.
         // Force a hard refresh and retry exactly once.
-        debugPrint('[PriceService] 401 on "${game.title}". Forcing hard session refresh...');
+        debugPrint(
+            '[PriceService] 401 on "${game.title}". Forcing hard session refresh...');
         _refreshFuture = null;
         await _client.auth.refreshSession();
         return fetchPrices(game, force: force, retryCount: 1);
       }
 
       if (response.status != 200) {
-        debugPrint('[PriceService] Function returned ${response.status} for "${game.title}": ${response.data}');
+        debugPrint(
+            '[PriceService] Function returned ${response.status} for "${game.title}": ${response.data}');
         return null;
       }
 
       final data = response.data as Map<String, dynamic>;
       final priceData = PriceData.fromJson(data);
-      
+
       // If we got a better cover URL, update the game record silently
       final newCoverUrl = data['cover_url'] as String?;
-      if (newCoverUrl != null && newCoverUrl.isNotEmpty && newCoverUrl != game.coverUrl) {
-        unawaited(_client.from('games').update({'cover_url': newCoverUrl}).eq('id', game.id));
+      if (newCoverUrl != null &&
+          newCoverUrl.isNotEmpty &&
+          newCoverUrl != game.coverUrl) {
+        unawaited(_client
+            .from('games')
+            .update({'cover_url': newCoverUrl}).eq('id', game.id));
       }
 
       return priceData;
@@ -139,10 +150,11 @@ class PriceService {
     for (var i = 0; i < games.length; i += chunkSize) {
       final end = (i + chunkSize < games.length) ? i + chunkSize : games.length;
       final chunk = games.sublist(i, end);
-      
-      debugPrint('[PriceService] Batching chunk ${i ~/ chunkSize + 1} (${chunk.length} items)...');
+
+      debugPrint(
+          '[PriceService] Batching chunk ${i ~/ chunkSize + 1} (${chunk.length} items)...');
       await Future.wait(chunk.map((g) => fetchPrices(g)));
-      
+
       if (end < games.length) {
         // Small delay between chunks to let the server breathe
         await Future.delayed(const Duration(milliseconds: 500));

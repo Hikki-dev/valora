@@ -72,11 +72,12 @@ class _GameBox3DState extends State<GameBox3D> {
                         imageUrl: widget.coverUrl!,
                         fit: BoxFit.cover,
                         errorWidget: (context, url, err) => _buildFallback(),
-                        placeholder: (context, url) => _buildFallback(loading: true),
+                        placeholder: (context, url) =>
+                            _buildFallback(loading: true),
                       )
                     : _buildFallback(),
               ),
-              
+
               // 3D Inner Lighting & Shadow Effect
               Container(
                 decoration: BoxDecoration(
@@ -87,7 +88,8 @@ class _GameBox3DState extends State<GameBox3D> {
                     colors: [
                       Colors.white.withValues(alpha: 0.2), // Top-left glare
                       Colors.transparent,
-                      Colors.black.withValues(alpha: 0.4), // Bottom-right shadow
+                      Colors.black
+                          .withValues(alpha: 0.4), // Bottom-right shadow
                     ],
                     stops: const [0.0, 0.3, 1.0],
                   ),
@@ -117,18 +119,23 @@ class _GameBox3DState extends State<GameBox3D> {
               ),
 
               // Embedded Pricing Overlays
-              if (widget.purchasePriceText != null || widget.profitMarginText != null)
+              if (widget.purchasePriceText != null ||
+                  widget.profitMarginText != null)
                 Positioned(
                   left: 0,
                   right: 0,
                   bottom: 0,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
-                        colors: [Colors.black.withValues(alpha: 0.8), Colors.black.withValues(alpha: 0.0)],
+                        colors: [
+                          Colors.black.withValues(alpha: 0.8),
+                          Colors.black.withValues(alpha: 0.0)
+                        ],
                         stops: const [0.0, 1.0],
                       ),
                     ),
@@ -137,17 +144,24 @@ class _GameBox3DState extends State<GameBox3D> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         if (widget.purchasePriceText != null)
-                           Text(
-                             widget.purchasePriceText!,
-                             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                           )
-                        else const SizedBox(), // Spacer
-                        
+                          Text(
+                            widget.purchasePriceText!,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14),
+                          )
+                        else
+                          const SizedBox(), // Spacer
+
                         if (widget.profitMarginText != null)
-                           Text(
-                             widget.profitMarginText!,
-                             style: TextStyle(color: widget.profitMarginColor ?? Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                           ),
+                          Text(
+                            widget.profitMarginText!,
+                            style: TextStyle(
+                                color: widget.profitMarginColor ?? Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13),
+                          ),
                       ],
                     ),
                   ),
@@ -163,35 +177,36 @@ class _GameBox3DState extends State<GameBox3D> {
     return Container(
       color: const Color(0xFF1E1E2C),
       child: Center(
-      child: loading
-          ? Shimmer.fromColors(
-              baseColor: Colors.white.withValues(alpha: 0.05),
-              highlightColor: Colors.white.withValues(alpha: 0.1),
-              child: Container(color: Colors.white),
-            )
-          : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.gamepad, color: Colors.white54, size: 32),
-                    const SizedBox(height: 8),
-                    Text(
-                      widget.title,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+        child: loading
+            ? Shimmer.fromColors(
+                baseColor: Colors.white.withValues(alpha: 0.05),
+                highlightColor: Colors.white.withValues(alpha: 0.1),
+                child: Container(color: Colors.white),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.gamepad,
+                          color: Colors.white54, size: 32),
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
       ),
     );
   }

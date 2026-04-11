@@ -13,10 +13,10 @@ mixin OptimisticMutation<T> on Notifier<T> {
     required T Function(T current, Object error) onRollback,
   }) async {
     final previousState = state;
-    
+
     // Apply update immediately
     state = onUpdate(state);
-    
+
     try {
       await future();
     } catch (e) {

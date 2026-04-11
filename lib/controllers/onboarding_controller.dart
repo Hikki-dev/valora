@@ -34,10 +34,10 @@ class OnboardingController extends Notifier<OnboardingState> {
     final packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = packageInfo.version;
     final prefs = await SharedPreferences.getInstance();
-    
+
     // 1. Check local device version
     final localLastSeen = prefs.getString('last_seen_version');
-    
+
     // 2. Check Supabase profile version
     Profile? profile;
     try {
@@ -54,7 +54,9 @@ class OnboardingController extends Notifier<OnboardingState> {
     }
 
     final supabaseLastSeen = profile?.lastSeenVersion;
-    final lastSeenChangelogCount = prefs.getInt('seen_changelog_count') ?? profile?.seenChangelogCount ?? 0;
+    final lastSeenChangelogCount = prefs.getInt('seen_changelog_count') ??
+        profile?.seenChangelogCount ??
+        0;
 
     debugPrint('[Onboarding] 🛠️ Version Comparison:');
     debugPrint('[Onboarding] Current App Version: $currentVersion');
@@ -72,10 +74,13 @@ class OnboardingController extends Notifier<OnboardingState> {
       debugPrint('[Onboarding] ✅ Decision: FULL INTRO (Syncing/New Account)');
       state = OnboardingState(type: OnboardingType.full);
     } else if (lastSeenChangelogCount < OnboardingContent.changelog.length) {
-       debugPrint('[Onboarding] ✅ Decision: CHANGELOG (New items found)');
-       state = OnboardingState(type: OnboardingType.changelog, lastSeenCount: lastSeenChangelogCount);
+      debugPrint('[Onboarding] ✅ Decision: CHANGELOG (New items found)');
+      state = OnboardingState(
+          type: OnboardingType.changelog,
+          lastSeenCount: lastSeenChangelogCount);
     } else {
-      debugPrint('[Onboarding] 💤 Decision: NONE (Already seen remotely or locally)');
+      debugPrint(
+          '[Onboarding] 💤 Decision: NONE (Already seen remotely or locally)');
       state = OnboardingState.none();
     }
     _hasChecked = true;
@@ -91,11 +96,12 @@ class OnboardingController extends Notifier<OnboardingState> {
 
     // Update Local
     await prefs.setString('last_seen_version', currentVersion);
-    await prefs.setInt('seen_changelog_count', OnboardingContent.changelog.length);
+    await prefs.setInt(
+        'seen_changelog_count', OnboardingContent.changelog.length);
 
     // Update Supabase
     try {
-       await Supabase.instance.client.from('profiles').upsert({
+      await Supabase.instance.client.from('profiles').upsert({
         'id': user.id,
         'last_seen_version': currentVersion,
         'seen_changelog_count': OnboardingContent.changelog.length,
@@ -110,6 +116,7 @@ class OnboardingController extends Notifier<OnboardingState> {
   }
 }
 
-final onboardingControllerProvider = NotifierProvider<OnboardingController, OnboardingState>(() {
+final onboardingControllerProvider =
+    NotifierProvider<OnboardingController, OnboardingState>(() {
   return OnboardingController();
 });

@@ -16,7 +16,9 @@ class Profile {
       id: json['id'],
       lastSeenVersion: json['last_seen_version'],
       seenChangelogCount: json['seen_changelog_count'] ?? 0,
-      onboardedAt: json['onboarded_at'] != null ? DateTime.parse(json['onboarded_at']) : null,
+      onboardedAt: json['onboarded_at'] != null
+          ? DateTime.parse(json['onboarded_at'])
+          : null,
     );
   }
 

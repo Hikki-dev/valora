@@ -25,7 +25,7 @@ class GameRepository {
         .select()
         .eq('user_id', userId)
         .order('added_at', ascending: false);
-    
+
     return (response as List<dynamic>)
         .map((e) => Game.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -37,7 +37,7 @@ class GameRepository {
         .select()
         .eq('id', id)
         .maybeSingle();
-    
+
     if (response == null) return null;
     return Game.fromJson(response);
   }
@@ -45,7 +45,8 @@ class GameRepository {
   Future<void> addGame(Game game) async {
     // Check for duplicates locally first
     if (game.externalId != null) {
-      final existingIds = await _getExistingExternalIds(game.userId, game.platform);
+      final existingIds =
+          await _getExistingExternalIds(game.userId, game.platform);
       if (existingIds.contains(game.externalId)) return;
     }
 
@@ -55,25 +56,29 @@ class GameRepository {
 
   Future<void> addGamesBatch(List<Game> games) async {
     if (games.isEmpty) return;
-    
+
     final userId = games.first.userId;
     final platform = games.first.platform;
-    
+
     // Fetch currently tracked games to avoid duplicates
     final existingIds = await _getExistingExternalIds(userId, platform);
-    
+
     // Filter out games that already exist
-    final newGames = games.where((g) => !existingIds.contains(g.externalId)).toList();
-    
+    final newGames =
+        games.where((g) => !existingIds.contains(g.externalId)).toList();
+
     if (newGames.isEmpty) return;
 
     await _ensureCollection(games.first.collectionId, userId, platform);
-    
+
     // Bulk insert only the new games
-    await _client.from('games').insert(newGames.map((g) => g.toJson()).toList());
+    await _client
+        .from('games')
+        .insert(newGames.map((g) => g.toJson()).toList());
   }
 
-  Future<Map<String, Game>> getExistingGamesByExternalIds(String userId, AppPlatform platform, List<String> externalIds) async {
+  Future<Map<String, Game>> getExistingGamesByExternalIds(
+      String userId, AppPlatform platform, List<String> externalIds) async {
     if (externalIds.isEmpty) return {};
 
     final response = await _client
@@ -82,7 +87,7 @@ class GameRepository {
         .eq('user_id', userId)
         .eq('platform', platform.value)
         .inFilter('external_id', externalIds);
-    
+
     final Map<String, Game> gameMap = {};
     for (final json in (response as List<dynamic>)) {
       final game = Game.fromJson(json as Map<String, dynamic>);
@@ -93,13 +98,14 @@ class GameRepository {
     return gameMap;
   }
 
-  Future<Set<String>> _getExistingExternalIds(String userId, AppPlatform platform) async {
+  Future<Set<String>> _getExistingExternalIds(
+      String userId, AppPlatform platform) async {
     final response = await _client
         .from('games')
         .select('external_id')
         .eq('user_id', userId)
         .eq('platform', platform.value);
-    
+
     return (response as List<dynamic>)
         .map((e) => (e as Map<String, dynamic>)['external_id'] as String?)
         .where((id) => id != null)
@@ -107,7 +113,8 @@ class GameRepository {
         .toSet();
   }
 
-  Future<void> _ensureCollection(String collectionId, String userId, AppPlatform platform) async {
+  Future<void> _ensureCollection(
+      String collectionId, String userId, AppPlatform platform) async {
     try {
       await _client.from('collections').upsert({
         'id': collectionId,
@@ -123,13 +130,15 @@ class GameRepository {
           'platform': platform.value,
         });
       } catch (innerE) {
-         throw Exception('Could not ensure default collection exists. Details: $innerE');
+        throw Exception(
+            'Could not ensure default collection exists. Details: $innerE');
       }
     }
   }
 
   /// Manually update valuation for a game and log to history.
-  Future<void> updateValuation(String userId, String gameId, PriceData data) async {
+  Future<void> updateValuation(
+      String userId, String gameId, PriceData data) async {
     await _client.from('valuations').upsert({
       'game_id': gameId,
       'user_id': userId,
@@ -158,8 +167,10 @@ class GameRepository {
         .select()
         .eq('game_id', gameId)
         .order('fetched_at', ascending: true);
-    
-    return (response as List<dynamic>).map((e) => e as Map<String, dynamic>).toList();
+
+    return (response as List<dynamic>)
+        .map((e) => e as Map<String, dynamic>)
+        .toList();
   }
 
   Future<void> deleteGame(String id, String userId) async {
@@ -172,9 +183,7 @@ class GameRepository {
         .stream(primaryKey: ['id'])
         .eq('user_id', userId)
         .order('added_at', ascending: false)
-        .map((response) => response
-            .map((e) => Game.fromJson(e))
-            .toList());
+        .map((response) => response.map((e) => Game.fromJson(e)).toList());
   }
 }
 

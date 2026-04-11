@@ -11,7 +11,12 @@ class BarcodeScannerView extends StatefulWidget {
 class _BarcodeScannerViewState extends State<BarcodeScannerView> {
   final MobileScannerController _controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
-    formats: [BarcodeFormat.upcA, BarcodeFormat.upcE, BarcodeFormat.ean13, BarcodeFormat.ean8],
+    formats: [
+      BarcodeFormat.upcA,
+      BarcodeFormat.upcE,
+      BarcodeFormat.ean13,
+      BarcodeFormat.ean8
+    ],
   );
 
   bool _scanned = false;
@@ -39,7 +44,7 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
           ),
           // Custom Scanning Overlay
           _buildOverlay(context),
-          
+
           // Back button
           Positioned(
             top: 60,
@@ -63,7 +68,8 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
         Expanded(child: Container(color: Colors.black.withValues(alpha: 0.7))),
         Row(
           children: [
-            Expanded(child: Container(color: Colors.black.withValues(alpha: 0.7))),
+            Expanded(
+                child: Container(color: Colors.black.withValues(alpha: 0.7))),
             Container(
               width: 280,
               height: 180,
@@ -79,7 +85,8 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
                 ],
               ),
             ),
-            Expanded(child: Container(color: Colors.black.withValues(alpha: 0.7))),
+            Expanded(
+                child: Container(color: Colors.black.withValues(alpha: 0.7))),
           ],
         ),
         Expanded(

@@ -2,8 +2,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
 
 class SteamAuthService {
-  static const String steamOpenIdUrl = 'https://steamcommunity.com/openid/login';
-  
+  static const String steamOpenIdUrl =
+      'https://steamcommunity.com/openid/login';
+
   /// Generates the Steam OpenID login URL
   /// [returnUrl] should be the deep link or web URL to return to
   static Uri generateLoginUrl(String returnUrl) {
@@ -26,7 +27,7 @@ class SteamAuthService {
       final uri = Uri.parse(url);
       final claimedId = uri.queryParameters['openid.claimed_id'];
       if (claimedId == null) return null;
-      
+
       // The identity URL looks like: https://steamcommunity.com/openid/id/76561198089456950
       final parts = claimedId.split('/');
       if (parts.isNotEmpty) {

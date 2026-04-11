@@ -79,25 +79,39 @@ final gameStatsProvider = Provider<HomeState>((ref) {
   return gamesAsync.when(
     data: (games) {
       double total = 0.0;
-      final Map<String, double> values = {'ps_disc': 0, 'psn': 0, 'steam': 0, 'nintendo': 0, 'epic': 0};
-      final Map<String, int> counts = {'ps_disc': 0, 'psn': 0, 'steam': 0, 'nintendo': 0, 'epic': 0};
+      final Map<String, double> values = {
+        'ps_disc': 0,
+        'psn': 0,
+        'steam': 0,
+        'nintendo': 0,
+        'epic': 0
+      };
+      final Map<String, int> counts = {
+        'ps_disc': 0,
+        'psn': 0,
+        'steam': 0,
+        'nintendo': 0,
+        'epic': 0
+      };
 
       for (final g in games) {
         final val = g.activeMarketValue ?? 0.0;
         total += val;
-        
+
         // Map granular internal platform values to dashboard summary categories
         String group = g.platform.value;
-        if (group == 'ps4_physical' || group == 'ps5_physical') group = 'ps_disc';
+        if (group == 'ps4_physical' || group == 'ps5_physical')
+          group = 'ps_disc';
         if (group == 'ps4_digital' || group == 'ps5_digital') group = 'psn';
-        
+
         if (values.containsKey(group)) {
           values[group] = (values[group] ?? 0.0) + val;
           counts[group] = (counts[group] ?? 0) + 1;
         }
       }
 
-      final stats = values.map((key, value) => MapEntry(key, PlatformStat(counts[key]!, value)));
+      final stats = values.map(
+          (key, value) => MapEntry(key, PlatformStat(counts[key]!, value)));
 
       return HomeState(
         isLoading: false,
@@ -136,7 +150,7 @@ class HomeController extends Notifier<HomeState> {
           .select()
           .order('snapped_at', ascending: true)
           .limit(30);
-      
+
       final history = (response as List).map((e) {
         final item = e as Map<String, dynamic>;
         return ValueSnapshot(

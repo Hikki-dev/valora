@@ -26,21 +26,21 @@ class SearchAliasService {
   /// Handles case-insensitivity.
   String expandQuery(String query) {
     final lowerQuery = query.toLowerCase().trim();
-    
+
     // Check for exact alias match
     if (_aliases.containsKey(lowerQuery)) {
       return _aliases[lowerQuery]!;
     }
-    
+
     // Check if the query starts with an alias followed by a number or space (e.g., "GTA 6" -> "Grand Theft Auto 6")
     for (final entry in _aliases.entries) {
       final alias = entry.key;
       final fullTitle = entry.value;
-      
+
       if (lowerQuery.startsWith('$alias ')) {
         return lowerQuery.replaceFirst(alias, fullTitle);
       }
-      
+
       // Handle "GTA6" -> "Grand Theft Auto 6"
       final numberRegex = RegExp('^$alias(\\d+)\$');
       final match = numberRegex.firstMatch(lowerQuery);

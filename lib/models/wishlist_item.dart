@@ -9,7 +9,7 @@ class WishlistItem {
   final String? externalId;
   final double? targetPrice;
   final double? currentPrice;
-  
+
   WishlistItem({
     required this.id,
     required this.userId,
@@ -33,7 +33,7 @@ class WishlistItem {
       currentPrice: (json['current_price'] as num?)?.toDouble(),
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'user_id': userId,

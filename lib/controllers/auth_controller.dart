@@ -15,7 +15,7 @@ class AuthController extends Notifier<AsyncValue<User?>> {
     state = const AsyncLoading();
     try {
       final response = await Supabase.instance.client.auth.signInWithPassword(
-        email: email, 
+        email: email,
         password: password,
       );
       state = AsyncData(response.user);
@@ -44,18 +44,21 @@ class AuthController extends Notifier<AsyncValue<User?>> {
         // Web flow: Redirect (Stable on Vercel)
         await Supabase.instance.client.auth.signInWithOAuth(
           OAuthProvider.google,
-          redirectTo: kIsWeb ? Uri.base.toString() : 'com.valora.app://login-callback',
+          redirectTo:
+              kIsWeb ? Uri.base.toString() : 'com.valora.app://login-callback',
         );
       } else {
         // Mobile flow: ID Token (Seamless/Native)
         const webClientId = String.fromEnvironment('GOOGLE_WEB_CLIENT_ID');
         const iosClientId = String.fromEnvironment('GOOGLE_IOS_CLIENT_ID');
-        
+
         final GoogleSignIn googleSignIn = GoogleSignIn(
-          clientId: Platform.isIOS ? iosClientId : null, // Handled automatically on Android
+          clientId: Platform.isIOS
+              ? iosClientId
+              : null, // Handled automatically on Android
           serverClientId: webClientId,
         );
-        
+
         final googleUser = await googleSignIn.signIn();
         if (googleUser == null) {
           state = const AsyncData(null); // User cancelled
@@ -88,6 +91,7 @@ class AuthController extends Notifier<AsyncValue<User?>> {
   }
 }
 
-final authControllerProvider = NotifierProvider<AuthController, AsyncValue<User?>>(() {
+final authControllerProvider =
+    NotifierProvider<AuthController, AsyncValue<User?>>(() {
   return AuthController();
 });

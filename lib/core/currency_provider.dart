@@ -39,25 +39,28 @@ class CurrencyNotifier extends Notifier<CurrencyState> {
     final prefs = await SharedPreferences.getInstance();
     final isLkr = prefs.getBool('use_lkr') ?? false;
     final cachedRate = prefs.getDouble('lkr_rate');
-    
+
     if (cachedRate != null) {
-      state = state.copyWith(currency: isLkr ? AppCurrency.lkr : AppCurrency.usd, lkrRate: cachedRate);
+      state = state.copyWith(
+          currency: isLkr ? AppCurrency.lkr : AppCurrency.usd,
+          lkrRate: cachedRate);
     } else if (isLkr) {
       state = state.copyWith(currency: AppCurrency.lkr);
     }
-    
+
     unawaited(_fetchLiveRate());
   }
 
   Future<void> _fetchLiveRate() async {
     try {
-      final response = await http.get(Uri.parse('https://open.er-api.com/v6/latest/USD'));
+      final response =
+          await http.get(Uri.parse('https://open.er-api.com/v6/latest/USD'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
         final rates = data['rates'] as Map<String, dynamic>;
         final rate = (rates['LKR'] as num).toDouble();
         state = state.copyWith(lkrRate: rate);
-        
+
         final prefs = await SharedPreferences.getInstance();
         unawaited(prefs.setDouble('lkr_rate', rate));
       }
@@ -67,9 +70,10 @@ class CurrencyNotifier extends Notifier<CurrencyState> {
   }
 
   void toggleCurrency() async {
-    final newCurrency = state.currency == AppCurrency.usd ? AppCurrency.lkr : AppCurrency.usd;
+    final newCurrency =
+        state.currency == AppCurrency.usd ? AppCurrency.lkr : AppCurrency.usd;
     state = state.copyWith(currency: newCurrency);
-    
+
     final prefs = await SharedPreferences.getInstance();
     unawaited(prefs.setBool('use_lkr', newCurrency == AppCurrency.lkr));
   }

@@ -48,7 +48,8 @@ class ValuationChart extends ConsumerWidget {
           ],
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(
-              getTooltipColor: (_) => isDark ? const Color(0xFF1E1E22) : Colors.white,
+              getTooltipColor: (_) =>
+                  isDark ? const Color(0xFF1E1E22) : Colors.white,
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((spot) {
                   final date = history[spot.x.toInt()].date;

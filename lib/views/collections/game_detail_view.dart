@@ -22,7 +22,8 @@ final gameDetailProvider = FutureProvider.autoDispose.family<Game?, String>(
 );
 
 // Provider that returns the live PriceData for a game (uses cache when fresh)
-final gamePricesProvider = FutureProvider.autoDispose.family<PriceData?, String>(
+final gamePricesProvider =
+    FutureProvider.autoDispose.family<PriceData?, String>(
   (ref, gameId) async {
     final game = await ref.watch(gameDetailProvider(gameId).future);
     if (game == null) return null;
@@ -31,7 +32,8 @@ final gamePricesProvider = FutureProvider.autoDispose.family<PriceData?, String>
   },
 );
 
-final gameHistoryProvider = FutureProvider.autoDispose.family<List<Map<String, dynamic>>, String>(
+final gameHistoryProvider =
+    FutureProvider.autoDispose.family<List<Map<String, dynamic>>, String>(
   (ref, gameId) async {
     return ref.read(gameRepositoryProvider).getPriceHistory(gameId);
   },
@@ -106,7 +108,9 @@ class GameDetailView extends ConsumerWidget {
             },
             onRefresh: () async {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Refreshing metadata...'), duration: Duration(seconds: 1)),
+                const SnackBar(
+                    content: Text('Refreshing metadata...'),
+                    duration: Duration(seconds: 1)),
               );
               await ref.read(priceServiceProvider).refreshGameMetadata(game);
               ref.invalidate(gameDetailProvider(game.id));
@@ -125,7 +129,7 @@ class GameDetailView extends ConsumerWidget {
               // eBay MARKET PRICES section
               _SectionLabel(label: 'EBAY MARKET AVG', color: mutedColor),
               const SizedBox(height: 16),
-              
+
               pricesAsync.when(
                 loading: () => const _PriceRowsSkeleton(),
                 error: (e, _) => Text('Could not load prices.',
@@ -138,14 +142,18 @@ class GameDetailView extends ConsumerWidget {
                   textColor: textColor,
                   mutedColor: mutedColor,
                   isDark: isDark,
-                ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.05, end: 0),
+                )
+                    .animate()
+                    .fadeIn(duration: 300.ms)
+                    .slideY(begin: 0.05, end: 0),
               ),
 
               const SizedBox(height: 16),
 
               // TREND section
               ref.watch(gameHistoryProvider(game.id)).maybeWhen(
-                    data: (history) => HistoricalPriceChart(game: game, history: history),
+                    data: (history) =>
+                        HistoricalPriceChart(game: game, history: history),
                     orElse: () => const SizedBox.shrink(),
                   ),
 
@@ -160,7 +168,10 @@ class GameDetailView extends ConsumerWidget {
                   cardColor: cardColor,
                   textColor: textColor,
                   mutedColor: mutedColor,
-                ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.95, 0.95)),
+                )
+                    .animate()
+                    .fadeIn(delay: 300.ms)
+                    .scale(begin: const Offset(0.95, 0.95)),
                 orElse: () => const SizedBox.shrink(),
               ),
 
@@ -176,7 +187,10 @@ class GameDetailView extends ConsumerWidget {
                         cardColor: cardColor,
                         textColor: textColor,
                         mutedColor: mutedColor,
-                      ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1, end: 0)
+                      )
+                        .animate()
+                        .fadeIn(delay: 400.ms)
+                        .slideY(begin: 0.1, end: 0)
                     : const SizedBox.shrink(),
                 loading: () => const SizedBox.shrink(),
                 error: (err, stack) => const SizedBox.shrink(),
@@ -228,11 +242,11 @@ class GameDetailView extends ConsumerWidget {
     if (confirm == true && context.mounted) {
       // Pass the userId for ownership verification
       await ref.read(gameRepositoryProvider).deleteGame(game.id, game.userId);
-      
+
       // Force immediate UI refresh
       ref.invalidate(libraryStreamProvider);
       ref.invalidate(allGamesProvider);
-      
+
       if (context.mounted) {
         context.pop(); // Returns to the collection view
         ScaffoldMessenger.of(context).showSnackBar(
@@ -244,11 +258,15 @@ class GameDetailView extends ConsumerWidget {
       }
     }
   }
-  
+
   Widget _buildSkeleton(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
-    final highlightColor = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1);
+    final baseColor = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.05);
+    final highlightColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : Colors.black.withValues(alpha: 0.1);
 
     return SingleChildScrollView(
       child: Shimmer.fromColors(
@@ -262,13 +280,31 @@ class GameDetailView extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(width: 220, height: 36, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8))),
+                  Container(
+                      width: 220,
+                      height: 36,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8))),
                   const SizedBox(height: 12),
-                  Container(width: 140, height: 18, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6))),
+                  Container(
+                      width: 140,
+                      height: 18,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6))),
                   const SizedBox(height: 48),
-                  Container(height: 140, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24))),
+                  Container(
+                      height: 140,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24))),
                   const SizedBox(height: 24),
-                  Container(height: 110, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24))),
+                  Container(
+                      height: 110,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24))),
                 ],
               ),
             ),
@@ -329,11 +365,12 @@ class _HeroBanner extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  errorWidget: (context, url, error) => Container(color: Colors.black),
+                  errorWidget: (context, url, error) =>
+                      Container(color: Colors.black),
                 )
               : Container(color: Colors.black),
         ),
-        
+
         // Main Cover image with Hero transition
         SizedBox(
           height: 280,
@@ -346,7 +383,8 @@ class _HeroBanner extends ConsumerWidget {
                       imageUrl: game.coverUrl!,
                       fit: BoxFit.contain,
                       placeholder: (context, url) => _FallbackHero(game: game),
-                      errorWidget: (context, url, error) => _FallbackHero(game: game),
+                      errorWidget: (context, url, error) =>
+                          _FallbackHero(game: game),
                     )
                   : _FallbackHero(game: game),
             ),
@@ -401,7 +439,6 @@ class _HeroBanner extends ConsumerWidget {
                   height: 1.1,
                 ),
               ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0),
-              
               if (subtitle.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
@@ -537,7 +574,7 @@ class _PriceRows extends StatelessWidget {
       child: Text('No market data available for this title.',
           style: TextStyle(color: mutedColor, fontSize: 14)),
     );
-  
+
     if (prices == null) return emptyState;
 
     if (game.platform.isPhysical) {
@@ -562,8 +599,8 @@ class _PriceRows extends StatelessWidget {
             cardColor: cardColor,
             textColor: textColor,
             mutedColor: mutedColor,
-            isUserCondition: game.condition == GameCondition.cib || 
-                             game.condition == GameCondition.boxed,
+            isUserCondition: game.condition == GameCondition.cib ||
+                game.condition == GameCondition.boxed,
           ),
           const SizedBox(height: 12),
           _PriceRow(
@@ -768,10 +805,14 @@ class _ValuationCard extends StatelessWidget {
 
   String _friendlySource(String source) {
     switch (source.toLowerCase()) {
-      case 'pricecharting': return 'PriceCharting (eBay avg)';
-      case 'steam': return 'Steam Store';
-      case 'cheapshark': return 'CheapShark';
-      default: return source;
+      case 'pricecharting':
+        return 'PriceCharting (eBay avg)';
+      case 'steam':
+        return 'Steam Store';
+      case 'cheapshark':
+        return 'CheapShark';
+      default:
+        return source;
     }
   }
 }
@@ -800,7 +841,8 @@ class _ProfitLossCard extends StatelessWidget {
         paid;
     final diff = valued - paid;
     final isGain = diff >= 0;
-    final diffColor = isGain ? (Colors.greenAccent[400] ?? Colors.green) : Colors.redAccent;
+    final diffColor =
+        isGain ? (Colors.greenAccent[400] ?? Colors.green) : Colors.redAccent;
     final diffSign = isGain ? '+' : '';
 
     return Column(
@@ -920,9 +962,11 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => 280.0;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     final double spread = maxExtent - minExtent;
-    final double opacity = (1.0 - (shrinkOffset / (spread * 0.5))).clamp(0.0, 1.0);
+    final double opacity =
+        (1.0 - (shrinkOffset / (spread * 0.5))).clamp(0.0, 1.0);
     final double titleOpacity = (shrinkOffset / spread).clamp(0.0, 1.0);
 
     return Container(
@@ -933,7 +977,8 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
           Positioned.fill(
             child: Opacity(
               opacity: opacity,
-              child: _HeroBanner(game: game, textColor: textColor, mutedColor: mutedColor),
+              child: _HeroBanner(
+                  game: game, textColor: textColor, mutedColor: mutedColor),
             ),
           ),
 
@@ -953,7 +998,8 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
                       color: Colors.black.withValues(alpha: 0.4),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.chevron_left, color: Colors.orangeAccent, size: 24),
+                    child: const Icon(Icons.chevron_left,
+                        color: Colors.orangeAccent, size: 24),
                   ),
                   onPressed: onBack,
                 ),
@@ -968,7 +1014,10 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           shadows: [
-                            Shadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 2)),
+                            Shadow(
+                                color: Colors.black45,
+                                blurRadius: 4,
+                                offset: Offset(0, 2)),
                           ],
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -983,7 +1032,8 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
                       color: Colors.black.withValues(alpha: 0.4),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.refresh, color: Colors.white, size: 20),
+                    child: const Icon(Icons.refresh,
+                        color: Colors.white, size: 20),
                   ),
                   onPressed: onRefresh,
                 ),
@@ -998,8 +1048,8 @@ class _GameHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(_GameHeaderDelegate oldDelegate) {
-    return oldDelegate.game != game || 
-           oldDelegate.textColor != textColor ||
-           oldDelegate.topPadding != topPadding;
+    return oldDelegate.game != game ||
+        oldDelegate.textColor != textColor ||
+        oldDelegate.topPadding != topPadding;
   }
 }

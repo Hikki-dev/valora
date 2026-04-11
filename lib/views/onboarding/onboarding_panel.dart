@@ -44,7 +44,9 @@ class OnboardingPanel extends ConsumerWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
-                    onPressed: () => ref.read(onboardingControllerProvider.notifier).completeOnboarding(),
+                    onPressed: () => ref
+                        .read(onboardingControllerProvider.notifier)
+                        .completeOnboarding(),
                   ),
                 ],
               ),
@@ -66,7 +68,8 @@ class OnboardingPanel extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: IconTheme(
-                          data: const IconThemeData(color: AppTheme.accentAmber, size: 24),
+                          data: const IconThemeData(
+                              color: AppTheme.accentAmber, size: 24),
                           child: item.icon,
                         ),
                       ),
@@ -91,32 +94,47 @@ class OnboardingPanel extends ConsumerWidget {
                       ),
                       const SizedBox(height: 12),
                       ...item.bulletPoints.map((point) => Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('• ', style: TextStyle(color: AppTheme.accentAmber, fontWeight: FontWeight.bold)),
-                            Expanded(child: Text(point, style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary))),
-                          ],
-                        ),
-                      )),
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('• ',
+                                    style: TextStyle(
+                                        color: AppTheme.accentAmber,
+                                        fontWeight: FontWeight.bold)),
+                                Expanded(
+                                    child: Text(point,
+                                        style: const TextStyle(
+                                            fontSize: 13,
+                                            color: AppTheme.textSecondary))),
+                              ],
+                            ),
+                          )),
                     ],
-                  ).animate().fadeIn(delay: (index * 100).ms, duration: 400.ms).slideX(begin: 0.1, end: 0);
+                  )
+                      .animate()
+                      .fadeIn(delay: (index * 100).ms, duration: 400.ms)
+                      .slideX(begin: 0.1, end: 0);
                 },
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: ElevatedButton(
-                onPressed: () => ref.read(onboardingControllerProvider.notifier).completeOnboarding(),
+                onPressed: () => ref
+                    .read(onboardingControllerProvider.notifier)
+                    .completeOnboarding(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.accentAmber,
                   foregroundColor: Colors.black,
                   minimumSize: const Size(double.infinity, 56),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
-                child: const Text('GOT IT', style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Syne')),
+                child: const Text('GOT IT',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w900, fontFamily: 'Syne')),
               ),
             ),
           ],

@@ -7,7 +7,8 @@ import 'onboarding_content.dart';
 class OnboardingOverlay extends ConsumerStatefulWidget {
   final bool isFull;
   final int lastSeenCount;
-  const OnboardingOverlay({super.key, this.isFull = true, this.lastSeenCount = 0});
+  const OnboardingOverlay(
+      {super.key, this.isFull = true, this.lastSeenCount = 0});
 
   @override
   ConsumerState<OnboardingOverlay> createState() => _OnboardingOverlayState();
@@ -24,7 +25,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
     final textColor = isDark ? Colors.white : Colors.black87;
     final secondaryTextColor = textColor.withValues(alpha: 0.6);
     const primaryColor = Colors.amber;
-    
+
     List<OnboardingContent> contents;
     if (widget.isFull) {
       contents = OnboardingContent.features;
@@ -39,11 +40,11 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
     }
 
     if (contents.isEmpty) {
-       // Safety check: if no new content, just complete it
-       WidgetsBinding.instance.addPostFrameCallback((_) {
-         ref.read(onboardingControllerProvider.notifier).completeOnboarding();
-       });
-       return const SizedBox.shrink();
+      // Safety check: if no new content, just complete it
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(onboardingControllerProvider.notifier).completeOnboarding();
+      });
+      return const SizedBox.shrink();
     }
 
     final isLastPage = _currentPage == contents.length - 1;
@@ -54,18 +55,26 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     '${_currentPage + 1} of ${contents.length}',
-                    style: const TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                    style: const TextStyle(
+                        color: primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13),
                   ),
                   if (!isLastPage)
                     TextButton(
-                      onPressed: () => ref.read(onboardingControllerProvider.notifier).completeOnboarding(),
-                      child: Text('Skip intro', style: TextStyle(color: secondaryTextColor, fontSize: 13)),
+                      onPressed: () => ref
+                          .read(onboardingControllerProvider.notifier)
+                          .completeOnboarding(),
+                      child: Text('Skip intro',
+                          style: TextStyle(
+                              color: secondaryTextColor, fontSize: 13)),
                     ),
                 ],
               ),
@@ -77,7 +86,8 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                 itemCount: contents.length,
                 itemBuilder: (context, index) {
                   final content = contents[index];
-                  return _buildSlide(content, textColor, secondaryTextColor, primaryColor);
+                  return _buildSlide(
+                      content, textColor, secondaryTextColor, primaryColor);
                 },
               ),
             ),
@@ -92,13 +102,17 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                       if (_currentPage > 0)
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () => _pageController.previousPage(duration: 300.ms, curve: Curves.easeInOut),
+                            onPressed: () => _pageController.previousPage(
+                                duration: 300.ms, curve: Curves.easeInOut),
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: textColor.withValues(alpha: 0.1)),
+                              side: BorderSide(
+                                  color: textColor.withValues(alpha: 0.1)),
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
                             ),
-                            child: Text('← Back', style: TextStyle(color: textColor)),
+                            child: Text('← Back',
+                                style: TextStyle(color: textColor)),
                           ),
                         ),
                       if (_currentPage > 0) const SizedBox(width: 16),
@@ -107,23 +121,28 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (isLastPage) {
-                              ref.read(onboardingControllerProvider.notifier).completeOnboarding();
+                              ref
+                                  .read(onboardingControllerProvider.notifier)
+                                  .completeOnboarding();
                             } else {
-                              _pageController.nextPage(duration: 300.ms, curve: Curves.easeInOut);
+                              _pageController.nextPage(
+                                  duration: 300.ms, curve: Curves.easeInOut);
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isLastPage ? primaryColor : textColor.withValues(alpha: 0.05),
-                             elevation: 0,
-                             padding: const EdgeInsets.symmetric(vertical: 16),
-                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            backgroundColor: isLastPage
+                                ? primaryColor
+                                : textColor.withValues(alpha: 0.05),
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           child: Text(
                             isLastPage ? 'Go to Valora →' : 'Next →',
                             style: TextStyle(
-                              color: isLastPage ? Colors.black : textColor, 
-                              fontWeight: FontWeight.bold
-                            ),
+                                color: isLastPage ? Colors.black : textColor,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -138,7 +157,8 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
     ).animate().fadeIn(duration: 400.ms);
   }
 
-  Widget _buildSlide(OnboardingContent content, Color textColor, Color secondaryTextColor, Color primaryColor) {
+  Widget _buildSlide(OnboardingContent content, Color textColor,
+      Color secondaryTextColor, Color primaryColor) {
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -147,76 +167,94 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-             if (content.preview != null) ...[
-                Center(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
-                          blurRadius: 40,
-                          spreadRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: content.preview,
+            if (content.preview != null) ...[
+              Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 40,
+                        spreadRadius: 10,
+                      ),
+                    ],
                   ),
-                )
-                .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .moveY(begin: -5, end: 5, duration: 2.seconds, curve: Curves.easeInOut)
-                .animate()
-                .scale(delay: 200.ms, duration: 600.ms, curve: Curves.easeOutBack)
-                .fadeIn(delay: 200.ms, duration: 400.ms),
-                const SizedBox(height: 48),
-             ] else ...[
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: textColor.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: textColor.withValues(alpha: 0.1)),
-                    ),
-                    child: content.icon,
+                  child: content.preview,
+                ),
+              )
+                  .animate(
+                      onPlay: (controller) => controller.repeat(reverse: true))
+                  .moveY(
+                      begin: -5,
+                      end: 5,
+                      duration: 2.seconds,
+                      curve: Curves.easeInOut)
+                  .animate()
+                  .scale(
+                      delay: 200.ms,
+                      duration: 600.ms,
+                      curve: Curves.easeOutBack)
+                  .fadeIn(delay: 200.ms, duration: 400.ms),
+              const SizedBox(height: 48),
+            ] else ...[
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: textColor.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: textColor.withValues(alpha: 0.1)),
                   ),
-                ).animate().scale(delay: 200.ms, duration: 400.ms, curve: Curves.easeOutBack),
-                const SizedBox(height: 32),
-             ],
-             Text(
-               content.title,
-               style: TextStyle(color: primaryColor, fontWeight: FontWeight.w800, letterSpacing: 2, fontSize: 13),
-             ),
-             const SizedBox(height: 12),
-             Text(
-               content.subtitle,
-               style: TextStyle(color: textColor, fontWeight: FontWeight.w900, fontSize: 28, letterSpacing: -1),
-             ),
-             const SizedBox(height: 16),
-             Text(
-               content.description,
-               style: TextStyle(color: secondaryTextColor, fontSize: 15, height: 1.5),
-             ),
-             const SizedBox(height: 24),
-             ...content.bulletPoints.map((point) => Padding(
-               padding: const EdgeInsets.only(bottom: 12.0),
-               child: Row(
-                 crossAxisAlignment: CrossAxisAlignment.start,
-                 children: [
-                   Padding(
-                     padding: const EdgeInsets.only(top: 6.0),
-                     child: Icon(Icons.circle, color: primaryColor, size: 6),
-                   ),
-                   const SizedBox(width: 12),
-                   Expanded(
-                     child: Text(
-                       point, 
-                       style: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.w500)
-                     )
-                   ),
-                 ],
-               ),
-             )),
+                  child: content.icon,
+                ),
+              ).animate().scale(
+                  delay: 200.ms, duration: 400.ms, curve: Curves.easeOutBack),
+              const SizedBox(height: 32),
+            ],
+            Text(
+              content.title,
+              style: TextStyle(
+                  color: primaryColor,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 2,
+                  fontSize: 13),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              content.subtitle,
+              style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 28,
+                  letterSpacing: -1),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              content.description,
+              style: TextStyle(
+                  color: secondaryTextColor, fontSize: 15, height: 1.5),
+            ),
+            const SizedBox(height: 24),
+            ...content.bulletPoints.map((point) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6.0),
+                        child: Icon(Icons.circle, color: primaryColor, size: 6),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                          child: Text(point,
+                              style: TextStyle(
+                                  color: textColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500))),
+                    ],
+                  ),
+                )),
           ],
         ),
       ),

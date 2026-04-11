@@ -20,7 +20,9 @@ class ProfileView extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text('PROFILE', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 16)),
+        title: const Text('PROFILE',
+            style: TextStyle(
+                fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 16)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -34,7 +36,8 @@ class ProfileView extends ConsumerWidget {
             const SizedBox(height: 24),
             Text(
               user?.email ?? 'Valora Collector',
-              style: TextStyle(color: textColor, fontSize: 22, fontWeight: FontWeight.w900),
+              style: TextStyle(
+                  color: textColor, fontSize: 22, fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 8),
             Container(
@@ -45,7 +48,11 @@ class ProfileView extends ConsumerWidget {
               ),
               child: Text(
                 _getTier(homeState.totalValuation),
-                style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+                style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    letterSpacing: 1),
               ),
             ),
             const SizedBox(height: 48),
@@ -53,13 +60,18 @@ class ProfileView extends ConsumerWidget {
             const SizedBox(height: 48),
             _buildSectionHeader('ACCOUNT SETTINGS', textColor),
             const SizedBox(height: 16),
-            _buildSettingTile(context, Icons.alternate_email, 'Email', user?.email ?? 'Unknown', textColor),
-            _buildSettingTile(context, Icons.calendar_today, 'Joined', _formatDate(user?.createdAt), textColor),
+            _buildSettingTile(context, Icons.alternate_email, 'Email',
+                user?.email ?? 'Unknown', textColor),
+            _buildSettingTile(context, Icons.calendar_today, 'Joined',
+                _formatDate(user?.createdAt), textColor),
             const SizedBox(height: 32),
             _buildSectionHeader('SUPPORT', textColor),
             const SizedBox(height: 16),
-            _buildSettingTile(context, Icons.help_outline, 'Help & Feedback', 'Submit a ticket', textColor, isAction: true),
-            _buildSettingTile(context, Icons.info_outline, 'About Valora', 'v1.0.0', textColor),
+            _buildSettingTile(context, Icons.help_outline, 'Help & Feedback',
+                'Submit a ticket', textColor,
+                isAction: true),
+            _buildSettingTile(context, Icons.info_outline, 'About Valora',
+                'v1.0.0', textColor),
             const SizedBox(height: 40),
           ],
         ),
@@ -83,28 +95,30 @@ class ProfileView extends ConsumerWidget {
         ],
       ),
       child: Center(
-        child: Icon(Icons.person, size: 60, color: Theme.of(context).primaryColor),
+        child:
+            Icon(Icons.person, size: 60, color: Theme.of(context).primaryColor),
       ),
     ).animate().scale(duration: 600.ms, curve: Curves.elasticOut);
   }
 
-  Widget _buildStatsGrid(BuildContext context, HomeState state, CurrencyState currency, Color textColor) {
+  Widget _buildStatsGrid(BuildContext context, HomeState state,
+      CurrencyState currency, Color textColor) {
     return Row(
       children: [
         Expanded(
           child: _buildStatCard(
-            context, 
-            'NET WORTH', 
-            currency.format(state.totalValuation), 
+            context,
+            'NET WORTH',
+            currency.format(state.totalValuation),
             Icons.account_balance_wallet_outlined,
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: _buildStatCard(
-            context, 
-            'TITLES', 
-            state.totalGames.toString(), 
+            context,
+            'TITLES',
+            state.totalGames.toString(),
             Icons.videogame_asset_outlined,
           ),
         ),
@@ -112,7 +126,8 @@ class ProfileView extends ConsumerWidget {
     ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0);
   }
 
-  Widget _buildStatCard(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildStatCard(
+      BuildContext context, String label, String value, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -127,13 +142,20 @@ class ProfileView extends ConsumerWidget {
           const SizedBox(height: 16),
           Text(
             label,
-            style: const TextStyle(color: Colors.white24, fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 1.5),
+            style: const TextStyle(
+                color: Colors.white24,
+                fontWeight: FontWeight.bold,
+                fontSize: 10,
+                letterSpacing: 1.5),
           ),
           const SizedBox(height: 4),
           FittedBox(
             child: Text(
               value,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 24),
             ),
           ),
         ],
@@ -148,14 +170,20 @@ class ProfileView extends ConsumerWidget {
         children: [
           Text(
             title,
-            style: TextStyle(color: textColor.withValues(alpha: 0.4), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5),
+            style: TextStyle(
+                color: textColor.withValues(alpha: 0.4),
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.5),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSettingTile(BuildContext context, IconData icon, String label, String value, Color textColor, {bool isAction = false}) {
+  Widget _buildSettingTile(BuildContext context, IconData icon, String label,
+      String value, Color textColor,
+      {bool isAction = false}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -170,20 +198,24 @@ class ProfileView extends ConsumerWidget {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  color: textColor, fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ),
           Text(
             value,
             style: TextStyle(
-              color: isAction ? Theme.of(context).primaryColor : textColor.withValues(alpha: 0.4), 
+              color: isAction
+                  ? Theme.of(context).primaryColor
+                  : textColor.withValues(alpha: 0.4),
               fontSize: 13,
               fontWeight: isAction ? FontWeight.bold : FontWeight.normal,
             ),
           ),
           if (isAction) ...[
             const SizedBox(width: 8),
-            Icon(Icons.chevron_right, color: Theme.of(context).primaryColor, size: 16),
+            Icon(Icons.chevron_right,
+                color: Theme.of(context).primaryColor, size: 16),
           ],
         ],
       ),

@@ -46,13 +46,20 @@ enum AppPlatform {
 
   String get label {
     switch (this) {
-      case ps5Physical: return 'PS5';
-      case ps4Physical: return 'PS4';
-      case ps5Digital: return 'PS5 Digital';
-      case ps4Digital: return 'PS4 Digital';
-      case steam: return 'Steam';
-      case epic: return 'Epic Games';
-      case nintendo: return 'Nintendo';
+      case ps5Physical:
+        return 'PS5';
+      case ps4Physical:
+        return 'PS4';
+      case ps5Digital:
+        return 'PS5 Digital';
+      case ps4Digital:
+        return 'PS4 Digital';
+      case steam:
+        return 'Steam';
+      case epic:
+        return 'Epic Games';
+      case nintendo:
+        return 'Nintendo';
     }
   }
 }
@@ -68,10 +75,10 @@ class Game {
   final String? genre;
   final String? publisher;
   final int? releaseYear;
-  
-  final String format; 
+
+  final String format;
   final String? region;
-  final GameCondition condition; 
+  final GameCondition condition;
   final double? purchasePrice;
   final double? estimatedValue;
 
@@ -134,11 +141,13 @@ class Game {
       priceDigital: (json['price_digital'] as num?)?.toDouble(),
       currency: json['currency'] as String?,
       source: json['source'] as String?,
-      fetchedAt: json['fetched_at'] != null ? DateTime.tryParse(json['fetched_at'] as String) : null,
+      fetchedAt: json['fetched_at'] != null
+          ? DateTime.tryParse(json['fetched_at'] as String)
+          : null,
       currentValue: (json['current_value'] as num?)?.toDouble(),
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'collection_id': collectionId,
@@ -210,7 +219,8 @@ class Game {
     );
   }
 
-  double? get activeMarketValue => currentValue ?? estimatedValue ?? purchasePrice;
+  double? get activeMarketValue =>
+      currentValue ?? estimatedValue ?? purchasePrice;
 
   double get profitOrLoss {
     final paid = purchasePrice ?? 0.0;

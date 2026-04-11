@@ -25,26 +25,29 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
   List<Game> _discoveredGames = [];
   Map<String, Game> _conflicts = {};
   final Set<String> _selectedToOverwrite = {};
-  
+
   final TextEditingController _steamIdController = TextEditingController();
 
   Future<void> _fetchSteamLibrary() async {
     final steamId = _steamIdController.text.trim();
     if (steamId.isEmpty) {
-       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Mind sharing your Steam ID first?')));
-       return;
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mind sharing your Steam ID first?')));
+      return;
     }
 
     setState(() => _isLoading = true);
     try {
       final userId = Supabase.instance.client.auth.currentUser!.id;
-      
-      final games = await ref.read(librarySyncServiceProvider).syncSteam(userId, steamId);
-      
+
+      final games =
+          await ref.read(librarySyncServiceProvider).syncSteam(userId, steamId);
+
       // Look for conflicts
       final repo = ref.read(gameRepositoryProvider);
       final externalIds = games.map((g) => g.externalId!).toList();
-      final existingGames = await repo.getExistingGamesByExternalIds(userId, AppPlatform.steam, externalIds);
+      final existingGames = await repo.getExistingGamesByExternalIds(
+          userId, AppPlatform.steam, externalIds);
 
       if (mounted) {
         setState(() {
@@ -58,7 +61,9 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Oops! Something went wrong: $e'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Oops! Something went wrong: $e'),
+            backgroundColor: Colors.red));
       }
     }
   }
@@ -67,7 +72,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
     setState(() => _isLoading = true);
     try {
       final repo = ref.read(gameRepositoryProvider);
-      
+
       final List<Game> toInsert = [];
       final List<Game> toUpdate = [];
 
@@ -87,7 +92,7 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
       if (toInsert.isNotEmpty) {
         await repo.addGamesBatch(toInsert);
       }
-      
+
       // 2. Batch update resolved games (using upsert logic)
       if (toUpdate.isNotEmpty) {
         await repo.addGamesBatch(toUpdate);
@@ -101,7 +106,8 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
         final count = toInsert.length + toUpdate.length;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('All set! Imported $count games into your collection.'),
+            content:
+                Text('All set! Imported $count games into your collection.'),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),
@@ -110,7 +116,9 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Couldn\'t save those games: $e'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Couldn\'t save those games: $e'),
+            backgroundColor: Colors.red));
       }
     }
   }
@@ -127,10 +135,16 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: IconButton(icon: Icon(Icons.close, color: textColor), onPressed: () => Navigator.pop(context)),
+          leading: IconButton(
+              icon: Icon(Icons.close, color: textColor),
+              onPressed: () => Navigator.pop(context)),
           title: Text(
             'CONNECT YOUR LIBRARY',
-            style: TextStyle(color: textColor, fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 14),
+            style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.5,
+                fontSize: 14),
           ),
           centerTitle: true,
         ),
@@ -140,7 +154,9 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
               constraints: const BoxConstraints(maxWidth: 600),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: _discoveredGames.isEmpty ? _buildSteamInput(textColor) : _buildReviewList(textColor),
+                child: _discoveredGames.isEmpty
+                    ? _buildSteamInput(textColor)
+                    : _buildReviewList(textColor),
               ),
             ),
           ),
@@ -153,17 +169,21 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const FaIcon(FontAwesomeIcons.steam, color: Colors.white, size: 64).animate().scale(delay: 200.ms),
+        const FaIcon(FontAwesomeIcons.steam, color: Colors.white, size: 64)
+            .animate()
+            .scale(delay: 200.ms),
         const SizedBox(height: 32),
         Text(
           'Sync your Steam library in seconds.',
-          style: TextStyle(color: textColor, fontSize: 22, fontWeight: FontWeight.w900),
+          style: TextStyle(
+              color: textColor, fontSize: 22, fontWeight: FontWeight.w900),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 12),
         Text(
           'We\'ll only see your public game list. No passwords or sensitive data are ever touched.',
-          style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 14),
+          style:
+              TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 14),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 48),
@@ -174,8 +194,11 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
             hintText: 'e.g. 76561198...',
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.05),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-            prefixIcon: const Icon(Icons.person_outline, color: Colors.blueAccent),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none),
+            prefixIcon:
+                const Icon(Icons.person_outline, color: Colors.blueAccent),
           ),
           style: TextStyle(color: textColor),
         ),
@@ -196,23 +219,32 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
                   SizedBox(width: 8),
                   Text(
                     'How to find your Steam ID?',
-                    style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 13),
+                    style: TextStyle(
+                        color: Colors.blueAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               RichText(
                 text: TextSpan(
-                  style: TextStyle(color: textColor.withValues(alpha: 0.4), fontSize: 12, height: 1.5),
+                  style: TextStyle(
+                      color: textColor.withValues(alpha: 0.4),
+                      fontSize: 12,
+                      height: 1.5),
                   children: [
-                    const TextSpan(text: '1. Go to your Steam Profile\n2. Right-click and "Copy Page URL"\n3. Paste it at '),
+                    const TextSpan(
+                        text:
+                            '1. Go to your Steam Profile\n2. Right-click and "Copy Page URL"\n3. Paste it at '),
                     WidgetSpan(
                       alignment: PlaceholderAlignment.middle,
                       child: GestureDetector(
                         onTap: () async {
                           final url = Uri.parse('https://steamid.io');
                           if (await canLaunchUrl(url)) {
-                            await launchUrl(url, mode: LaunchMode.externalApplication);
+                            await launchUrl(url,
+                                mode: LaunchMode.externalApplication);
                           }
                         },
                         child: Text(
@@ -221,7 +253,8 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
                             color: Colors.blueAccent,
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.underline,
-                            decorationColor: Colors.blueAccent.withValues(alpha: 0.5),
+                            decorationColor:
+                                Colors.blueAccent.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
@@ -242,20 +275,25 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
               backgroundColor: Colors.blueAccent,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               elevation: 0,
             ),
-            child: _isLoading 
+            child: _isLoading
                 ? Shimmer.fromColors(
                     baseColor: Colors.white.withValues(alpha: 0.2),
                     highlightColor: Colors.white.withValues(alpha: 0.5),
                     child: Container(
                       height: 20,
                       width: 120,
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4)),
                     ),
                   )
-                : const Text('FIND MY GAMES', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
+                : const Text('FIND MY GAMES',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, letterSpacing: 1)),
           ),
         ),
       ],
@@ -277,11 +315,15 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
               children: [
                 Text(
                   'WE FOUND ${_discoveredGames.length} GAMES',
-                  style: TextStyle(color: textColor, fontWeight: FontWeight.w900, fontSize: 18),
+                  style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 18),
                 ),
                 Text(
                   '$newCount new, $conflictCount already in collection',
-                  style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 14),
+                  style: TextStyle(
+                      color: textColor.withValues(alpha: 0.5), fontSize: 14),
                 ),
               ],
             ),
@@ -303,9 +345,11 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
             itemBuilder: (context, index) {
               final game = _discoveredGames[index];
               final hasConflict = _conflicts.containsKey(game.externalId);
-              final isOverwriting = _selectedToOverwrite.contains(game.externalId);
+              final isOverwriting =
+                  _selectedToOverwrite.contains(game.externalId);
 
-              return _buildGameSyncTile(game, hasConflict, isOverwriting, textColor);
+              return _buildGameSyncTile(
+                  game, hasConflict, isOverwriting, textColor);
             },
           ),
         ),
@@ -321,12 +365,15 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
               if (conflictCount > 0) ...[
                 Row(
                   children: [
-                    const Icon(Icons.info_outline, color: Colors.blueAccent, size: 18),
+                    const Icon(Icons.info_outline,
+                        color: Colors.blueAccent, size: 18),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'We found some duplicates. Tap them to choose which details to keep.',
-                        style: TextStyle(color: textColor.withValues(alpha: 0.6), fontSize: 12),
+                        style: TextStyle(
+                            color: textColor.withValues(alpha: 0.6),
+                            fontSize: 12),
                       ),
                     ),
                   ],
@@ -341,21 +388,27 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
                     backgroundColor: Colors.blueAccent,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 20),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: _isLoading 
+                  child: _isLoading
                       ? Shimmer.fromColors(
                           baseColor: Colors.white.withValues(alpha: 0.2),
                           highlightColor: Colors.white.withValues(alpha: 0.5),
                           child: Container(
                             height: 20,
                             width: 140,
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4)),
                           ),
                         )
                       : Text(
-                          conflictCount > 0 ? 'FINALIZE & IMPORT' : 'SAVE TO COLLECTION',
-                          style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1),
+                          conflictCount > 0
+                              ? 'FINALIZE & IMPORT'
+                              : 'SAVE TO COLLECTION',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w900, letterSpacing: 1),
                         ),
                 ),
               ),
@@ -367,18 +420,21 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
     );
   }
 
-  Widget _buildGameSyncTile(Game game, bool hasConflict, bool isOverwriting, Color textColor) {
+  Widget _buildGameSyncTile(
+      Game game, bool hasConflict, bool isOverwriting, Color textColor) {
     return GestureDetector(
       onTap: hasConflict ? () => _showConflictResolution(game) : null,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: hasConflict 
-              ? (isOverwriting ? Colors.orange.withValues(alpha: 0.1) : Colors.blueAccent.withValues(alpha: 0.05))
+          color: hasConflict
+              ? (isOverwriting
+                  ? Colors.orange.withValues(alpha: 0.1)
+                  : Colors.blueAccent.withValues(alpha: 0.05))
               : Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
-          border: hasConflict && isOverwriting 
-              ? Border.all(color: Colors.orange.withValues(alpha: 0.3)) 
+          border: hasConflict && isOverwriting
+              ? Border.all(color: Colors.orange.withValues(alpha: 0.3))
               : null,
         ),
         child: Row(
@@ -393,27 +449,43 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(game.title, style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(game.title,
+                      style: TextStyle(
+                          color: textColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 4),
                   if (hasConflict)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: isOverwriting ? Colors.orange : Colors.blueAccent.withValues(alpha: 0.2),
+                        color: isOverwriting
+                            ? Colors.orange
+                            : Colors.blueAccent.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         isOverwriting ? 'UPDATING DATA' : 'KEEPING YOURS',
-                        style: TextStyle(color: isOverwriting ? Colors.black : Colors.blueAccent, fontSize: 9, fontWeight: FontWeight.w900),
+                        style: TextStyle(
+                            color: isOverwriting
+                                ? Colors.black
+                                : Colors.blueAccent,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w900),
                       ),
                     )
                   else
-                    const Text('New Game • Steam', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                    const Text('New Game • Steam',
+                        style: TextStyle(color: Colors.white38, fontSize: 12)),
                 ],
               ),
             ),
             if (hasConflict)
-              Icon(Icons.chevron_right, color: textColor.withValues(alpha: 0.2), size: 16),
+              Icon(Icons.chevron_right,
+                  color: textColor.withValues(alpha: 0.2), size: 16),
           ],
         ),
       ),
@@ -422,105 +494,120 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
 
   void _showConflictResolution(Game newGame) {
     final existingGame = _conflicts[newGame.externalId]!;
-    
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) {
-          final isCurrentlyOverwriting = _selectedToOverwrite.contains(newGame.externalId);
+      builder: (context) => StatefulBuilder(builder: (context, setModalState) {
+        final isCurrentlyOverwriting =
+            _selectedToOverwrite.contains(newGame.externalId);
 
-          return Container(
-            height: MediaQuery.of(context).size.height * 0.75,
-            decoration: const BoxDecoration(
-              color: Color(0xFF1A1A1A),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 12),
-                Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)))),
-                const SizedBox(height: 24),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    'Which version should we keep?',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24),
-                    textAlign: TextAlign.center,
-                  ),
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.75,
+          decoration: const BoxDecoration(
+            color: Color(0xFF1A1A1A),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 12),
+              Center(
+                  child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                          color: Colors.white24,
+                          borderRadius: BorderRadius.circular(2)))),
+              const SizedBox(height: 24),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Which version should we keep?',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 24),
+                  textAlign: TextAlign.center,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
-                  child: Text(
-                    'We found "${newGame.title}" in your collection already.',
-                    style: const TextStyle(color: Colors.white54, fontSize: 14),
-                    textAlign: TextAlign.center,
-                  ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+                child: Text(
+                  'We found "${newGame.title}" in your collection already.',
+                  style: const TextStyle(color: Colors.white54, fontSize: 14),
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 32),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Current Version
-                        Expanded(
-                          child: _buildVersionCard(
-                            'Your Version', 
-                            existingGame, 
-                            !isCurrentlyOverwriting, 
-                            () {
-                              if (newGame.externalId != null) {
-                                setState(() => _selectedToOverwrite.remove(newGame.externalId!));
-                              }
-                              setModalState(() {});
-                            },
-                          ),
+              ),
+              const SizedBox(height: 32),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Current Version
+                      Expanded(
+                        child: _buildVersionCard(
+                          'Your Version',
+                          existingGame,
+                          !isCurrentlyOverwriting,
+                          () {
+                            if (newGame.externalId != null) {
+                              setState(() => _selectedToOverwrite
+                                  .remove(newGame.externalId!));
+                            }
+                            setModalState(() {});
+                          },
                         ),
-                        const SizedBox(width: 16),
-                        // New Version
-                        Expanded(
-                          child: _buildVersionCard(
-                            'Latest from Steam', 
-                            newGame, 
-                            isCurrentlyOverwriting, 
-                            () {
-                              if (newGame.externalId != null) {
-                                setState(() => _selectedToOverwrite.add(newGame.externalId!));
-                              }
-                              setModalState(() {});
-                            },
-                          ),
+                      ),
+                      const SizedBox(width: 16),
+                      // New Version
+                      Expanded(
+                        child: _buildVersionCard(
+                          'Latest from Steam',
+                          newGame,
+                          isCurrentlyOverwriting,
+                          () {
+                            if (newGame.externalId != null) {
+                              setState(() => _selectedToOverwrite
+                                  .add(newGame.externalId!));
+                            }
+                            setModalState(() {});
+                          },
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                    child: const Text('DONE', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                   ),
+                  child: const Text('DONE',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w900, letterSpacing: 1)),
                 ),
-              ],
-            ),
-          );
-        }
-      ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
-  Widget _buildVersionCard(String title, Game game, bool isSelected, VoidCallback onTap) {
+  Widget _buildVersionCard(
+      String title, Game game, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -528,9 +615,15 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isSelected ? Colors.blueAccent.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+              color: isSelected
+                  ? Colors.blueAccent.withValues(alpha: 0.1)
+                  : Colors.white.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isSelected ? Colors.blueAccent : Colors.white.withValues(alpha: 0.1), width: 2),
+              border: Border.all(
+                  color: isSelected
+                      ? Colors.blueAccent
+                      : Colors.white.withValues(alpha: 0.1),
+                  width: 2),
             ),
             child: Column(
               children: [
@@ -542,18 +635,23 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
                 const SizedBox(height: 16),
                 Text(
                   title,
-                  style: TextStyle(color: isSelected ? Colors.blueAccent : Colors.white54, fontWeight: FontWeight.bold, fontSize: 12),
+                  style: TextStyle(
+                      color: isSelected ? Colors.blueAccent : Colors.white54,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12),
                 ),
                 const SizedBox(height: 12),
                 _buildInfoRow('Title', game.title),
                 _buildInfoRow('Format', game.format),
                 if (game.purchasePrice != null && game.purchasePrice! > 0)
-                  _buildInfoRow('Price', '\$${game.purchasePrice!.toStringAsFixed(2)}'),
+                  _buildInfoRow(
+                      'Price', '\$${game.purchasePrice!.toStringAsFixed(2)}'),
               ],
             ),
           ),
           const SizedBox(height: 8),
-          if (isSelected) const Icon(Icons.check_circle, color: Colors.blueAccent, size: 24),
+          if (isSelected)
+            const Icon(Icons.check_circle, color: Colors.blueAccent, size: 24),
         ],
       ),
     );
@@ -564,8 +662,12 @@ class _LibrarySyncViewState extends ConsumerState<LibrarySyncView> {
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Text('$label: ', style: const TextStyle(color: Colors.white24, fontSize: 10)),
-          Expanded(child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 10), overflow: TextOverflow.ellipsis)),
+          Text('$label: ',
+              style: const TextStyle(color: Colors.white24, fontSize: 10)),
+          Expanded(
+              child: Text(value,
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                  overflow: TextOverflow.ellipsis)),
         ],
       ),
     );

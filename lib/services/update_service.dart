@@ -18,7 +18,8 @@ class UpdateInfo {
 class UpdateService {
   static const String _owner = 'Hikki-dev';
   static const String _repo = 'valora';
-  static const String _apiUrl = 'https://api.github.com/repos/$_owner/$_repo/releases/latest';
+  static const String _apiUrl =
+      'https://api.github.com/repos/$_owner/$_repo/releases/latest';
 
   Future<UpdateInfo?> checkForUpdate() async {
     if (kIsWeb) return null; // We only update the APK for Android
@@ -26,15 +27,15 @@ class UpdateService {
     try {
       final response = await http.get(Uri.parse(_apiUrl));
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final String latestTag = data['tag_name'] ?? '';
-        final String htmlUrl = data['html_url'] ?? '';
+        final Map<String, dynamic> data = json.decode(response.body);
+        final String latestTag = data['tag_name'] as String? ?? '';
+        final String htmlUrl = data['html_url'] as String? ?? '';
 
         if (latestTag.isEmpty) return null;
 
         // Clean version strings (v1.0.0 -> 1.0.0)
         final latestClean = latestTag.replaceAll('v', '');
-        
+
         final packageInfo = await PackageInfo.fromPlatform();
         final currentVersion = packageInfo.version;
 

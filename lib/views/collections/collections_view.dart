@@ -33,50 +33,46 @@ final searchQueryProvider =
 
 final filteredGamesProvider = FutureProvider.family
     .autoDispose<List<Game>, String?>((ref, platformFilter) async {
-      final allGames = await ref.watch(libraryStreamProvider.future);
+  final allGames = await ref.watch(libraryStreamProvider.future);
 
+  final subCategory = ref.watch(selectedSubCategoryProvider);
+  final search = ref.watch(searchQueryProvider).toLowerCase();
 
-      final subCategory = ref.watch(selectedSubCategoryProvider);
-      final search = ref.watch(searchQueryProvider).toLowerCase();
+  var filtered = allGames.where((g) {
+    if (platformFilter != null && platformFilter.isNotEmpty) {
+      final p = g.platform.value;
 
-      var filtered = allGames.where((g) {
-        if (platformFilter != null && platformFilter.isNotEmpty) {
-          final p = g.platform.value;
-          
-          if (platformFilter == 'playstation') {
-            if (!p.startsWith('ps')) return false;
-          } else if (platformFilter == 'ps_disc') {
-            if (p != 'ps4_physical' && p != 'ps5_physical') return false;
-          } else if (platformFilter == 'psn') {
-            if (p != 'ps4_digital' && p != 'ps5_digital') return false;
-          } else if (p != platformFilter) {
-            return false;
-          }
-        }
-        return true;
-      }).toList();
-
-      if (subCategory != 'All') {
-        if (subCategory == 'PS5') {
-          filtered = filtered
-              .where((g) => g.platform.value.startsWith('ps5'))
-              .toList();
-        }
-        if (subCategory == 'PS4') {
-          filtered = filtered
-              .where((g) => g.platform.value.startsWith('ps4'))
-              .toList();
-        }
+      if (platformFilter == 'playstation') {
+        if (!p.startsWith('ps')) return false;
+      } else if (platformFilter == 'ps_disc') {
+        if (p != 'ps4_physical' && p != 'ps5_physical') return false;
+      } else if (platformFilter == 'psn') {
+        if (p != 'ps4_digital' && p != 'ps5_digital') return false;
+      } else if (p != platformFilter) {
+        return false;
       }
+    }
+    return true;
+  }).toList();
 
-      if (search.isNotEmpty) {
-        filtered = filtered
-            .where((g) => g.title.toLowerCase().contains(search))
-            .toList();
-      }
+  if (subCategory != 'All') {
+    if (subCategory == 'PS5') {
+      filtered =
+          filtered.where((g) => g.platform.value.startsWith('ps5')).toList();
+    }
+    if (subCategory == 'PS4') {
+      filtered =
+          filtered.where((g) => g.platform.value.startsWith('ps4')).toList();
+    }
+  }
 
-      return filtered;
-    });
+  if (search.isNotEmpty) {
+    filtered =
+        filtered.where((g) => g.title.toLowerCase().contains(search)).toList();
+  }
+
+  return filtered;
+});
 
 class CollectionsView extends ConsumerWidget {
   final String? platformFilter;
@@ -107,15 +103,19 @@ class CollectionsView extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: isDesktop ? null : AppBar(
-        title: Text(_getPlatformTitle(), style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left),
-          onPressed: () => context.pop(),
-        ),
-      ),
+      appBar: isDesktop
+          ? null
+          : AppBar(
+              title: Text(_getPlatformTitle(),
+                  style:
+                      TextStyle(color: textColor, fontWeight: FontWeight.bold)),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.chevron_left),
+                onPressed: () => context.pop(),
+              ),
+            ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: isDesktop ? 48.0 : 24.0),
@@ -137,65 +137,66 @@ class CollectionsView extends ConsumerWidget {
                 const SizedBox(height: 24),
               ],
               // Header Row (Mobile only or simplified desktop)
-              if (!isDesktop) 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (context.canPop()) {
-                        context.pop();
-                      } else {
-                        context.go('/');
-                      }
-                    },
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.chevron_left,
-                          color: Colors.orangeAccent,
-                          size: 24,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          'Back',
-                          style: TextStyle(
+              if (!isDesktop)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go('/');
+                        }
+                      },
+                      child: const Row(
+                        children: [
+                          Icon(
+                            Icons.chevron_left,
                             color: Colors.orangeAccent,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                            size: 24,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    _getPlatformTitle(),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: Colors.orangeAccent,
-                      fontSize: 16,
-                    ),
-                  ),
-                  gamesAsync.maybeWhen(
-                    data: (games) => Text(
-                      '${games.length}',
-                      style: TextStyle(
-                        color: mutedTextColor,
-                        fontWeight: FontWeight.bold,
+                          SizedBox(width: 4),
+                          Text(
+                            'Back',
+                            style: TextStyle(
+                              color: Colors.orangeAccent,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    orElse: () => const Text(
-                      '...',
-                      style: TextStyle(color: Colors.transparent),
+                    Text(
+                      _getPlatformTitle(),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: Colors.orangeAccent,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                    gamesAsync.maybeWhen(
+                      data: (games) => Text(
+                        '${games.length}',
+                        style: TextStyle(
+                          color: mutedTextColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      orElse: () => const Text(
+                        '...',
+                        style: TextStyle(color: Colors.transparent),
+                      ),
+                    ),
+                  ],
+                ),
               if (!isDesktop) const SizedBox(height: 24),
 
               // Overview Card (Compact Stats Bar)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 decoration: BoxDecoration(
                   color: cardColor,
                   borderRadius: BorderRadius.circular(20),
@@ -365,7 +366,8 @@ class CollectionsView extends ConsumerWidget {
                           children: [
                             Text(
                               "No games found.",
-                              style: TextStyle(color: mutedTextColor, fontSize: 16),
+                              style: TextStyle(
+                                  color: mutedTextColor, fontSize: 16),
                             ),
                             if (platformFilter == 'steam') ...[
                               const SizedBox(height: 24),
@@ -373,16 +375,20 @@ class CollectionsView extends ConsumerWidget {
                                 onPressed: () {
                                   showDialog(
                                     context: context,
-                                    builder: (context) => LibrarySyncView(),
+                                    builder: (context) =>
+                                        const LibrarySyncView(),
                                   );
                                 },
-                                icon: FaIcon(FontAwesomeIcons.steam, size: 18),
+                                icon: const FaIcon(FontAwesomeIcons.steam,
+                                    size: 18),
                                 label: const Text('SYNC STEAM LIBRARY'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blueAccent,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 24, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12)),
                                 ),
                               ),
                             ],
@@ -409,7 +415,10 @@ class CollectionsView extends ConsumerWidget {
                             cardColor,
                             textColor,
                             mutedTextColor,
-                          ).animate().fadeIn(duration: 400.ms, delay: (index * 50).ms).slideY(begin: 0.1, end: 0),
+                          )
+                              .animate()
+                              .fadeIn(duration: 400.ms, delay: (index * 50).ms)
+                              .slideY(begin: 0.1, end: 0),
                         );
                       },
                     );
@@ -441,10 +450,11 @@ class CollectionsView extends ConsumerWidget {
   ) {
     Color accentColor = cardColor;
     final platformVal = game.platform.value;
-    
+
     if (platformVal.startsWith('ps')) {
       accentColor = const Color(0xFF00439C); // PlayStation Blue
-    } else if (platformVal.startsWith('nintendo') || platformVal.startsWith('switch')) {
+    } else if (platformVal.startsWith('nintendo') ||
+        platformVal.startsWith('switch')) {
       accentColor = const Color(0xFFE60012); // Nintendo Red
     } else if (platformVal == 'steam') {
       accentColor = const Color(0xFF171A21); // Steam Dark
@@ -492,7 +502,8 @@ class CollectionsView extends ConsumerWidget {
                               imageUrl: game.coverUrl!,
                               fit: BoxFit.cover,
                               memCacheWidth: 250,
-                              placeholder: (context, url) => Container(color: cardBgColor),
+                              placeholder: (context, url) =>
+                                  Container(color: cardBgColor),
                               errorWidget: (context, url, error) => Icon(
                                 Icons.videogame_asset,
                                 size: 40,
@@ -541,7 +552,8 @@ class CollectionsView extends ConsumerWidget {
                             ),
                             Text(
                               game.condition.label,
-                              style: TextStyle(color: mutedTextColor, fontSize: 12),
+                              style: TextStyle(
+                                  color: mutedTextColor, fontSize: 12),
                             ),
                           ],
                         ),
@@ -602,7 +614,10 @@ class CollectionsView extends ConsumerWidget {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (context) => AddGameModal(initialPlatform: platformFilter != null ? AppPlatform.fromString(platformFilter!) : null),
+            builder: (context) => AddGameModal(
+                initialPlatform: platformFilter != null
+                    ? AppPlatform.fromString(platformFilter!)
+                    : null),
           );
         },
       ),
