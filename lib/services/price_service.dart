@@ -53,9 +53,6 @@ class PriceService {
           'title': game.title,
           'forceRefresh': force,
         },
-        headers: {
-          'Authorization': 'Bearer ${_client.auth.currentSession?.accessToken}',
-        },
       );
 
       if (response.status != 200) {
