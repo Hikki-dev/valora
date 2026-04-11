@@ -336,11 +336,11 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
         ),
         NavigationRailDestination(
           icon: Badge(
-            isLabelVisible: ref.watch(wishlistDealCountProvider).valueOrNull !=
-                    null &&
-                ref.watch(wishlistDealCountProvider).value! > 0,
-            label:
-                Text('${ref.watch(wishlistDealCountProvider).valueOrNull ?? 0}'),
+            isLabelVisible:
+                ref.watch(wishlistDealCountProvider).valueOrNull != null &&
+                    ref.watch(wishlistDealCountProvider).value! > 0,
+            label: Text(
+                '${ref.watch(wishlistDealCountProvider).valueOrNull ?? 0}'),
             child: const Icon(Icons.favorite),
           ),
           label: const Text('Wishlist'),
