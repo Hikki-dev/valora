@@ -25,10 +25,10 @@ class CollectionSnapshotWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF0A0A0F),
           borderRadius: BorderRadius.circular(40),
-          border: Border.all(color: Colors.cyanAccent.withOpacity(0.3), width: 2),
+          border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3), width: 2),
           boxShadow: [
             BoxShadow(
-              color: Colors.cyanAccent.withOpacity(0.1),
+              color: Colors.cyanAccent.withValues(alpha: 0.1),
               blurRadius: 40,
               spreadRadius: 10,
             ),
@@ -132,7 +132,7 @@ class CollectionSnapshotWidget extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.03),
+        color: Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -152,7 +152,7 @@ class CollectionSnapshotWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),

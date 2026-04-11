@@ -47,14 +47,14 @@ class _GameBox3DState extends State<GameBox3D> {
             boxShadow: [
               if (_isHovered)
                 BoxShadow(
-                  color: Colors.cyanAccent.withOpacity(0.3),
+                  color: Colors.cyanAccent.withValues(alpha: 0.3),
                   blurRadius: 20,
                   spreadRadius: 2,
                   offset: const Offset(0, 5),
                 )
               else
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withValues(alpha: 0.7),
                   blurRadius: 10,
                   spreadRadius: 1,
                   offset: const Offset(0, 5),
@@ -85,14 +85,14 @@ class _GameBox3DState extends State<GameBox3D> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withOpacity(0.2), // Top-left glare
+                      Colors.white.withValues(alpha: 0.2), // Top-left glare
                       Colors.transparent,
-                      Colors.black.withOpacity(0.4), // Bottom-right shadow
+                      Colors.black.withValues(alpha: 0.4), // Bottom-right shadow
                     ],
                     stops: const [0.0, 0.3, 1.0],
                   ),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     width: 0.5,
                   ),
                 ),
@@ -108,8 +108,8 @@ class _GameBox3DState extends State<GameBox3D> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.black.withOpacity(0.6),
-                        Colors.black.withOpacity(0.1),
+                        Colors.black.withValues(alpha: 0.6),
+                        Colors.black.withValues(alpha: 0.1),
                       ],
                     ),
                   ),
@@ -128,7 +128,7 @@ class _GameBox3DState extends State<GameBox3D> {
                       gradient: LinearGradient(
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
-                        colors: [Colors.black.withOpacity(0.8), Colors.black.withOpacity(0.0)],
+                        colors: [Colors.black.withValues(alpha: 0.8), Colors.black.withValues(alpha: 0.0)],
                         stops: const [0.0, 1.0],
                       ),
                     ),
@@ -165,8 +165,8 @@ class _GameBox3DState extends State<GameBox3D> {
       child: Center(
       child: loading
           ? Shimmer.fromColors(
-              baseColor: Colors.white.withOpacity(0.05),
-              highlightColor: Colors.white.withOpacity(0.1),
+              baseColor: Colors.white.withValues(alpha: 0.05),
+              highlightColor: Colors.white.withValues(alpha: 0.1),
               child: Container(color: Colors.white),
             )
           : Padding(

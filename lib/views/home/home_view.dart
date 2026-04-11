@@ -33,8 +33,8 @@ class HomeView extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themeToggleIcon = isDark ? Icons.light_mode : Icons.dark_mode;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final mutedTextColor = isDark ? Colors.white.withOpacity(0.5) : Colors.black.withOpacity(0.5);
-    final cardColor = isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05);
+    final mutedTextColor = isDark ? Colors.white.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.5);
+    final cardColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
 
     final width = MediaQuery.sizeOf(context).width;
     final isDesktop = width >= 900;
@@ -47,17 +47,17 @@ class HomeView extends ConsumerWidget {
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(themeToggleIcon, color: textColor.withOpacity(0.7)),
+            icon: Icon(themeToggleIcon, color: textColor.withValues(alpha: 0.7)),
             onPressed: () => ref.read(themeProvider.notifier).toggle(),
             tooltip: 'Toggle Theme',
           ),
           IconButton(
-            icon: Icon(Icons.currency_exchange, color: textColor.withOpacity(0.7)),
+            icon: Icon(Icons.currency_exchange, color: textColor.withValues(alpha: 0.7)),
             onPressed: () => ref.read(currencyProvider.notifier).toggleCurrency(),
             tooltip: 'Toggle Currency',
           ),
           IconButton(
-            icon: Icon(Icons.logout, color: textColor.withOpacity(0.7)),
+            icon: Icon(Icons.logout, color: textColor.withValues(alpha: 0.7)),
             onPressed: () {
                ref.read(authControllerProvider.notifier).signOut();
             },
@@ -128,7 +128,7 @@ class HomeView extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.blueAccent.withOpacity(0.4),
+                            color: Colors.blueAccent.withValues(alpha: 0.4),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -149,7 +149,7 @@ class HomeView extends ConsumerWidget {
                                 ),
                                 Text(
                                   'New version ${info.latestVersion} is out!',
-                                  style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 11),
+                                  style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 11),
                                 ),
                               ],
                             ),
@@ -157,7 +157,7 @@ class HomeView extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Text(
@@ -283,7 +283,7 @@ class HomeView extends ConsumerWidget {
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                 color: (isGain ? AppTheme.gainGreen : AppTheme.lossRed).withOpacity(0.15),
+                 color: (isGain ? AppTheme.gainGreen : AppTheme.lossRed).withValues(alpha: 0.15),
                  borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -390,7 +390,7 @@ class HomeView extends ConsumerWidget {
     );
   }
 
-  Color mutatedTextColor(Color c) => c.withOpacity(0.5);
+  Color mutatedTextColor(Color c) => c.withValues(alpha: 0.5);
 
   Widget _buildCollectionListItem(
     BuildContext context, 
@@ -414,18 +414,18 @@ class HomeView extends ConsumerWidget {
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: textColor.withOpacity(0.05)),
+          border: Border.all(color: textColor.withValues(alpha: 0.05)),
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(20),
-            hoverColor: Theme.of(context).primaryColor.withOpacity(0.05),
+            hoverColor: Theme.of(context).primaryColor.withValues(alpha: 0.05),
             onTap: () {
                context.push('/collections?platform=$filter');
             },
-            highlightColor: Theme.of(context).primaryColor.withOpacity(0.1),
-            splashColor: Theme.of(context).primaryColor.withOpacity(0.2),
+            highlightColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+            splashColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
             child: Padding(
                padding: const EdgeInsets.all(16.0),
                child: Row(
@@ -487,8 +487,8 @@ class HomeView extends ConsumerWidget {
   }
 
   Widget _buildSkeleton(BuildContext context, WidgetRef ref, bool isDark, bool isDesktop) {
-    final baseColor = isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05);
-    final highlightColor = isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.1);
+    final baseColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05);
+    final highlightColor = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1);
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(isDesktop ? 48.0 : 24.0),

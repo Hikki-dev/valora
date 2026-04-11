@@ -22,7 +22,7 @@ class HistoricalPriceChart extends ConsumerWidget {
         height: 120,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Column(
@@ -84,7 +84,7 @@ class HistoricalPriceChart extends ConsumerWidget {
                       FlSpot(spots.length - 1.0, game.purchasePrice!),
                     ],
                     isCurved: false,
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     dashArray: [5, 5],
                     barWidth: 1,
                     dotData: const FlDotData(show: false),
@@ -110,8 +110,8 @@ class HistoricalPriceChart extends ConsumerWidget {
                     show: true,
                     gradient: LinearGradient(
                       colors: [
-                        accentColor.withOpacity(0.2),
-                        accentColor.withOpacity(0),
+                        accentColor.withValues(alpha: 0.2),
+                        accentColor.withValues(alpha: 0),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -176,12 +176,12 @@ class HistoricalPriceChart extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
-          Icon(Icons.trending_up, color: color.withOpacity(0.5), size: 24),
+          Icon(Icons.trending_up, color: color.withValues(alpha: 0.5), size: 24),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

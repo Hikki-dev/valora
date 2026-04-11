@@ -39,7 +39,7 @@ class AppTheme {
         surface: surface1,
         surfaceContainer: surface2,
       ),
-      hoverColor: accentAmber.withOpacity(0.1),
+      hoverColor: accentAmber.withValues(alpha: 0.1),
       cardTheme: CardThemeData(
         color: surface1,
         elevation: 0,

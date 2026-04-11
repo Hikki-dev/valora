@@ -14,7 +14,6 @@ export async function verifyUser(req: Request) {
   const token = authHeader.replace('Bearer ', '')
 
   // Initialize client with User's JWT (not service role)
-  // This ensures that all subsequent DB queries are scoped to this user via RLS.
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_ANON_KEY')!,
@@ -27,7 +26,11 @@ export async function verifyUser(req: Request) {
   const { data: { user }, error } = await supabase.auth.getUser()
 
   if (error || !user) {
-    throw new Error(`Unauthorized: ${error?.message ?? 'Invalid session'}`)
+    const errorMsg = error?.message ?? 'Invalid session';
+    console.error(`[Auth] Verification failed: ${errorMsg}`);
+    console.debug(`[Auth] URL: ${Deno.env.get('SUPABASE_URL')}`);
+    console.debug(`[Auth] Token prefix: ${token.substring(0, 10)}...`);
+    throw new Error(`Unauthorized: ${errorMsg}`);
   }
 
   return { user, supabase }

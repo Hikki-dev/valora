@@ -17,7 +17,7 @@ class SnapshotCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0A0A0F),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.cyanAccent.withOpacity(0.3), width: 2),
+        border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
