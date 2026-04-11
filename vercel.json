@@ -32,7 +32,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://open.er-api.com; img-src 'self' data: blob: https://shared.akamai.steamstatic.com https://cdn.akamai.steamstatic.com https://*.pricecharting.com https://*.epicgames.com https://*.nintendo.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://open.er-api.com https://www.gstatic.com; img-src 'self' data: blob: https://* https://*.pricecharting.com; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com"
         }
       ]
     }
