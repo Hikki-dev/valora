@@ -2,148 +2,126 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:uuid/uuid.dart';
-
-import '../../models/game.dart';
-import '../../models/wishlist_item.dart';
-import '../../repositories/game_repository.dart';
-import '../../repositories/wishlist_repository.dart';
-import '../../controllers/home_controller.dart';
-import '../../core/currency_provider.dart';
-import '../../services/price_service.dart';
-import '../../services/search_alias_service.dart';
-import 'widgets/game_box_3d.dart';
-import 'package:shimmer/shimmer.dart';
-import 'barcode_scanner_view.dart';
-import 'library_sync_view.dart';
-import '../../services/barcode_service.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:async';
 
-
+import '../../models/game.dart';
+import '../../repositories/game_repository.dart';
+import '../../repositories/wishlist_repository.dart';
+import '../../services/price_service.dart';
+import '../../services/search_alias_service.dart';
+import '../../services/barcode_service.dart';
+import '../../core/currency_provider.dart';
+import '../../controllers/home_controller.dart';
+import '../../models/wishlist_item.dart';
+import '../collections/widgets/game_box_3d.dart';
+import 'barcode_scanner_view.dart';
 
 class AddGameModal extends ConsumerStatefulWidget {
   final bool isWishlistMode;
+  final String? initialQuery;
+  final AppPlatform? initialPlatform;
   final WishlistItem? prefillItem;
-  final String? initialPlatform;
-  
+
   const AddGameModal({
     super.key, 
-    this.isWishlistMode = false, 
-    this.prefillItem,
+    this.isWishlistMode = false,
+    this.initialQuery,
     this.initialPlatform,
+    this.prefillItem,
   });
-
 
   @override
   ConsumerState<AddGameModal> createState() => _AddGameModalState();
 }
 
 class _AddGameModalState extends ConsumerState<AddGameModal> {
-  final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _estimatedValueController = TextEditingController();
-  final TextEditingController _publisherController = TextEditingController();
-  final TextEditingController _yearController = TextEditingController();
-  final TextEditingController _customImageUrlController = TextEditingController();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _targetPriceController = TextEditingController();
-  final _aliasService = SearchAliasService();
-  String? _searchModeLabel;
-
-
-
+  final _titleController = TextEditingController();
+  final _priceController = TextEditingController();
+  final _estimatedValueController = TextEditingController();
+  final _targetPriceController = TextEditingController();
+  final _publisherController = TextEditingController();
+  final _yearController = TextEditingController();
+  final _customImageUrlController = TextEditingController();
   
-  List<dynamic> _searchResults = [];
-  bool _configuring = false;
-  dynamic _selectedGame;
-  bool _isScraping = false;
-  bool _isSaving = false;
-  
-  String _selectedPlatformFilter = 'All';
   String _format = 'Physical';
-  String _uiPlatform = 'PlayStation 5';
   String _region = 'R1 (USA)';
   GameCondition _conditionValue = GameCondition.cib;
-  
+  String _uiPlatform = 'PlayStation 5';
   String _inputCurrency = 'USD';
+
+  bool _isSaving = false;
+  bool _isSearching = false;
+  bool _configuring = false;
+  bool _isScraping = false;
+  
+  List<dynamic> _searchResults = [];
+  dynamic _selectedGame;
+  String? _searchModeLabel;
+
+  final SearchAliasService _aliasService = SearchAliasService();
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialPlatform != null) {
-      _uiPlatform = _mapPlatformFilter(widget.initialPlatform!);
-      _selectedPlatformFilter = _uiPlatform;
-    }
+    
     if (widget.prefillItem != null) {
-      _targetPriceController.text = widget.prefillItem!.targetPrice?.toString() ?? '';
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _preFillFromItem(widget.prefillItem!);
-      });
+      final item = widget.prefillItem!;
+      _titleController.text = item.title;
+      _uiPlatform = _platformToUiString(item.platform);
+      _format = item.platform.isDigital ? 'Digital' : 'Physical';
+      _customImageUrlController.text = item.coverUrl ?? '';
+      if (item.currentPrice != null) {
+        _estimatedValueController.text = item.currentPrice!.toStringAsFixed(2);
+      }
+      if (item.targetPrice != null) {
+        _targetPriceController.text = item.targetPrice!.toStringAsFixed(2);
+      }
+      _selectedGame = {
+        'gameID': item.externalId,
+        'external': item.title,
+        'thumb': item.coverUrl,
+      };
+      _configuring = true;
+    } else if (widget.initialQuery != null) {
+      _titleController.text = widget.initialQuery!;
+      _performSearch(widget.initialQuery!);
+    }
+
+    if (widget.initialPlatform != null) {
+      _uiPlatform = _platformToUiString(widget.initialPlatform!);
+      _format = widget.initialPlatform!.isDigital ? 'Digital' : 'Physical';
     }
   }
 
-  String _mapPlatformFilter(String filter) {
-    switch (filter.toLowerCase()) {
-      case 'steam': return 'Steam';
-      case 'playstation': return 'PlayStation 5';
-      case 'nintendo': return 'Nintendo';
-      case 'epic': return 'Epic Games';
-      default: return 'PlayStation 5';
-    }
+  String _platformToUiString(AppPlatform platform) {
+    if (platform == AppPlatform.ps4Physical || platform == AppPlatform.ps4Digital) return 'PlayStation 4';
+    if (platform == AppPlatform.ps5Physical || platform == AppPlatform.ps5Digital) return 'PlayStation 5';
+    if (platform == AppPlatform.nintendo) return 'Nintendo';
+    if (platform == AppPlatform.steam) return 'Steam';
+    if (platform == AppPlatform.epic) return 'Epic Games';
+    return 'PlayStation 5';
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
+    _titleController.dispose();
     _priceController.dispose();
     _estimatedValueController.dispose();
+    _targetPriceController.dispose();
     _publisherController.dispose();
     _yearController.dispose();
     _customImageUrlController.dispose();
-    _titleController.dispose();
-    _targetPriceController.dispose();
     super.dispose();
   }
 
-
-  void _preFillFromItem(WishlistItem item) {
-    setState(() {
-      _selectedGame = {
-        'external': item.title,
-        'gameID': item.externalId ?? 'manual_${DateTime.now().millisecondsSinceEpoch}',
-        'thumb': item.coverUrl ?? '',
-      };
-      _titleController.text = item.title;
-      _format = 'Physical';
-      _uiPlatform = _platformToUI(item.platform);
-      _region = 'R1 (USA)';
-      _conditionValue = GameCondition.cib;
-      _inputCurrency = 'USD';
-      _priceController.text = item.targetPrice?.toString() ?? '';
-      _customImageUrlController.text = item.coverUrl ?? '';
-      _configuring = true;
-    });
-  }
-
-  String _platformToUI(AppPlatform p) {
-    if (p.value.contains('ps4')) return 'PlayStation 4';
-    if (p.value.contains('ps5')) return 'PlayStation 5';
-    if (p == AppPlatform.nintendo) return 'Nintendo';
-    if (p == AppPlatform.steam) return 'Steam';
-    return 'Epic Games';
-  }
   Future<void> _performSearch(String query) async {
     final cleanQuery = query.trim();
-    debugPrint('[Search] Starting search for: "$cleanQuery"');
-    
-    if (cleanQuery.length <= 2) {
-      debugPrint('[Search] Query too short, skipping.');
-      return;
-    }
+    if (cleanQuery.isEmpty) return;
 
     setState(() {
-      // _isSearching = true;
+      _isSearching = true;
       _searchModeLabel = null;
     });
 
@@ -158,8 +136,10 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
       if (firstResults.isNotEmpty) {
         firstResults.sort((a, b) {
-          final aOwned = ownedIds.contains(a['gameID']?.toString());
-          final bOwned = ownedIds.contains(b['gameID']?.toString());
+          final aMap = a as Map<String, dynamic>;
+          final bMap = b as Map<String, dynamic>;
+          final aOwned = ownedIds.contains(aMap['gameID']?.toString());
+          final bOwned = ownedIds.contains(bMap['gameID']?.toString());
           if (aOwned && !bOwned) return -1;
           if (!aOwned && bOwned) return 1;
           return 0;
@@ -206,6 +186,8 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       }
     } catch (e) {
       debugPrint('[Search] Exception: $e');
+    } finally {
+      if (mounted) setState(() => _isSearching = false);
     }
   }
 
@@ -223,8 +205,6 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
     }
     return [];
   }
-
-
 
   Future<void> _scrapePhysicalPrice(Game tempGame) async {
     setState(() => _isScraping = true);
@@ -275,7 +255,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       
       final isPhys = _format == 'Physical';
       
-       num rawPrice = double.tryParse(_priceController.text) ?? 0;
+      num rawPrice = double.tryParse(_priceController.text) ?? 0;
       num rawEstimated = double.tryParse(_estimatedValueController.text) ?? 0;
       num rawTarget = double.tryParse(_targetPriceController.text) ?? 0;
 
@@ -286,11 +266,11 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           rawTarget = rawTarget / currencyState.lkrRate;
       }
 
-
-      final String? steamAppId = _selectedGame['steamAppID'];
+      final selected = _selectedGame as Map<String, dynamic>;
+      final String? steamAppId = selected['steamAppID']?.toString();
       String finalCoverUrl = steamAppId != null && steamAppId.isNotEmpty
           ? 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/$steamAppId/library_600x900.jpg'
-          : _selectedGame['thumb'] ?? '';
+          : selected['thumb']?.toString() ?? '';
       
       if (_customImageUrlController.text.isNotEmpty) {
         finalCoverUrl = _customImageUrlController.text.trim();
@@ -303,28 +283,26 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
            title: _titleController.text,
            coverUrl: finalCoverUrl,
            platform: _resolvedPlatform,
-           externalId: _selectedGame['gameID'],
+           externalId: selected['gameID']?.toString(),
            targetPrice: rawTarget > 0 ? rawTarget.toDouble() : null,
-           currentPrice: _selectedGame['cheapest'] != null ? double.tryParse(_selectedGame['cheapest'].toString()) : null,
+           currentPrice: selected['cheapest'] != null ? double.tryParse(selected['cheapest'].toString()) : null,
          );
          await ref.read(wishlistRepositoryProvider).addWishlistItem(newItem);
       } else {
-
         final newGame = Game(
           id: gameId,
           collectionId: userId,
           userId: userId,
           title: _titleController.text,
           coverUrl: finalCoverUrl,
-
           platform: _resolvedPlatform,
-          externalId: _selectedGame['gameID'],
+          externalId: selected['gameID']?.toString(),
           format: _format,
           region: isPhys ? _region : null,
           condition: _conditionValue,
           purchasePrice: rawPrice > 0 ? rawPrice.toDouble() : null,
-          estimatedValue: !isPhys && _selectedGame['cheapest'] != null 
-              ? double.tryParse(_selectedGame['cheapest'].toString()) 
+          estimatedValue: !isPhys && selected['cheapest'] != null 
+              ? double.tryParse(selected['cheapest'].toString()) 
               : (rawEstimated > 0 ? rawEstimated.toDouble() : null),
           publisher: _publisherController.text.isNotEmpty ? _publisherController.text : null,
           releaseYear: int.tryParse(_yearController.text),
@@ -332,14 +310,12 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         
         await ref.read(gameRepositoryProvider).addGame(newGame);
         ref.invalidate(allGamesProvider);
-
         ref.invalidate(homeControllerProvider);
       }
       
       if (mounted) {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-
           content: Text(widget.isWishlistMode ? 'Game added to Wishlist!' : 'Game added to Collection!'), 
           backgroundColor: Colors.cyan
         ));
@@ -355,104 +331,36 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0D0D14) : Colors.white;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
-
+    
     return Container(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      decoration: BoxDecoration(
-        color: bgColor.withValues(alpha: 0.95),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      padding: EdgeInsets.only(
+        left: 24, right: 24, top: 32,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 32,
       ),
-      child: SafeArea(
-        top: false,
-        child: Stack(
-          children: [
-            // Main content
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: _configuring 
-                  ? Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 500),
-                        child: Card(
-                          elevation: 12,
-                          shadowColor: Colors.black.withValues(alpha: 0.5),
-                          color: isDark ? const Color(0xFF1A1A24) : Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: _buildConfigurator(textColor),
-                          ),
-                        ).animate().scale(begin: const Offset(0.9, 0.9), duration: 200.ms, curve: Curves.easeOutBack),
-                      ),
-                    )
-                  : _buildSearchPhase(textColor),
-            ),
-          ],
-        ),
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 40,
+            offset: const Offset(0, -10),
+          ),
+        ],
+      ),
+      child: AnimatedSwitcher(
+        duration: 300.ms,
+        child: _configuring 
+            ? _buildConfigurator(textColor, isDark)
+            : _buildSearchPhase(textColor),
       ),
     );
   }
 
-
-
-  Future<void> _scanBarcode() async {
-    final String? upc = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const BarcodeScannerView()),
-    );
-
-    if (upc != null && upc.isNotEmpty) {
-      // Show loading
-      // setState(() => _isSearching = true);
-      
-      final service = BarcodeService();
-      final result = await service.fetchGameByUPC(upc);
-      
-        if (mounted) {
-          HapticFeedback.mediumImpact();
-          setState(() {
-            _selectedGame = {
-              'external': result?['title'],
-              'gameID': 'upc_$upc',
-              'thumb': result?['thumb'],
-            };
-            _titleController.text = result?['title'] ?? '';
-            _format = 'Physical';
-            _region = 'R1 (USA)';
-            _conditionValue = GameCondition.cib;
-            _inputCurrency = 'USD'; 
-            _priceController.clear();
-            _estimatedValueController.clear();
-            _customImageUrlController.text = result?['thumb'] ?? '';
-            _configuring = true;
-          });
-          
-          // Trigger an automatic price scrape if it's a physical disc
-          final tempGame = Game(
-            id: '',
-            collectionId: '',
-            userId: '',
-            title: result?['title'] ?? '',
-            platform: AppPlatform.ps5Physical, // Default for disc scanning
-            condition: GameCondition.cib,
-          );
-          unawaited(_scrapePhysicalPrice(tempGame));
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not identify game from barcode. Try searching manually.')),
-          );
-        }
-      }
-    }
-  
-
   Widget _buildSearchPhase(Color textColor) {
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -470,171 +378,68 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                 color: textColor,
               ),
             ),
-            IconButton(icon: Icon(Icons.close, color: textColor.withValues(alpha: 0.5)), onPressed: () => Navigator.pop(context))
+            IconButton(
+              icon: Icon(Icons.qr_code_scanner, color: textColor),
+              onPressed: _scanBarcode,
+              tooltip: 'Scan Barcode',
+            ),
           ],
         ),
-        if (widget.initialPlatform == null) ...[
-          const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Row(
-              children: ['All', 'PlayStation 5', 'PlayStation 4', 'Nintendo', 'Steam', 'Epic Games'].map((p) {
-                 final isSelected = _selectedPlatformFilter == p;
-                 return Padding(
-                   padding: const EdgeInsets.only(right: 8.0),
-                   child: FilterChip(
-                      label: Text(p, style: TextStyle(fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
-                      selected: isSelected,
-                      onSelected: (val) {
-                        setState(() {
-                           _selectedPlatformFilter = p;
-                           if (p != 'All') _uiPlatform = p;
-                        });
-                      },
-                      backgroundColor: textColor.withValues(alpha: 0.05),
-                      selectedColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                      showCheckmark: false,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                   ),
-                 );
-              }).toList(),
-            ),
-          ),
-        ],
-        const SizedBox(height: 8),
+        const SizedBox(height: 24),
         TextField(
-          controller: _searchController,
+          controller: _titleController,
           onChanged: _onSearchChanged,
           autofocus: true,
           style: TextStyle(color: textColor, fontSize: 18),
-
           decoration: InputDecoration(
-            hintText: 'Type a game title...',
+            hintText: 'Search for a game title...',
             hintStyle: TextStyle(color: textColor.withValues(alpha: 0.3)),
-            prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
-            suffixIcon: (_selectedPlatformFilter.contains('PlayStation') || _selectedPlatformFilter == 'Nintendo') && !widget.isWishlistMode
-                ? IconButton(
-                    icon: Icon(Icons.barcode_reader, color: Theme.of(context).primaryColor),
-                    onPressed: _scanBarcode,
-                    tooltip: 'Scan Physical Disc',
-                  )
-                : null,
-
+            prefixIcon: Icon(Icons.search, color: textColor.withValues(alpha: 0.5)),
             filled: true,
             fillColor: textColor.withValues(alpha: 0.05),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
+            ),
           ),
-
         ),
-        const SizedBox(height: 12),
-        if (_searchModeLabel != null)
-           Padding(
-             padding: const EdgeInsets.only(bottom: 8.0),
-             child: Text(_searchModeLabel!, style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 13, fontStyle: FontStyle.italic)),
-           ),
-        
-        Expanded(
-          child: _searchController.text.isNotEmpty 
-            ? ListView.separated(
-                itemCount: _searchResults.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
-                itemBuilder: (context, index) => _buildSearchResultRow(_searchResults[index], textColor, index),
-              )
-            : Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    if (_selectedPlatformFilter == 'Steam') _buildSyncHero(context, textColor),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Your next masterpiece awaits.', 
-                      style: TextStyle(color: textColor.withValues(alpha: 0.2), fontStyle: FontStyle.italic, fontSize: 13)
-                    ),
-                  ],
-                ),
-              ),
-        ),
+        if (_isSearching)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 32.0),
+            child: Center(child: CircularProgressIndicator(color: Colors.cyan)),
+          ),
+        if (!_isSearching && _searchResults.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          if (_searchModeLabel != null)
+             Padding(
+               padding: const EdgeInsets.only(bottom: 12.0),
+               child: Text(_searchModeLabel!, style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 12, fontStyle: FontStyle.italic)),
+             ),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 350),
+            child: ListView.separated(
+              itemCount: _searchResults.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              itemBuilder: (context, index) => _buildSearchResultRow(_searchResults[index], textColor, index),
+            ),
+          ),
+        ],
+        if (!_isSearching && _searchResults.isEmpty && _titleController.text.length > 2)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32.0),
+            child: Column(
+              children: [
+                Icon(Icons.search_off, size: 48, color: textColor.withValues(alpha: 0.2)),
+                const SizedBox(height: 16),
+                Text('No matches found. Try expanding your search.', 
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: textColor.withValues(alpha: 0.4))),
+              ],
+            ),
+          ),
       ],
     );
   }
-
-  Widget _buildSyncHero(BuildContext context, Color textColor) {
-    return InkWell(
-      onTap: () async {
-        final result = await showGeneralDialog(
-          context: context,
-          barrierDismissible: true,
-          barrierLabel: 'Library Sync',
-          pageBuilder: (context, anim1, anim2) => const LibrarySyncView(),
-        );
-        if (result == true) {
-          if (!context.mounted) return;
-          Navigator.of(context).pop(true);
-        }
-      },
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).primaryColor,
-              Theme.of(context).primaryColor.withValues(alpha: 0.6),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.sync_alt, color: Colors.white, size: 28),
-            ),
-            const SizedBox(width: 20),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'BULK IMPORT',
-                    style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 2),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Connect your Steam library',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    'Import your entire collection in seconds',
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: Colors.white54),
-          ],
-        ),
-      ),
-    ).animate().scale(delay: 200.ms, begin: const Offset(0.95, 0.95), end: const Offset(1, 1)).fadeIn();
-  }
-
 
   Widget _buildSearchResultRow(dynamic gameObj, Color textColor, int index) {
     final game = gameObj as Map<String, dynamic>;
@@ -660,80 +465,42 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
             child: GameBox3D(coverUrl: thumb, title: title),
           ),
         ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: game['cheapest'] != null 
-            ? Text(
-                'Market Price: \$${game['cheapest']}',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                ),
-              )
-            : null,
-        trailing: Container(
-
-          decoration: BoxDecoration(shape: BoxShape.circle, color: Theme.of(context).primaryColor.withValues(alpha: 0.1)),
-          child: IconButton(
-            icon: Icon(Icons.arrow_forward_ios, color: Theme.of(context).primaryColor, size: 18),
-            onPressed: () {
-                setState(() {
-                  _selectedGame = game;
-                  _titleController.text = game['external'] ?? 'Unknown Title';
-                  _format = 'Digital'; 
-                  _region = 'R1 (USA)';
-
-                  _conditionValue = GameCondition.cib;
-                  _inputCurrency = 'USD'; 
-                  _priceController.clear();
-                  _estimatedValueController.clear();
-                  _customImageUrlController.text = thumb ?? '';
-                  _configuring = true;
-                });
-                
-                if (_resolvedPlatform.isPhysical) {
-                   setState(() {
-                     _format = 'Physical';
-                     _estimatedValueController.text = 'Scraping...';
-                   });
-                   
-                   final tempGame = Game(
-                     id: '',
-                     collectionId: '',
-                     userId: '',
-                     title: game['external'] ?? '',
-                     platform: _resolvedPlatform,
-                     condition: _conditionValue,
-                   );
-                   _scrapePhysicalPrice(tempGame);
-                } else if (_resolvedPlatform.isDigital) {
-                   if (game['cheapest'] != null) {
-                      _estimatedValueController.text = game['cheapest'].toString();
-                   }
-                }
-              },
-          ),
-        ),
+        title: Text(title, style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
+        onTap: () {
+                 _titleController.text = title;
+                 setState(() {
+                    _selectedGame = game;
+                    _configuring = true;
+                 });
+                 if (_resolvedPlatform.isPlayStation || _resolvedPlatform == AppPlatform.nintendo) {
+                    final tempGame = Game(
+                      id: '',
+                      collectionId: '',
+                      userId: '',
+                      title: title,
+                      platform: _resolvedPlatform,
+                      condition: _conditionValue,
+                    );
+                    unawaited(_scrapePhysicalPrice(tempGame));
+                 } else if (_resolvedPlatform.isDigital) {
+                    final cheapest = game['cheapest'];
+                    if (cheapest != null) {
+                       _estimatedValueController.text = cheapest.toString();
+                    }
+                 }
+               },
       ),
     ).animate().fadeIn(duration: 300.ms, delay: (index * 50).ms).slideX(begin: 0.1, end: 0);
   }
 
-  Widget _buildConfigurator(Color textColor) {
+  Widget _buildConfigurator(Color textColor, bool isDark) {
     bool isPhys = _format == 'Physical';
+    final selected = _selectedGame as Map<String, dynamic>;
     
-    String? steamAppId = _selectedGame['steamAppID'];
+    String? steamAppId = selected['steamAppID']?.toString();
     String? thumb = steamAppId != null && steamAppId.isNotEmpty 
         ? 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/$steamAppId/library_600x900.jpg'
-        : _selectedGame['thumb'];
+        : selected['thumb']?.toString();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -755,28 +522,30 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                  crossAxisAlignment: CrossAxisAlignment.start,
                  children: [
                    TextField(
-                      controller: _titleController,
-                      style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
-                      decoration: InputDecoration(
-                        labelText: 'Game Title',
-                        labelStyle: TextStyle(color: textColor.withValues(alpha: 0.5)),
-                        isDense: true,
-                        border: InputBorder.none,
-                      ),
-                      onChanged: (_) => setState(() {}),
+                     controller: _titleController,
+                     style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+                     decoration: const InputDecoration(labelText: 'Title', border: InputBorder.none),
                    ),
-                   const SizedBox(height: 8),
-                   TextField(
-                      controller: _customImageUrlController,
-
-                     style: TextStyle(color: textColor, fontSize: 12),
-                     onChanged: (_) => setState(() {}),
-                     decoration: InputDecoration(
-                        labelText: 'Custom Image URL',
-                        labelStyle: TextStyle(color: textColor.withValues(alpha: 0.5)),
-                        isDense: true,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                     ),
+                   Row(
+                     children: [
+                       Expanded(
+                         child: DropdownButton<String>(
+                            value: _uiPlatform,
+                            dropdownColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+                            style: TextStyle(color: textColor),
+                            items: ['PlayStation 5', 'PlayStation 4', 'Nintendo', 'Steam', 'Epic Games'].map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+                            onChanged: (v) => setState(() => _uiPlatform = v!),
+                         ),
+                       ),
+                       const SizedBox(width: 8),
+                       DropdownButton<String>(
+                          value: _format,
+                          dropdownColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+                          style: TextStyle(color: textColor),
+                          items: ['Physical', 'Digital'].map((f) => DropdownMenuItem(value: f, child: Text(f))).toList(),
+                          onChanged: (v) => setState(() => _format = v!),
+                       ),
+                     ],
                    ),
                  ],
                ),
@@ -784,244 +553,180 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           ],
         ),
         const SizedBox(height: 24),
-        
+        if (isPhys) ...[
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('REGION', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold)),
+                    DropdownButton<String>(
+                      isExpanded: true,
+                      value: _region,
+                      dropdownColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+                      items: ['R1 (USA)', 'R2 (UK/EU)', 'R3 (Asia)', 'Japan'].map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
+                      onChanged: (v) => setState(() => _region = v!),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('CONDITION', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold)),
+                    DropdownButton<GameCondition>(
+                      isExpanded: true,
+                      value: _conditionValue,
+                      dropdownColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+                      items: GameCondition.values.map((c) => DropdownMenuItem(value: c, child: Text(c.toString().split('.').last.toUpperCase()))).toList(),
+                      onChanged: (v) => setState(() {
+                        _conditionValue = v!;
+                        final tempGame = Game(
+                           id: '', collectionId: '', userId: '', title: _titleController.text,
+                           platform: _resolvedPlatform, condition: _conditionValue,
+                        );
+                        unawaited(_scrapePhysicalPrice(tempGame));
+                      }),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+        ],
         Row(
           children: [
-            Expanded(child: _buildDropdown(textColor, 'Format', ['Physical', 'Digital'], _format, (v) => setState(() {
-              _format = v!;
-              if (_format == 'Physical' && _estimatedValueController.text.isEmpty) {
-                final tempGame = Game(
-                   id: '',
-                   collectionId: '',
-                   userId: '',
-                   title: _selectedGame['external'] ?? '',
-                   platform: _resolvedPlatform,
-                   condition: _conditionValue,
-                 );
-                 _scrapePhysicalPrice(tempGame);
-              }
-            }))),
-            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Platform', style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 12)),
-                  DropdownButton<String>(
-                    value: _uiPlatform,
-                    isExpanded: true,
-                    dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-                    style: TextStyle(color: textColor),
-                    items: ['PlayStation 4', 'PlayStation 5', 'Nintendo', 'Steam', 'Epic Games'].map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
-                    onChanged: (v) => setState(() {
-                      _uiPlatform = v!;
-                      bool isPs = _uiPlatform.startsWith('PlayStation');
-                      final List<String> rCodes = ['R1 (USA)', 'R2 (PAL/Japan)', 'R3 (Asia)', 'R4 (LATAM/Aus)', 'Region Free'];
-                      final List<String> ntsc = ['NTSC-U', 'PAL', 'NTSC-J', 'Region Free'];
-                      if (isPs && !rCodes.contains(_region)) _region = rCodes.first;
-                      if (!isPs && !ntsc.contains(_region)) _region = ntsc.first;
-                    }),
-                  ),
+                   const Text('CURRENCY', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold)),
+                   DropdownButton<String>(
+                      isExpanded: true,
+                      value: _inputCurrency,
+                      dropdownColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+                      items: ['USD', 'LKR'].map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                      onChanged: (v) => setState(() => _inputCurrency = v!),
+                   ),
                 ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              flex: 2,
+              child: TextField(
+                controller: _priceController,
+                keyboardType: TextInputType.number,
+                style: TextStyle(color: textColor),
+                decoration: InputDecoration(
+                  labelText: widget.isWishlistMode ? 'TARGET PRICE' : 'PURCHASE PRICE',
+                  prefixText: _inputCurrency == 'USD' ? '\$ ' : 'Rs. ',
+                ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        
-        if (isPhys) Row(
+        TextField(
+          controller: _estimatedValueController,
+          keyboardType: TextInputType.number,
+          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
+            labelText: 'MARKET VALUE (AUTO)',
+            suffixIcon: _isScraping ? const SizedBox(width: 20, height: 20, child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator(strokeWidth: 2))) : null,
+            prefixText: _inputCurrency == 'USD' ? '\$ ' : 'Rs. ',
+          ),
+        ),
+        const SizedBox(height: 24),
+        ExpansionTile(
+          title: const Text('Advanced Options', style: TextStyle(fontSize: 14, color: Colors.white54)),
+          childrenPadding: const EdgeInsets.only(bottom: 16),
           children: [
-            Expanded(child: _buildDropdown(textColor, 'Region', 
-              _uiPlatform.startsWith('PlayStation') 
-                  ? ['R1 (USA)', 'R2 (PAL/Japan)', 'R3 (Asia)', 'R4 (LATAM/Aus)', 'Region Free']
-                  : ['NTSC-U', 'PAL', 'NTSC-J', 'Region Free'], 
-              _region, (v) => setState(() => _region = v!))),
-            const SizedBox(width: 16),
-            Expanded(child: _buildDropdown(
-              textColor, 
-              'Condition', 
-              GameCondition.values.map((e) => e.label).toList(), 
-              _conditionValue.label, 
-              (v) => setState(() {
-                _conditionValue = GameCondition.fromString(v);
-                final tempGame = Game(
-                   id: '',
-                   collectionId: '',
-                   userId: '',
-                   title: _selectedGame['external'] ?? '',
-                   platform: _resolvedPlatform,
-                   condition: _conditionValue,
-                 );
-                 _scrapePhysicalPrice(tempGame);
-              })
-            )),
+             TextField(
+               controller: _publisherController,
+               decoration: const InputDecoration(labelText: 'Publisher'),
+               style: TextStyle(color: textColor),
+             ),
+             TextField(
+               controller: _yearController,
+               keyboardType: TextInputType.number,
+               decoration: const InputDecoration(labelText: 'Release Year'),
+               style: TextStyle(color: textColor),
+             ),
+             TextField(
+               controller: _customImageUrlController,
+               decoration: const InputDecoration(labelText: 'Custom Image URL'),
+               style: TextStyle(color: textColor),
+             ),
           ],
         ),
-        const SizedBox(height: 16),
-
-        Consumer(
-          builder: (context, ref, child) {
-            return Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: TextField(
-                        controller: widget.isWishlistMode ? _targetPriceController : _priceController,
-                        keyboardType: TextInputType.number,
-                        style: TextStyle(color: textColor),
-                        decoration: InputDecoration(
-                          labelText: widget.isWishlistMode ? 'Target Price (Alert me below this)' : 'Purchase Price (Optional)',
-                          labelStyle: TextStyle(color: textColor.withValues(alpha: 0.5)),
-                          prefixIcon: Icon(
-                            widget.isWishlistMode ? Icons.notifications_active : (_inputCurrency == 'USD' ? Icons.attach_money : Icons.money), 
-                            color: Theme.of(context).primaryColor
-                          ),
-                          filled: true,
-                          fillColor: textColor.withValues(alpha: 0.05),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        decoration: BoxDecoration(
-                          color: textColor.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _inputCurrency,
-                            isExpanded: true,
-                            dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-                            style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
-                            items: ['USD', 'LKR'].map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-                            onChanged: (v) => setState(() => _inputCurrency = v!),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (isPhys) ...[
-                  const SizedBox(height: 16),
-                  Stack(
-                    alignment: Alignment.centerRight,
-                    children: [
-                      TextField(
-                        controller: _estimatedValueController,
-                        keyboardType: TextInputType.text,
-                        style: TextStyle(color: textColor),
-                        decoration: InputDecoration(
-                          labelText: 'eBay Market Average (Optional)',
-                          labelStyle:
-                              TextStyle(color: textColor.withValues(alpha: 0.5)),
-                          prefixIcon: Icon(
-                              Icons.trending_up,
-                              color: Theme.of(context).primaryColor),
-                          filled: true,
-                          fillColor: textColor.withValues(alpha: 0.05),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none),
-                        ),
-                      ),
-                      if (_isScraping)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child: Shimmer.fromColors(
-                            baseColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                            highlightColor: Theme.of(context).primaryColor.withValues(alpha: 0.3),
-                            child: Container(
-                              width: 16,
-                              height: 16,
-                              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _publisherController,
-                          style: TextStyle(color: textColor),
-                          decoration: InputDecoration(
-                            labelText: 'Publisher',
-                            labelStyle: TextStyle(
-                                color: textColor.withValues(alpha: 0.5)),
-                            filled: true,
-                            fillColor: textColor.withValues(alpha: 0.05),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextField(
-                          controller: _yearController,
-                          keyboardType: TextInputType.number,
-                          style: TextStyle(color: textColor),
-                          decoration: InputDecoration(
-                            labelText: 'Year',
-                            labelStyle: TextStyle(
-                                color: textColor.withValues(alpha: 0.5)),
-                            filled: true,
-                            fillColor: textColor.withValues(alpha: 0.05),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            );
-          },
-        ),
         const SizedBox(height: 32),
-
         ElevatedButton(
           onPressed: _isSaving ? null : _saveGame,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).primaryColor,
-            foregroundColor: Theme.of(context).colorScheme.surface,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            backgroundColor: Colors.cyan,
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 0,
           ),
           child: _isSaving 
-            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-            : Text(widget.isWishlistMode ? 'Add to Wishlist' : 'Confirm & Save', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+              : Text(widget.isWishlistMode ? 'SAVE TO WISHLIST' : 'ADD TO MY COLLECTION', style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.2)),
         ),
       ],
     );
   }
 
-  Widget _buildDropdown(Color textColor, String label, List<String> options, String currentValue, Function(String?) onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 12)),
-        DropdownButton<String>(
-          value: currentValue,
-          isExpanded: true,
-          dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-          style: TextStyle(color: textColor),
-          items: options.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-          onChanged: onChanged,
-        ),
-      ],
+  Future<void> _scanBarcode() async {
+    final String? upc = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const BarcodeScannerView()),
     );
+
+    if (upc != null && upc.isNotEmpty) {
+      final service = BarcodeService();
+      final resultObj = await service.fetchGameByUPC(upc);
+      
+      if (mounted && resultObj != null) {
+        final result = resultObj;
+        await HapticFeedback.mediumImpact();
+        setState(() {
+          _selectedGame = {
+            'external': result['title']?.toString(),
+            'gameID': 'upc_$upc',
+            'thumb': result['thumb']?.toString(),
+          };
+          _titleController.text = result['title']?.toString() ?? '';
+          _format = 'Physical';
+          _region = 'R1 (USA)';
+          _conditionValue = GameCondition.cib;
+          _inputCurrency = 'USD'; 
+          _priceController.clear();
+          _estimatedValueController.clear();
+          _customImageUrlController.text = result['thumb']?.toString() ?? '';
+          _configuring = true;
+        });
+
+        // Trigger an automatic price scrape if it's a physical disc
+        final tempGame = Game(
+          id: '',
+          collectionId: '',
+          userId: '',
+          title: result['title']?.toString() ?? '',
+          platform: AppPlatform.ps5Physical, // Default for disc scanning
+          condition: GameCondition.cib,
+        );
+        unawaited(_scrapePhysicalPrice(tempGame));
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not identify game from barcode. Try searching manually.')),
+        );
+      }
+    }
   }
 }

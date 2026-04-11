@@ -29,9 +29,27 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 4. Schedule the SNAPSHOT (Runs every day at Midnight UTC)
 SELECT cron.schedule('0 0 * * *', 'SELECT take_valuation_snapshots()');
 
--- 5. Realtime: Enable for core tables if not already
-ALTER PUBLICATION supabase_realtime ADD TABLE games;
-ALTER PUBLICATION supabase_realtime ADD TABLE valuations;
+-- 5. Realtime: Enable for core tables if not already (Idempotent fix)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+    AND schemaname = 'public' 
+    AND tablename = 'games'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.games;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+    AND schemaname = 'public' 
+    AND tablename = 'valuations'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.valuations;
+  END IF;
+END $$;
 
 -- 6. Cleanup: Remove sample data (Optional)
 -- DELETE FROM games WHERE title ILIKE '%sample%';

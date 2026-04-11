@@ -576,7 +576,7 @@ class CollectionsView extends ConsumerWidget {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (context) => AddGameModal(initialPlatform: platformFilter),
+            builder: (context) => AddGameModal(initialPlatform: platformFilter != null ? AppPlatform.fromString(platformFilter!) : null),
           );
         },
       ),

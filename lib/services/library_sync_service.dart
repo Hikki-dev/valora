@@ -24,23 +24,27 @@ class SteamLibraryProvider implements LibraryProvider {
       );
 
       if (response.status != 200) {
-        throw Exception('Sync service error: ${response.data['error'] ?? 'Unknown error'}');
+        final data = response.data as Map<String, dynamic>;
+        throw Exception('Sync service error: ${data['error'] ?? 'Unknown error'}');
       }
 
-      final List<dynamic> gamesData = response.data['games'] ?? [];
+      final data = response.data as Map<String, dynamic>;
+      final List<dynamic> gamesData = data['games'] ?? [];
       
-      return gamesData.map((g) {
+      return gamesData.map((gObj) {
+        final g = gObj as Map<String, dynamic>;
+        final String? externalId = g['externalId']?.toString();
         return Game(
-          id: 'steam_${g['externalId']}',
+          id: 'steam_$externalId',
           collectionId: userId,
           userId: userId,
-          title: g['title'] ?? 'Unknown Steam Game',
-          coverUrl: g['externalId'] != null 
-              ? 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${g['externalId']}/library_600x900.jpg'
-              : g['coverUrl'],
+          title: g['title']?.toString() ?? 'Unknown Steam Game',
+          coverUrl: externalId != null 
+              ? 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/$externalId/library_600x900.jpg'
+              : g['coverUrl']?.toString(),
           platform: AppPlatform.steam,
           format: 'Digital',
-          externalId: g['externalId']?.toString(),
+          externalId: externalId,
         );
       }).toList();
     } on FunctionException catch (e) {

@@ -27,7 +27,7 @@ class HomeView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isLoading = ref.watch(homeControllerProvider.select((s) => s.isLoading));
+    final isLoading = ref.watch(homeControllerProvider.select<bool>((s) => s.isLoading));
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themeToggleIcon = isDark ? Icons.light_mode : Icons.dark_mode;
     final textColor = isDark ? Colors.white : Colors.black87;
@@ -134,7 +134,7 @@ class HomeView extends ConsumerWidget {
                       final top10 = sortedGames.take(10).toList();
 
                       if (context.mounted) {
-                        final state = ref.read(homeControllerProvider);
+                        final state = ref.read<HomeState>(homeControllerProvider);
                         final currency = ref.read(currencyProvider);
                         final shareService = ShareService();
                         await shareService.shareSnapshot(
@@ -159,7 +159,7 @@ class HomeView extends ConsumerWidget {
                   const SizedBox(width: 12),
                   Consumer(
                     builder: (context, ref, _) {
-                      final hidePricing = ref.watch(homeControllerProvider.select((s) => s.hidePricing));
+                      final hidePricing = ref.watch(homeControllerProvider.select<bool>((s) => s.hidePricing));
                       return IconButton(
                         onPressed: () => ref.read(homeControllerProvider.notifier).togglePricingVisibility(),
                         icon: Icon(
@@ -181,8 +181,8 @@ class HomeView extends ConsumerWidget {
 
           Consumer(
             builder: (context, ref, _) {
-              final hidePricing = ref.watch(homeControllerProvider.select((s) => s.hidePricing));
-              final totalValuation = ref.watch(homeControllerProvider.select((s) => s.totalValuation));
+              final hidePricing = ref.watch(homeControllerProvider.select<bool>((s) => s.hidePricing));
+              final totalValuation = ref.watch(homeControllerProvider.select<double>((s) => s.totalValuation));
               final currency = ref.watch(currencyProvider);
               
               return Text(
@@ -331,8 +331,8 @@ class HomeView extends ConsumerWidget {
       required Color textColor
     }
   ) {
-    final stats = ref.watch(homeControllerProvider.select((s) => s.platformStats[filter.replaceAll(' ', '').toLowerCase()] ?? s.platformStats[filter] ?? const PlatformStat(0, 0)));
-    final hidePricing = ref.watch(homeControllerProvider.select((s) => s.hidePricing));
+    final stats = ref.watch(homeControllerProvider.select<PlatformStat>((s) => s.platformStats[filter.replaceAll(' ', '').toLowerCase()] ?? s.platformStats[filter] ?? const PlatformStat(0, 0)));
+    final hidePricing = ref.watch(homeControllerProvider.select<bool>((s) => s.hidePricing));
     final currency = ref.watch(currencyProvider);
 
     return RepaintBoundary(

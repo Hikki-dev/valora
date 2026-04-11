@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -69,9 +70,9 @@ class PriceService {
       final newCoverUrl = data['cover_url'] as String?;
       if (newCoverUrl != null && newCoverUrl.isNotEmpty && newCoverUrl != game.coverUrl) {
         debugPrint('[PriceService] Found better cover art for "${game.title}". Synchronizing...');
-        _client.from('games').update({'cover_url': newCoverUrl}).eq('id', game.id).then((_) {
+        unawaited(_client.from('games').update({'cover_url': newCoverUrl}).eq('id', game.id).then((_) {
           debugPrint('[PriceService] Cover updated for "${game.title}".');
-        });
+        }));
       }
 
       return priceData;

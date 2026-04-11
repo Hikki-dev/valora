@@ -60,7 +60,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                 children: [
                   Text(
                     '${_currentPage + 1} of ${contents.length}',
-                    style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                    style: const TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                   if (!isLastPage)
                     TextButton(

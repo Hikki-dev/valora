@@ -8,7 +8,7 @@ class SnapshotCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(homeControllerProvider);
+    final state = ref.watch<HomeState>(homeControllerProvider);
     final currency = ref.watch(currencyProvider);
     
     return Container(

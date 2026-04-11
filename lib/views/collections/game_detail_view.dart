@@ -11,7 +11,6 @@ import '../../services/price_service.dart';
 import '../../repositories/game_repository.dart';
 import '../../core/currency_provider.dart';
 import 'widgets/historical_price_chart.dart';
-import 'dart:async';
 
 // Provider that loads a single game and triggers a background price refresh
 final gameDetailProvider = FutureProvider.autoDispose.family<Game?, String>(

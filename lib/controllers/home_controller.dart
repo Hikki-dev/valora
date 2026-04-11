@@ -1,5 +1,7 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
+import '../repositories/game_repository.dart';
 
 class HomeState {
   final bool isLoading;
@@ -77,8 +79,8 @@ final gameStatsProvider = Provider<HomeState>((ref) {
   return gamesAsync.when(
     data: (games) {
       double total = 0.0;
-      Map<String, double> values = {'ps_disc': 0, 'psn': 0, 'steam': 0, 'nintendo': 0, 'epic': 0};
-      Map<String, int> counts = {'ps_disc': 0, 'psn': 0, 'steam': 0, 'nintendo': 0, 'epic': 0};
+      final Map<String, double> values = {'ps_disc': 0, 'psn': 0, 'steam': 0, 'nintendo': 0, 'epic': 0};
+      final Map<String, int> counts = {'ps_disc': 0, 'psn': 0, 'steam': 0, 'nintendo': 0, 'epic': 0};
 
       for (final g in games) {
         final val = g.activeMarketValue ?? 0.0;
@@ -117,6 +119,7 @@ final gameStatsProvider = Provider<HomeState>((ref) {
   );
 });
 
+class HomeController extends Notifier<HomeState> {
   @override
   HomeState build() {
     final stats = ref.watch(gameStatsProvider);
