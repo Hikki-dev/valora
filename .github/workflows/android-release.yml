@@ -1,0 +1,47 @@
+name: Android Release Build
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build & Release APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version-file: pubspec.yaml
+          
+      - name: Install dependencies
+        run: flutter pub get
+        
+      - name: Build APK
+        run: |
+          flutter build apk --release \
+          --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+          --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} \
+          --dart-define=APP_VERSION=1.0.0
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: latest
+          name: Latest Android Build
+          body: "Automatic build triggered by push to main. Download the APK below to update Valora on your phone."
+          draft: false
+          prerelease: true
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

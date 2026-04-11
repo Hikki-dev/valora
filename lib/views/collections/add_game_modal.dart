@@ -378,6 +378,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                 color: textColor,
               ),
             ),
+            if (_uiPlatform != 'Steam' && _uiPlatform != 'Epic Games')
             IconButton(
               icon: Icon(Icons.qr_code_scanner, color: textColor),
               onPressed: _scanBarcode,
@@ -434,6 +435,20 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                 Text('No matches found. Try expanding your search.', 
                   textAlign: TextAlign.center,
                   style: TextStyle(color: textColor.withOpacity(0.4))),
+                const SizedBox(height: 32),
+                const Text('HAVE A STEAM ACCOUNT?', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                const SizedBox(height: 12),
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    showDialog(
+                      context: context, 
+                      builder: (context) => const LibrarySyncView(),
+                    );
+                  },
+                  icon: const FaIcon(FontAwesomeIcons.steam, size: 16, color: Colors.blueAccent),
+                  label: const Text('SYNC YOUR ENTIRE STEAM LIBRARY', style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold)),
+                ),
               ],
             ),
           ),

@@ -358,9 +358,33 @@ class CollectionsView extends ConsumerWidget {
                   data: (games) {
                     if (games.isEmpty) {
                       return Center(
-                        child: Text(
-                          "No games found.",
-                          style: TextStyle(color: mutedTextColor, fontSize: 16),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "No games found.",
+                              style: TextStyle(color: mutedTextColor, fontSize: 16),
+                            ),
+                            if (platformFilter == 'steam') ...[
+                              const SizedBox(height: 24),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => const LibrarySyncView(),
+                                  );
+                                },
+                                icon: const FaIcon(FontAwesomeIcons.steam, size: 18),
+                                label: const Text('SYNC STEAM LIBRARY'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blueAccent,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       );
                     }

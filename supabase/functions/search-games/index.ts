@@ -3,7 +3,7 @@ import { verifyUser } from '../_shared/auth.ts'
 import { z } from 'zod'
 
 const Schema = z.object({
-  query: z.string().min(2).max(100).regex(/^[a-zA-Z0-9\s\-:']+$/),
+  query: z.string().min(1).max(100),
   limit: z.number().min(1).max(20).optional().default(15),
 })
 
