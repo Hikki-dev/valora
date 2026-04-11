@@ -13,6 +13,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Auto-Bump Version
+        id: bump
+        run: |
+          chmod +x scripts/bump_version.sh
+          ./scripts/bump_version.sh
+
+      - name: Commit version bump
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: bump version to ${{ steps.bump.outputs.version }} [skip ci]"
+          file_pattern: 'pubspec.yaml'
+
+      - name: Extract Release Notes
+        id: release_notes
+        run: |
+          # Extract the top entry from CHANGELOG.md (everything under the first ## until the second ##)
+          awk '/## \[/{if (++n == 2) exit} n==1' CHANGELOG.md > release_notes.md
+          echo "notes_file=release_notes.md" >> $GITHUB_OUTPUT
+
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -27,44 +46,20 @@ jobs:
           
       - name: Install dependencies
         run: flutter pub get
-        
-      - name: Get Version from pubspec
-        id: get_version
-        run: |
-          FULL_VERSION=$(grep 'version:' pubspec.yaml | cut -d ' ' -f 2)
-          echo "VERSION=$FULL_VERSION" >> $GITHUB_OUTPUT
-          echo "TAG=v$FULL_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Check if tag exists
-        id: check_tag
-        run: |
-          TAG_EXISTS=$(git ls-remote --tags origin refs/tags/${{ steps.get_version.outputs.TAG }} | wc -l)
-          if [ "$TAG_EXISTS" -ne 0 ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
 
       - name: Build APK
         run: |
           flutter build apk --release \
           --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
           --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} \
-          --dart-define=APP_VERSION=${{ steps.get_version.outputs.VERSION }}
+          --dart-define=APP_VERSION=${{ steps.bump.outputs.version }}
 
-      - name: Create Release
-        if: steps.check_tag.outputs.exists == 'false'
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.get_version.outputs.TAG }}
-          name: Valora Build ${{ steps.get_version.outputs.VERSION }}
-          body: |
-            ## Automated Release: ${{ steps.get_version.outputs.VERSION }}
-            This is a production-ready build of Valora, automatically generated from the latest push to `main`.
-            
-            ### Installation:
-            1. Download the `app-release.apk` below.
-            2. Install it on your Android device (ensure "Install from unknown sources" is enabled).
+          tag_name: ${{ steps.bump.outputs.tag }}
+          name: Valora Build ${{ steps.bump.outputs.version }}
+          body_path: release_notes.md
           draft: false
           prerelease: false
           files: |
