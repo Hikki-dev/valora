@@ -21,11 +21,18 @@ echo "Running flutter pub get..."
 flutter pub get
 
 # 4. Build Web App
-echo "Building Flutter Web (Release)..."
-flutter build web --release --no-pub \
-  --dart-define=SUPABASE_URL=https://pgjymcazcsjbkzvqwmhd.supabase.co \
-  --dart-define=SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBnanltY2F6Y3NqYmt6dnF3bWhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjQ3ODIsImV4cCI6MjA5MDgwMDc4Mn0.Q-B4cBMDbFk-eQPL1GqQ2bDtzzM3SmM8u7_7I0Y3348 \
-  --dart-define=APP_VERSION=1.0.0
+BUILD_FLAG="--release"
+if [[ "$*" == *"--wasm"* ]] || [[ "$BUILD_WASM" == "true" ]]; then
+  echo "Building Flutter Web with WASM support..."
+  BUILD_FLAG="--wasm --release"
+else
+  echo "Building Flutter Web (Standard Release)..."
+fi
+
+flutter build web $BUILD_FLAG --no-pub \
+  --dart-define=SUPABASE_URL=${SUPABASE_URL:-https://pgjymcazcsjbkzvqwmhd.supabase.co} \
+  --dart-define=SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBnanltY2F6Y3NqYmt6dnF3bWhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjQ3ODIsImV4cCI6MjA5MDgwMDc4Mn0.Q-B4cBMDbFk-eQPL1GqQ2bDtzzM3SmM8u7_7I0Y3348} \
+  --dart-define=APP_VERSION=1.1.0
 echo "Build command finished with status: $?"
 
 # 5. Verification

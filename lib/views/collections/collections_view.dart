@@ -95,8 +95,10 @@ class CollectionsView extends ConsumerWidget {
         ? Colors.white.withValues(alpha: 0.05)
         : Colors.black.withValues(alpha: 0.05);
 
-    final width = MediaQuery.sizeOf(context).width;
-    final isDesktop = width >= 900;
+    final double width = MediaQuery.sizeOf(context).width;
+    final bool isMobile = width < 600;
+    final bool isDesktop = width >= 1000;
+    final int crossAxisCount = isMobile ? 2 : (width < 1000 ? 3 : 5);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -377,7 +379,7 @@ class CollectionsView extends ConsumerWidget {
                       child: GridView.builder(
                         padding: const EdgeInsets.only(bottom: 24),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: isDesktop ? 4 : 2,
+                          crossAxisCount: crossAxisCount,
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
                           childAspectRatio: 0.75,

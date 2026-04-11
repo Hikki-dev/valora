@@ -71,6 +71,7 @@ class _GameBox3DState extends State<GameBox3D> {
                     ? CachedNetworkImage(
                         imageUrl: widget.coverUrl!,
                         fit: BoxFit.cover,
+                        memCacheWidth: 300,
                         errorWidget: (context, url, err) => _buildFallback(),
                         placeholder: (context, url) =>
                             _buildFallback(loading: true),

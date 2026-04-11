@@ -141,6 +141,7 @@ class InsightsView extends ConsumerWidget {
               imageUrl: game.coverUrl ?? '',
               width: 45,
               height: 60,
+              memCacheWidth: 150,
               fit: BoxFit.cover,
               placeholder: (context, url) =>
                   Container(color: textColor.withValues(alpha: 0.1)),

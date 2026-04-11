@@ -69,8 +69,9 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
   @override
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
-    final width = MediaQuery.sizeOf(context).width;
-    final isDesktop = width >= 900;
+    final double width = MediaQuery.sizeOf(context).width;
+    final bool isMobile = width < 600;
+    final bool isDesktop = width >= 1000;
 
     int currentIndex = 0;
     if (location.startsWith('/collections')) currentIndex = 1;
@@ -85,7 +86,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
       children: [
         Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
+            constraints: const BoxConstraints(maxWidth: 1400),
             child: widget.child,
           ),
         ),
@@ -97,11 +98,13 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
       ],
     );
 
-    if (isDesktop) {
+    if (!isMobile) {
       return Scaffold(
         body: Row(
           children: [
-            _buildSidebar(context, ref, currentIndex, isDark),
+            isDesktop
+                ? _buildSidebar(context, ref, currentIndex, isDark)
+                : _buildNavigationRail(context, ref, currentIndex, isDark),
             Expanded(child: body),
           ],
         ),
@@ -119,9 +122,10 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                 if (index == 2) context.go('/wishlists');
                 if (index == 3) context.go('/profile');
               },
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              selectedItemColor: Theme.of(context).primaryColor,
-              unselectedItemColor: textColor.withValues(alpha: 0.5),
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: isDark ? const Color(0xFF0A0A0F) : Colors.white,
+              selectedItemColor: Colors.cyanAccent,
+              unselectedItemColor: textColor.withValues(alpha: 0.4),
               items: [
                 const BottomNavigationBarItem(
                     icon: Icon(Icons.home_rounded), label: 'Home'),
@@ -295,6 +299,79 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                 fontWeight: isDestructive ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavigationRail(
+      BuildContext context, WidgetRef ref, int currentIndex, bool isDark) {
+    final textColor = isDark ? Colors.white : Colors.black87;
+
+    return NavigationRail(
+      selectedIndex: currentIndex,
+      onDestinationSelected: (index) {
+        if (index == 0) context.go('/');
+        if (index == 1) context.go('/collections');
+        if (index == 2) context.go('/wishlists');
+        if (index == 3) context.go('/profile');
+      },
+      backgroundColor: isDark ? const Color(0xFF14141A) : Colors.white,
+      indicatorColor: Colors.cyanAccent.withValues(alpha: 0.2),
+      selectedIconTheme: const IconThemeData(color: Colors.cyanAccent),
+      unselectedIconTheme:
+          IconThemeData(color: textColor.withValues(alpha: 0.4)),
+      labelType: NavigationRailLabelType.none,
+      destinations: [
+        const NavigationRailDestination(
+          icon: Icon(Icons.home_rounded),
+          selectedIcon: Icon(Icons.home_rounded),
+          label: Text('Home'),
+        ),
+        const NavigationRailDestination(
+          icon: Icon(Icons.library_books),
+          selectedIcon: Icon(Icons.library_books),
+          label: Text('Library'),
+        ),
+        NavigationRailDestination(
+          icon: Badge(
+            isLabelVisible: ref.watch(wishlistDealCountProvider).valueOrNull !=
+                    null &&
+                ref.watch(wishlistDealCountProvider).value! > 0,
+            label:
+                Text('${ref.watch(wishlistDealCountProvider).valueOrNull ?? 0}'),
+            child: const Icon(Icons.favorite),
+          ),
+          label: const Text('Wishlist'),
+        ),
+        const NavigationRailDestination(
+          icon: Icon(Icons.person),
+          selectedIcon: Icon(Icons.person),
+          label: Text('Profile'),
+        ),
+      ],
+      leading: const Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Icon(Icons.auto_graph, color: Colors.cyanAccent, size: 28),
+      ),
+      trailing: Expanded(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IconButton(
+              icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode,
+                  size: 20, color: textColor.withValues(alpha: 0.4)),
+              onPressed: () => ref.read(themeProvider.notifier).toggle(),
+            ),
+            const SizedBox(height: 12),
+            IconButton(
+              icon: Icon(Icons.logout,
+                  size: 20, color: Colors.redAccent.withValues(alpha: 0.6)),
+              onPressed: () =>
+                  ref.read(authControllerProvider.notifier).signOut(),
+            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),

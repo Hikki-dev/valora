@@ -385,6 +385,7 @@ class _HeroBanner extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  memCacheWidth: 400,
                   errorWidget: (context, url, error) =>
                       Container(color: Colors.black),
                 )
@@ -402,6 +403,7 @@ class _HeroBanner extends ConsumerWidget {
                   ? CachedNetworkImage(
                       imageUrl: game.coverUrl!,
                       fit: BoxFit.contain,
+                      memCacheWidth: 600,
                       placeholder: (context, url) => _FallbackHero(game: game),
                       errorWidget: (context, url, error) =>
                           _FallbackHero(game: game),

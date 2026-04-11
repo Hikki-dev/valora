@@ -191,7 +191,10 @@ class WishlistsView extends ConsumerWidget {
                     clipBehavior: Clip.hardEdge,
                     child: item.coverUrl != null && item.coverUrl!.isNotEmpty
                         ? CachedNetworkImage(
-                            imageUrl: item.coverUrl!, fit: BoxFit.cover)
+                            imageUrl: item.coverUrl!,
+                            fit: BoxFit.cover,
+                            memCacheWidth: 300,
+                          )
                         : const Center(
                             child: Icon(Icons.videogame_asset,
                                 color: Colors.white24)),
