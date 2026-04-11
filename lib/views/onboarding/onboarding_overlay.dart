@@ -139,7 +139,9 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay> {
                                 borderRadius: BorderRadius.circular(12)),
                           ),
                           child: Text(
-                            isLastPage ? 'Go to Valora →' : 'Next →',
+                            isLastPage 
+                              ? (widget.isFull ? 'Go to Valora →' : 'Launch Update →') 
+                              : 'Next →',
                             style: TextStyle(
                                 color: isLastPage ? Colors.black : textColor,
                                 fontWeight: FontWeight.bold),

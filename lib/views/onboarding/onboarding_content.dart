@@ -103,10 +103,22 @@ class OnboardingContent {
 
   static List<OnboardingContent> get changelog => [
         OnboardingContent(
-          title: 'WHAT\'S NEW',
-          subtitle: 'Valora v0.2.0',
+          title: 'PREVIOUSLY',
+          subtitle: 'Initial Release (v0.1.0)',
+          description: 'Initial release with core tracking features.',
+          bulletPoints: [
+            'Real-time eBay price scraping',
+            '3D Game Box visualization',
+            'Google Auth integration'
+          ],
+          icon: const FaIcon(FontAwesomeIcons.clockRotateLeft,
+              size: 48, color: Colors.amber),
+        ),
+        OnboardingContent(
+          title: 'PREVIOUSLY',
+          subtitle: 'Library Sync (v0.2.0)',
           description:
-              'The "Library Sync" update is here! Now you can import your existing games from all your favorite platforms.',
+              'The "Library Sync" update delivered Steam & Epic import support.',
           bulletPoints: [
             'Added Library Sync for Steam (Full OpenID support)',
             'Experimental Playstation & Epic import support',
@@ -117,15 +129,18 @@ class OnboardingContent {
               size: 48, color: Colors.amber),
         ),
         OnboardingContent(
-          title: 'PREVIOUSLY',
-          subtitle: 'Valora v0.1.0',
-          description: 'Initial release with core tracking features.',
+          title: 'WHAT\'S NEW',
+          subtitle: 'Performance & Mastery (v1.1.0)',
+          description:
+              'Valora has been completely re-engineered for speed, responsiveness, and security.',
           bulletPoints: [
-            'Real-time eBay price scraping',
-            '3D Game Box visualization',
-            'Google Auth integration'
+            'WASM Engine: Up to 2x faster execution on web platforms',
+            'Responsive Excellence: New 3-tier sidebar, rail, and mobile layouts',
+            'Security Hardening: Core RLS policies for maximum data isolation',
+            'Memory Caching: Optimized image handling for smoother scrolling',
+            'Social Snapshots: Premium sharing for your top collection assets'
           ],
-          icon: const FaIcon(FontAwesomeIcons.clockRotateLeft,
+          icon: const FaIcon(FontAwesomeIcons.gaugeHigh,
               size: 48, color: Colors.amber),
         ),
       ];
