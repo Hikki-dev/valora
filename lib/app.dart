@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-// ignore: avoid_web_libraries_in_flutter
-import 'package:web/web.dart' as web;
+import 'utils/platform_utils.dart';
 
 import 'core/theme.dart';
 import 'views/home/home_view.dart';
@@ -343,9 +342,7 @@ class ValoraApp extends ConsumerWidget {
       }
 
       // Signal to the web container that the first frame is rendered
-      if (kIsWeb) {
-        web.window.dispatchEvent(web.CustomEvent('flutter-first-frame'));
-      }
+      PlatformUtils.signalFirstFrame();
     });
     
     return MaterialApp.router(
