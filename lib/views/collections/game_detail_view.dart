@@ -25,7 +25,8 @@ final gameDetailProvider = FutureProvider.autoDispose.family<Game?, String>(
 );
 
 // Provider that returns the live PriceData for a game (uses cache when fresh)
-final gamePricesProvider = FutureProvider.autoDispose.family<PriceData?, String>(
+final gamePricesProvider =
+    FutureProvider.autoDispose.family<PriceData?, String>(
   (ref, gameId) async {
     final game = await ref.watch(gameDetailProvider(gameId).future);
     if (game == null) return null;

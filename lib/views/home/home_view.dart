@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -120,12 +121,12 @@ class HomeView extends ConsumerWidget {
               return const SizedBox.shrink();
             },
           ),
-          // UPDATE NOTIFICATION
+          // PREMIUM UPDATE NOTIFICATION (Liquid Glass Style)
           if (!isDesktop) // Only show on mobile
             Positioned(
-              bottom: 24,
-              left: 24,
-              right: 24,
+              bottom: MediaQuery.paddingOf(context).bottom + 12,
+              left: 16,
+              right: 16,
               child: FutureBuilder<UpdateInfo?>(
                 future: UpdateService().checkForUpdate(),
                 builder: (context, snapshot) {
@@ -139,70 +140,110 @@ class HomeView extends ConsumerWidget {
                               mode: LaunchMode.externalApplication);
                         }
                       },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.blueAccent,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blueAccent.withValues(alpha: 0.4),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                          child: Container(
+                            padding: const EdgeInsets.all(1), // Border width
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.blueAccent.withValues(alpha: 0.5),
+                                  Colors.white.withValues(alpha: 0.1),
+                                  Colors.cyanAccent.withValues(alpha: 0.4),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                             ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.system_update_alt,
-                                color: Colors.white, size: 20),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF0F172A)
+                                    .withValues(alpha: 0.8),
+                                borderRadius: BorderRadius.circular(23),
+                              ),
+                              child: Row(
                                 children: [
-                                  const Text(
-                                    'Update Available',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13),
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blueAccent
+                                          .withValues(alpha: 0.15),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.rocket_launch,
+                                        color: Colors.cyanAccent, size: 22),
                                   ),
-                                  Text(
-                                    'New version ${info.latestVersion} is out!',
-                                    style: TextStyle(
-                                        color:
-                                            Colors.white.withValues(alpha: 0.8),
-                                        fontSize: 11),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text(
+                                          'NEW CORE UPDATE',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              letterSpacing: 1.5,
+                                              fontWeight: FontWeight.w900),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'Version ${info.latestVersion} is ready.',
+                                          style: TextStyle(
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.7),
+                                              fontSize: 13),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.cyanAccent,
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.cyanAccent
+                                              .withValues(alpha: 0.3),
+                                          blurRadius: 12,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Text(
+                                      'UPGRADE',
+                                      style: TextStyle(
+                                          color: Color(0xFF0F172A),
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 10),
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Text(
-                                'DOWNLOAD',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 10),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ).animate().slideY(
-                        begin: 1,
-                        end: 0,
-                        duration: 800.ms,
-                        curve: Curves.easeOutBack);
+                      )
+                          .animate()
+                          .slideY(
+                              begin: 1.5,
+                              end: 0,
+                              duration: 800.ms,
+                              curve: Curves.easeOutQuart)
+                          .shimmer(
+                              delay: 1.seconds,
+                              duration: 2.seconds,
+                              color: Colors.white12),
+                    );
                   }
                   return const SizedBox.shrink();
                 },
@@ -235,7 +276,8 @@ class HomeView extends ConsumerWidget {
                     onPressed: () async {
                       final gamesAsync =
                           await ref.read(allGamesProvider.future);
-                      final List<Game> sortedGames = List<Game>.from(gamesAsync as Iterable);
+                      final List<Game> sortedGames =
+                          List<Game>.from(gamesAsync as Iterable);
                       sortedGames.sort((a, b) => (b.activeMarketValue ?? 0)
                           .compareTo(a.activeMarketValue ?? 0));
                       final top10 = sortedGames.take(10).toList();
@@ -359,8 +401,8 @@ class HomeView extends ConsumerWidget {
             final games = ref.watch(libraryStreamProvider).value ?? <Game>[];
             final withPurchasePrice =
                 games.where((g) => g.purchasePrice != null).toList();
-            final totalInvested =
-                withPurchasePrice.fold(0.0, (s, g) => s + (g.purchasePrice ?? 0));
+            final totalInvested = withPurchasePrice.fold(
+                0.0, (s, g) => s + (g.purchasePrice ?? 0));
             final totalMarket = withPurchasePrice.fold(
                 0.0, (s, g) => s + (g.activeMarketValue ?? 0));
             final totalGain = totalMarket - totalInvested;
@@ -440,7 +482,8 @@ class HomeView extends ConsumerWidget {
                         onTap: () => context.push('/game/${g.id}'),
                         child: SizedBox(
                           width: 90,
-                          child: GameBox3D(coverUrl: g.coverUrl, title: g.title),
+                          child:
+                              GameBox3D(coverUrl: g.coverUrl, title: g.title),
                         ),
                       );
                     },

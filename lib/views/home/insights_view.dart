@@ -159,8 +159,7 @@ class InsightsView extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15)),
+                        fontWeight: FontWeight.w700, fontSize: 15)),
                 Text(game.platform.label,
                     style: TextStyle(
                         color: textColor.withValues(alpha: 0.5), fontSize: 12)),

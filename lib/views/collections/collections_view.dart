@@ -47,7 +47,8 @@ final filteredGamesProvider = Provider.family
       if (platformFilter == 'ps_disc') {
         return p == 'ps4_physical' || p == 'ps5_physical';
       }
-      if (platformFilter == 'psn') return p == 'ps4_digital' || p == 'ps5_digital';
+      if (platformFilter == 'psn')
+        return p == 'ps4_digital' || p == 'ps5_digital';
       return p == platformFilter;
     }).toList();
 
@@ -360,7 +361,8 @@ class CollectionsView extends ConsumerWidget {
                     }
                     return RefreshIndicator(
                       color: Theme.of(context).primaryColor,
-                      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                      backgroundColor:
+                          Theme.of(context).scaffoldBackgroundColor,
                       onRefresh: () async {
                         final stale =
                             games.where((g) => g.isPriceCacheStale).toList();
@@ -473,16 +475,19 @@ class CollectionsView extends ConsumerWidget {
                       flex: 3,
                       child: Container(
                         width: double.infinity,
-                        color: accentColor.withValues(alpha: isDark ? 0.3 : 0.08),
-                        child: game.coverUrl != null && game.coverUrl!.isNotEmpty
-                            ? CachedNetworkImage(
-                                imageUrl: game.coverUrl!,
-                                cacheManager: gameCoverCacheManager,
-                                memCacheWidth: 300,
-                                fit: BoxFit.cover,
-                                errorWidget: (context, url, error) => _FallbackCover(game: game),
-                              )
-                            : _FallbackCover(game: game),
+                        color:
+                            accentColor.withValues(alpha: isDark ? 0.3 : 0.08),
+                        child:
+                            game.coverUrl != null && game.coverUrl!.isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl: game.coverUrl!,
+                                    cacheManager: gameCoverCacheManager,
+                                    memCacheWidth: 300,
+                                    fit: BoxFit.cover,
+                                    errorWidget: (context, url, error) =>
+                                        _FallbackCover(game: game),
+                                  )
+                                : _FallbackCover(game: game),
                       ),
                     ),
                     // Details area
@@ -518,11 +523,13 @@ class CollectionsView extends ConsumerWidget {
                                   ),
                                 ),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       game.condition.label,
-                                      style: TextStyle(color: mutedTextColor, fontSize: 12),
+                                      style: TextStyle(
+                                          color: mutedTextColor, fontSize: 12),
                                     ),
                                     if (game.isPriceCacheStale)
                                       Container(
@@ -604,7 +611,8 @@ class CollectionsView extends ConsumerWidget {
 
   IconData _getPlatformIcon() {
     if (platformFilter == 'steam') return FontAwesomeIcons.steam;
-    if (platformFilter?.startsWith('ps') == true) return FontAwesomeIcons.playstation;
+    if (platformFilter?.startsWith('ps') == true)
+      return FontAwesomeIcons.playstation;
     if (platformFilter == 'nintendo') return FontAwesomeIcons.gamepad;
     return Icons.videogame_asset_outlined;
   }

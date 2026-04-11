@@ -65,9 +65,10 @@ class PriceService {
       // Explicitly get the latest session details after ensuring it's refreshed.
       final currentSession = _client.auth.currentSession;
       final accessToken = currentSession?.accessToken;
-      
+
       if (accessToken == null || (currentSession?.isExpired ?? true)) {
-        debugPrint('[PriceService] Critical: No valid session token for "${game.title}".');
+        debugPrint(
+            '[PriceService] Critical: No valid session token for "${game.title}".');
         return null;
       }
 

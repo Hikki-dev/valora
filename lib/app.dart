@@ -25,7 +25,7 @@ final wishlistDealCountProvider = FutureProvider.autoDispose<int>((ref) async {
         .from('wishlists')
         .select('id, current_price, target_price')
         .eq('alerted', false);
-    
+
     int count = 0;
     for (var item in res) {
       if (item['current_price'] != null && item['target_price'] != null) {
@@ -129,8 +129,12 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                     icon: Icon(Icons.library_books), label: 'Library'),
                 BottomNavigationBarItem(
                     icon: Badge(
-                      isLabelVisible: ref.watch(wishlistDealCountProvider).valueOrNull != null && ref.watch(wishlistDealCountProvider).value! > 0,
-                      label: Text('${ref.watch(wishlistDealCountProvider).valueOrNull ?? 0}'),
+                      isLabelVisible:
+                          ref.watch(wishlistDealCountProvider).valueOrNull !=
+                                  null &&
+                              ref.watch(wishlistDealCountProvider).value! > 0,
+                      label: Text(
+                          '${ref.watch(wishlistDealCountProvider).valueOrNull ?? 0}'),
                       child: const Icon(Icons.favorite),
                     ),
                     label: 'Wishlist'),
@@ -358,7 +362,8 @@ final routerProvider = Provider<GoRouter>((ref) {
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   return FadeTransition(
-                    opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                    opacity: CurvedAnimation(
+                        parent: animation, curve: Curves.easeOut),
                     child: child,
                   );
                 },

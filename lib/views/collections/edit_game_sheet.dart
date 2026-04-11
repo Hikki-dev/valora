@@ -114,7 +114,8 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: Icon(Icons.close, color: textColor.withValues(alpha: 0.5)),
+                  icon: Icon(Icons.close,
+                      color: textColor.withValues(alpha: 0.5)),
                 ),
               ],
             ),
@@ -144,7 +145,8 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                     side: BorderSide(
-                      color: isSelected ? Colors.orangeAccent : Colors.transparent,
+                      color:
+                          isSelected ? Colors.orangeAccent : Colors.transparent,
                     ),
                   ),
                 );
@@ -159,7 +161,8 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
               controller: _purchasePriceController,
               keyboardType: TextInputType.number,
               hint: '0.00',
-              prefix: const Icon(Icons.attach_money, color: Colors.greenAccent, size: 20),
+              prefix: const Icon(Icons.attach_money,
+                  color: Colors.greenAccent, size: 20),
               textColor: textColor,
               cardColor: cardColor,
             ),
@@ -171,7 +174,8 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
               label: 'CUSTOM COVER URL',
               controller: _coverUrlController,
               hint: 'https://...',
-              prefix: const Icon(Icons.image_outlined, color: Colors.cyanAccent, size: 20),
+              prefix: const Icon(Icons.image_outlined,
+                  color: Colors.cyanAccent, size: 20),
               textColor: textColor,
               cardColor: cardColor,
             ),
@@ -184,7 +188,8 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
               controller: _notesController,
               hint: 'Where you bought it or general notes...',
               maxLines: 3,
-              prefix: const Icon(Icons.notes, color: Colors.blueAccent, size: 20),
+              prefix:
+                  const Icon(Icons.notes, color: Colors.blueAccent, size: 20),
               textColor: textColor,
               cardColor: cardColor,
             ),
@@ -216,7 +221,8 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
                       )
                     : const Text(
                         'SAVE CHANGES',
-                        style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1),
+                        style: TextStyle(
+                            fontWeight: FontWeight.w900, letterSpacing: 1),
                       ),
               ),
             ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
@@ -266,7 +272,8 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
                     )
                   : null,
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             ),
           ),
         ),
