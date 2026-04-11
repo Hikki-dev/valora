@@ -40,7 +40,7 @@ class AppTheme {
         surfaceContainer: surface2,
       ),
       hoverColor: accentAmber.withOpacity(0.1),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surface1,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
