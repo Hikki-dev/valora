@@ -2,7 +2,7 @@
 
 # Configuration
 FLUTTER_VERSION="stable"
-FLUTTER_SDK_URL="https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.3-stable.tar.xz"
+FLUTTER_SDK_URL="https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.41.4-stable.tar.xz"
 FLUTTER_SDK_DIR="$HOME/flutter"
 
 # Exit immediately if a command exits with a non-zero status
