@@ -1,4 +1,4 @@
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'
+import { z } from 'zod'
 import { corsHeaders } from '../_shared/cors.ts'
 import { verifyUser } from '../_shared/auth.ts'
 import { checkRateLimit } from '../_shared/rateLimit.ts'

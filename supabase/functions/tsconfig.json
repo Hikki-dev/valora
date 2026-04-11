@@ -14,7 +14,7 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "https://esm.sh/*": ["https://esm.sh/*"],
+      "zod": ["https://deno.land/x/zod@v3.22.4/mod.ts"],
       "@supabase/supabase-js": ["https://esm.sh/@supabase/supabase-js@2"]
     }
   },

@@ -1,6 +1,6 @@
 import { corsHeaders } from '../_shared/cors.ts'
 import { verifyUser } from '../_shared/auth.ts'
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'
+import { z } from 'zod'
 
 const Schema = z.object({
   steamId: z.string().regex(/^\d{17}$/, 'Invalid Steam ID format'),
