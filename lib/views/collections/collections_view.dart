@@ -47,8 +47,9 @@ final filteredGamesProvider = Provider.family
       if (platformFilter == 'ps_disc') {
         return p == 'ps4_physical' || p == 'ps5_physical';
       }
-      if (platformFilter == 'psn')
+      if (platformFilter == 'psn') {
         return p == 'ps4_digital' || p == 'ps5_digital';
+      }
       return p == platformFilter;
     }).toList();
 
@@ -610,10 +611,15 @@ class CollectionsView extends ConsumerWidget {
   }
 
   IconData _getPlatformIcon() {
-    if (platformFilter == 'steam') return FontAwesomeIcons.steam;
-    if (platformFilter?.startsWith('ps') == true)
+    if (platformFilter == 'steam') {
+      return FontAwesomeIcons.steam;
+    }
+    if (platformFilter?.startsWith('ps') == true) {
       return FontAwesomeIcons.playstation;
-    if (platformFilter == 'nintendo') return FontAwesomeIcons.gamepad;
+    }
+    if (platformFilter == 'nintendo') {
+      return FontAwesomeIcons.gamepad;
+    }
     return Icons.videogame_asset_outlined;
   }
 
