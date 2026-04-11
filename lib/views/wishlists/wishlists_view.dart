@@ -32,8 +32,8 @@ class WishlistsView extends ConsumerWidget {
           : AppBar(
               title: Text('WISHLIST',
                   style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.0,
                       fontSize: 20,
                       color: isDark ? Colors.white : Colors.black87)),
               backgroundColor: Colors.transparent,

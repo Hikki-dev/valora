@@ -62,12 +62,12 @@ class PriceService {
     try {
       await _ensureValidSession();
 
-      // Explicitly read the CURRENT session token after ensuring it's valid.
-      // Do NOT rely on the SDK's internal reference — it can be stale.
-      final accessToken = _client.auth.currentSession?.accessToken;
-      if (accessToken == null) {
-        debugPrint(
-            '[PriceService] No access token available for "${game.title}".');
+      // Explicitly get the latest session details after ensuring it's refreshed.
+      final currentSession = _client.auth.currentSession;
+      final accessToken = currentSession?.accessToken;
+      
+      if (accessToken == null || (currentSession?.isExpired ?? true)) {
+        debugPrint('[PriceService] Critical: No valid session token for "${game.title}".');
         return null;
       }
 

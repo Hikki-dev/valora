@@ -10,6 +10,7 @@ import 'views/auth/login_view.dart';
 import 'views/collections/collections_view.dart';
 import 'views/collections/game_detail_view.dart';
 import 'views/wishlists/wishlists_view.dart';
+import 'views/home/insights_view.dart';
 import 'views/onboarding/onboarding_overlay.dart';
 import 'views/home/profile_view.dart';
 import 'controllers/onboarding_controller.dart';
@@ -150,8 +151,8 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                     'Valora',
                     style: TextStyle(
                       fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
                       color: textColor,
                     ),
                   ),
@@ -314,6 +315,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/profile',
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: ProfileView()),
+          ),
+          GoRoute(
+            path: '/insights',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: InsightsView()),
           ),
           GoRoute(
             path: '/game/:id',

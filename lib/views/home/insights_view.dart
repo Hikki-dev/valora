@@ -23,7 +23,9 @@ class InsightsView extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('COLLECTION INSIGHTS',
             style: TextStyle(
-                fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 16)),
+                fontWeight: FontWeight.w700, // Standardized to Bold
+                letterSpacing: 1.0, // Reduced
+                fontSize: 16)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -97,8 +99,8 @@ class InsightsView extends ConsumerWidget {
             const SizedBox(width: 8),
             Text(title,
                 style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.0,
                     fontSize: 13,
                     color: Colors.cyanAccent)),
           ],
@@ -156,9 +158,8 @@ class InsightsView extends ConsumerWidget {
                 Text(game.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        color: textColor,
-                        fontWeight: FontWeight.bold,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700,
                         fontSize: 15)),
                 Text(game.platform.label,
                     style: TextStyle(

@@ -222,9 +222,10 @@ class CollectionsView extends ConsumerWidget {
                               ref.watch(currencyProvider).format(total),
                               style: const TextStyle(
                                 fontSize: 32,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w700, // Standardized
                                 fontFamily: 'Syne',
                                 color: Colors.white,
+                                letterSpacing: -0.5,
                               ),
                             );
                           },

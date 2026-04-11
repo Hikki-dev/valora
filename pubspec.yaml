@@ -53,6 +53,7 @@ dependencies:
   # Utils
   uuid: ^4.5.3
   url_launcher: ^6.3.1
+  flutter_native_splash: ^2.4.7
 
 
 dev_dependencies:
@@ -97,3 +98,11 @@ flutter:
           weight: 500
         - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
           weight: 600
+
+flutter_native_splash:
+  color: "#0A0A0F"
+  background_image: "assets/icon/batman_optimized.jpg"
+  android: true
+  ios: true
+  web: false # We already have our custom HTML splash in web/index.html
+  fullscreen: true

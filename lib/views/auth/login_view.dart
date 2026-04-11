@@ -19,6 +19,16 @@ class _LoginViewState extends ConsumerState<LoginView> {
   bool _isLogin = true;
   bool _obscurePassword = true;
   String? _validationError;
+  bool _entranceComplete = false; // Add this
+
+  @override
+  void initState() {
+    super.initState();
+    // Mark entrance as complete after the staggered animations finish
+    Future.delayed(const Duration(milliseconds: 2500), () {
+      if (mounted) setState(() => _entranceComplete = true);
+    });
+  }
 
   void _submit() {
     setState(() => _validationError = null);
@@ -86,8 +96,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
     final isDesktop = width >= 900;
 
     // Heroic responsive assets
-    final backgroundImage =
-        isDesktop ? 'assets/icon/batman.jpg' : 'assets/icon/Splash.webp';
+    final backgroundImage = isDesktop
+        ? 'assets/icon/batman_optimized.jpg'
+        : 'assets/icon/Splash.webp';
 
     return Scaffold(
       backgroundColor: Colors.black, // Dark foundation for the image stack
@@ -100,12 +111,12 @@ class _LoginViewState extends ConsumerState<LoginView> {
             fit: BoxFit.cover,
             alignment: Alignment.center,
           ).animate().fadeIn(duration: 800.ms).scale(
-              begin: const Offset(1.1, 1.1),
+              begin: const Offset(1.15, 1.15),
               end: const Offset(1.0, 1.0),
-              duration: 2.seconds,
-              curve: Curves.easeOut),
+              duration: 12.seconds, // Epic long zoom
+              curve: Curves.linear),
 
-          // 2. Artistic Gradient Overlay (Ensures readability & premium feel)
+          // 2. Artistic Gradient Overlay
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -135,12 +146,31 @@ class _LoginViewState extends ConsumerState<LoginView> {
                       style: TextStyle(
                         fontFamily: 'Syne',
                         fontSize: 64,
-                        fontWeight: FontWeight.w900,
-                        color: Colors
-                            .white, // Locked to white for high contrast on image
-                        letterSpacing: -2.0,
+                        fontWeight: FontWeight.w700, // Standardized
+                        color: Colors.white70,
+                        letterSpacing: -0.5,
+                        shadows: [
+                          Shadow(
+                            color: Colors.white24,
+                            blurRadius: 20,
+                            offset: Offset(0, 0),
+                          ),
+                        ],
                       ),
-                    ).animate().fadeIn(delay: 200.ms).moveY(begin: 10, end: 0),
+                    )
+                        .animate()
+                        .fadeIn(delay: 200.ms, duration: 800.ms)
+                        .moveY(begin: 15, end: 0, curve: Curves.easeOutBack)
+                        .shimmer(
+                            delay: 1200.ms,
+                            duration: 1800.ms,
+                            color: Colors.white30)
+                        .moveY(
+                            begin: 0,
+                            end: -8,
+                            duration: 2.seconds,
+                            curve: Curves.easeInOut,
+                            delay: 3.seconds), // Gentle float after entry
                     const SizedBox(height: 8),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
@@ -156,7 +186,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                             letterSpacing: 2.0),
                         textAlign: TextAlign.center,
                       ),
-                    ),
+                    ).animate(delay: 400.ms).fadeIn(),
                     const SizedBox(height: 48),
 
                     // Glassmorphic Login Container
@@ -200,7 +230,11 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                           color: theme.primaryColor, width: 2)),
                                 ),
                                 keyboardType: TextInputType.emailAddress,
-                              ),
+                              )
+                                  .animate(
+                                      delay: _entranceComplete ? 0.ms : 600.ms)
+                                  .fadeIn()
+                                  .slideX(begin: 0.1, end: 0),
                               const SizedBox(height: 16),
                               TextField(
                                 controller: _passwordController,
@@ -234,7 +268,11 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                 textInputAction: _isLogin
                                     ? TextInputAction.done
                                     : TextInputAction.next,
-                              ),
+                              )
+                                  .animate(
+                                      delay: _entranceComplete ? 0.ms : 750.ms)
+                                  .fadeIn()
+                                  .slideX(begin: 0.1, end: 0),
                               if (!_isLogin) ...[
                                 const SizedBox(height: 16),
                                 TextField(
@@ -258,7 +296,12 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                   obscureText: _obscurePassword,
                                   onSubmitted: (_) => _submit(),
                                   textInputAction: TextInputAction.done,
-                                ),
+                                )
+                                    .animate(
+                                        delay:
+                                            _entranceComplete ? 0.ms : 900.ms)
+                                    .fadeIn()
+                                    .slideX(begin: 0.1, end: 0),
                               ],
                               const SizedBox(height: 32),
                               if (authState.isLoading)
@@ -293,10 +336,19 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                         _isLogin ? 'Sign In' : 'Sign Up',
                                         key: ValueKey<bool>(_isLogin),
                                         style: const TextStyle(
-                                            fontWeight: FontWeight.w800,
+                                            fontWeight: FontWeight.w700,
                                             fontSize: 16)),
                                   ),
-                                ),
+                                )
+                                    .animate(
+                                        delay:
+                                            _entranceComplete ? 0.ms : 1000.ms)
+                                    .fadeIn()
+                                    .slideY(begin: 0.2, end: 0)
+                                    .shimmer(
+                                        delay: 2.seconds,
+                                        duration: 1.seconds,
+                                        color: Colors.white24),
                               const SizedBox(height: 24),
                               Row(
                                 children: [
@@ -313,7 +365,10 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                   ),
                                   Expanded(child: Divider(color: borderColor)),
                                 ],
-                              ),
+                              )
+                                  .animate(
+                                      delay: _entranceComplete ? 0.ms : 1150.ms)
+                                  .fadeIn(),
                               const SizedBox(height: 24),
                               OutlinedButton.icon(
                                 onPressed:
@@ -331,14 +386,19 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16)),
                                 ),
-                              ),
+                              )
+                                  .animate(
+                                      delay: _entranceComplete ? 0.ms : 1300.ms)
+                                  .fadeIn()
+                                  .slideY(begin: 0.2, end: 0),
                             ],
                           ),
                         ),
                       ),
-                    ).animate().fadeIn(delay: 400.ms).scale(
-                        begin: const Offset(0.9, 0.9),
-                        end: const Offset(1.0, 1.0)),
+                    ).animate().fadeIn(delay: 400.ms, duration: 600.ms).scale(
+                        begin: const Offset(0.95, 0.95),
+                        end: const Offset(1.0, 1.0),
+                        curve: Curves.easeOutCubic),
 
                     const SizedBox(height: 16),
                     TextButton(

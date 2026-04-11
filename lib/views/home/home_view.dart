@@ -10,7 +10,6 @@ import '../../controllers/home_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../core/theme.dart';
 import '../../core/currency_provider.dart';
-import 'insights_view.dart';
 import '../../models/game.dart';
 import '../../repositories/game_repository.dart';
 import '../../services/share_service.dart';
@@ -48,8 +47,8 @@ class HomeView extends ConsumerWidget {
           : AppBar(
               title: Text('Valora',
                   style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.5,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.0,
                       color: textColor)),
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -302,9 +301,9 @@ class HomeView extends ConsumerWidget {
                 hidePricing ? '****' : currency.format(totalValuation),
                 style: TextStyle(
                   fontSize: 56,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                   color: textColor,
-                  letterSpacing: -2,
+                  letterSpacing: -1,
                 ),
               );
             },
@@ -365,8 +364,7 @@ class HomeView extends ConsumerWidget {
                       fontWeight: FontWeight.w700,
                       color: mutedTextColor)),
               TextButton(
-                onPressed: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const InsightsView())),
+                onPressed: () => context.push('/insights'),
                 child: const Text('View All Insights',
                     style: TextStyle(
                         color: Colors.cyanAccent,
