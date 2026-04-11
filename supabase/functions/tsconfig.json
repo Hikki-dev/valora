@@ -14,7 +14,8 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "https://esm.sh/*": ["https://esm.sh/*"]
+      "https://esm.sh/*": ["https://esm.sh/*"],
+      "@supabase/supabase-js": ["https://esm.sh/@supabase/supabase-js@2"]
     }
   },
   "include": ["**/*.ts"],
