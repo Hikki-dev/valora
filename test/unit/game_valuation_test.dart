@@ -35,7 +35,7 @@ void main() {
 
     test('Price Cache Stale Logic - Digital (6h TTL)', () {
       final now = DateTime.now();
-      
+
       final freshGame = baseGame.copyWith(
         fetchedAt: now.subtract(const Duration(hours: 5)),
       );

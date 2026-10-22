@@ -194,7 +194,8 @@ class VSidebar extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 4, 14, 16),
-            child: Text('VALORA', style: VText.display(22, t.text, spacing: 2.2)),
+            child:
+                Text('VALORA', style: VText.display(22, t.text, spacing: 2.2)),
           ),
           PressableBox(
             color: t.money,
@@ -228,7 +229,8 @@ class VSidebar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Theme', style: VText.body(13, t.text, weight: FontWeight.w900)),
+              Text('Theme',
+                  style: VText.body(13, t.text, weight: FontWeight.w900)),
               VSegmented(
                 semanticLabel: 'Theme',
                 options: const ['Light', 'Dark'],
@@ -242,7 +244,8 @@ class VSidebar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Currency', style: VText.body(13, t.text, weight: FontWeight.w900)),
+              Text('Currency',
+                  style: VText.body(13, t.text, weight: FontWeight.w900)),
               VSegmented(
                 semanticLabel: 'Currency',
                 options: const ['USD', 'LKR'],
@@ -338,7 +341,8 @@ class _SideItemState extends State<_SideItem> {
                         border: Border.all(color: t.line, width: 2),
                       ),
                       child: Text('${widget.badge}',
-                          style: VText.body(12, t.onAccent, weight: FontWeight.w900)),
+                          style: VText.body(12, t.onAccent,
+                              weight: FontWeight.w900)),
                     ),
                 ],
               ),
@@ -389,7 +393,8 @@ class VRail extends StatelessWidget {
         selectedIconTheme: IconThemeData(color: t.onMoney),
         unselectedIconTheme: IconThemeData(color: t.muted),
         selectedLabelTextStyle: VText.body(11, t.text, weight: FontWeight.w900),
-        unselectedLabelTextStyle: VText.body(11, t.muted, weight: FontWeight.w900),
+        unselectedLabelTextStyle:
+            VText.body(11, t.muted, weight: FontWeight.w900),
         leading: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16),
           child: PressableBox(

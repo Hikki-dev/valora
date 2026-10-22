@@ -360,15 +360,16 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       if (mounted) {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(widget.isWishlistMode
-                ? 'Game added to Wishlist!'
-                : 'Game added to Collection!'),
-            ));
+          content: Text(widget.isWishlistMode
+              ? 'Game added to Wishlist!'
+              : 'Game added to Collection!'),
+        ));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Couldn\u2019t save. Check your connection and try again.')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+                'Couldn\u2019t save. Check your connection and try again.')));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -418,7 +419,8 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
   Widget _label(VTokens t, String text) => Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: Text(text, style: VText.body(13, t.text, weight: FontWeight.w900)),
+        child:
+            Text(text, style: VText.body(13, t.text, weight: FontWeight.w900)),
       );
 
   Widget _buildSearchPhase(VTokens t) {
@@ -498,12 +500,15 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                   },
                   shadowOffset: 3,
                   semanticLabel: 'Sync Steam library',
-                  child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    FaIcon(FontAwesomeIcons.steam, size: 16, color: t.text),
-                    const SizedBox(width: 10),
-                    Text('Import my whole Steam library',
-                        style: VText.body(14, t.text, weight: FontWeight.w900)),
-                  ]),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        FaIcon(FontAwesomeIcons.steam, size: 16, color: t.text),
+                        const SizedBox(width: 10),
+                        Text('Import my whole Steam library',
+                            style: VText.body(14, t.text,
+                                weight: FontWeight.w900)),
+                      ]),
                 ),
               ],
             ),
@@ -511,8 +516,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         if (!_isSearching && _searchResults.isEmpty && q.length > 2)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Text(
-                'No matches. Try fewer words, or check the spelling.',
+            child: Text('No matches. Try fewer words, or check the spelling.',
                 textAlign: TextAlign.center,
                 style: VText.body(14, t.muted, weight: FontWeight.w500)),
           ),
@@ -631,7 +635,8 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
             'Steam',
             'Epic Games'
           ])
-            _chip(t, p, _uiPlatform == p, () => setState(() => _uiPlatform = p)),
+            _chip(
+                t, p, _uiPlatform == p, () => setState(() => _uiPlatform = p)),
         ]),
         const SizedBox(height: 20),
         _label(t, 'Format'),
@@ -659,7 +664,12 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           const SizedBox(height: 20),
           _label(t, 'Region'),
           Wrap(spacing: 8, runSpacing: 8, children: [
-            for (final r in const ['R1 (USA)', 'R2 (UK/EU)', 'R3 (Asia)', 'Japan'])
+            for (final r in const [
+              'R1 (USA)',
+              'R2 (UK/EU)',
+              'R3 (Asia)',
+              'Japan'
+            ])
               _chip(t, r, _region == r, () => setState(() => _region = r)),
           ]),
         ],
@@ -667,7 +677,8 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('Currency', style: VText.body(13, t.text, weight: FontWeight.w900)),
+            Text('Currency',
+                style: VText.body(13, t.text, weight: FontWeight.w900)),
             const Spacer(),
             VSegmented(
               semanticLabel: 'Currency',
@@ -709,7 +720,10 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                 style: VText.body(14, t.muted, weight: FontWeight.w900)),
             childrenPadding: const EdgeInsets.only(bottom: 8),
             children: [
-              VField(label: 'Publisher', controller: _publisherController, optional: true),
+              VField(
+                  label: 'Publisher',
+                  controller: _publisherController,
+                  optional: true),
               const SizedBox(height: 14),
               VField(
                   label: 'Release year',
@@ -731,13 +745,16 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           onTap: _isSaving ? null : _saveGame,
           color: t.money,
           minHeight: 54,
-          semanticLabel: widget.isWishlistMode ? 'Save to wishlist' : 'Add to library',
+          semanticLabel:
+              widget.isWishlistMode ? 'Save to wishlist' : 'Add to library',
           child: _isSaving
               ? SizedBox(
                   width: 22,
                   height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2.5, color: t.onMoney))
-              : Text(widget.isWishlistMode ? 'Save to wishlist' : 'Add to library',
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2.5, color: t.onMoney))
+              : Text(
+                  widget.isWishlistMode ? 'Save to wishlist' : 'Add to library',
                   style: VText.body(15, t.onMoney, weight: FontWeight.w900)),
         ),
         const SizedBox(height: 8),

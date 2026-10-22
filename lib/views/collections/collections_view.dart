@@ -194,7 +194,8 @@ class CollectionsView extends ConsumerWidget {
                         hasScrollBody: false,
                         child: _Message(
                           title: 'Couldn’t load your library',
-                          body: 'Check your connection and pull down to try again.',
+                          body:
+                              'Check your connection and pull down to try again.',
                         ),
                       ),
                     ],
@@ -249,17 +250,19 @@ class CollectionsView extends ConsumerWidget {
                           sliver: SliverLayoutBuilder(
                             builder: (context, c) {
                               // Keep content centred on very wide screens.
-                              final side = ((c.crossAxisExtent + 2 * pad - 1240) / 2)
-                                  .clamp(0.0, 9999.0);
+                              final side =
+                                  ((c.crossAxisExtent + 2 * pad - 1240) / 2)
+                                      .clamp(0.0, 9999.0);
                               return SliverPadding(
                                 padding: EdgeInsets.symmetric(horizontal: side),
-                                sliver: layout == LibraryLayout.list && isDesktop
-                                    ? SliverMainAxisGroup(slivers: [
-                                        const SliverToBoxAdapter(
-                                            child: _RowHeader()),
-                                        content,
-                                      ])
-                                    : content,
+                                sliver:
+                                    layout == LibraryLayout.list && isDesktop
+                                        ? SliverMainAxisGroup(slivers: [
+                                            const SliverToBoxAdapter(
+                                                child: _RowHeader()),
+                                            content,
+                                          ])
+                                        : content,
                               );
                             },
                           ),
@@ -431,7 +434,8 @@ class _Header extends ConsumerWidget {
                     value: s,
                     child: Text(_sortName(s),
                         style: VText.body(14, t.text,
-                            weight: s == sort ? FontWeight.w900 : FontWeight.w500)),
+                            weight:
+                                s == sort ? FontWeight.w900 : FontWeight.w500)),
                   ),
               ],
               child: ConstrainedBox(
@@ -632,13 +636,15 @@ class _GameCard extends ConsumerWidget {
                     left: 8,
                     top: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 1),
                       decoration: BoxDecoration(
                         color: t.surface,
                         border: Border.all(color: t.line, width: 2),
                       ),
                       child: Text(game.platform.label.toUpperCase(),
-                          style: VText.body(11, t.text, weight: FontWeight.w900)),
+                          style:
+                              VText.body(11, t.text, weight: FontWeight.w900)),
                     ),
                   ),
                   if (rank != null)
@@ -654,7 +660,8 @@ class _GameCard extends ConsumerWidget {
                           border: Border.all(color: t.line, width: 2),
                         ),
                         child: Text(rank,
-                            style: VText.display(13, rank == 'S' ? t.onMoney : t.text)),
+                            style: VText.display(
+                                13, rank == 'S' ? t.onMoney : t.text)),
                       ),
                     ),
                 ],
@@ -684,7 +691,8 @@ class _GameCard extends ConsumerWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: VText.body(11, noPrice ? t.accent : t.muted,
-                                weight: noPrice ? FontWeight.w900 : FontWeight.w500)
+                                weight:
+                                    noPrice ? FontWeight.w900 : FontWeight.w500)
                             .copyWith(height: 1.3)),
                   ),
                 ],
@@ -778,7 +786,8 @@ class _Row extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                         style: VText.body(15, t.text, weight: FontWeight.w900)),
                     Text(game.platform.label,
-                        style: VText.body(12, t.muted, weight: FontWeight.w500)),
+                        style:
+                            VText.body(12, t.muted, weight: FontWeight.w500)),
                   ],
                 ),
               ),
@@ -814,8 +823,8 @@ class _Row extends ConsumerWidget {
                           ),
                           child: Text(
                             '${profit >= 0 ? '+' : '−'}${currency.format(profit.abs())}',
-                            style: VText.body(13,
-                                profit >= 0 ? t.gainInk : t.lossInk,
+                            style: VText.body(
+                                13, profit >= 0 ? t.gainInk : t.lossInk,
                                 weight: FontWeight.w900),
                           ),
                         ),
@@ -824,7 +833,9 @@ class _Row extends ConsumerWidget {
               Expanded(
                 flex: 2,
                 child: Text(
-                    game.fetchedAt == null ? 'no price yet' : timeAgo(game.fetchedAt!),
+                    game.fetchedAt == null
+                        ? 'no price yet'
+                        : timeAgo(game.fetchedAt!),
                     style: VText.body(13, t.muted, weight: FontWeight.w500)),
               ),
             ],
@@ -879,8 +890,7 @@ class _Message extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(title,
-                textAlign: TextAlign.center,
-                style: VText.display(20, t.text)),
+                textAlign: TextAlign.center, style: VText.display(20, t.text)),
             const SizedBox(height: 8),
             Text(body,
                 textAlign: TextAlign.center,
@@ -994,7 +1004,8 @@ class _EmptyShelf extends StatelessWidget {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text('Where are all the games?!',
-                                style: VText.body(13, kInk, weight: FontWeight.w900)),
+                                style: VText.body(13, kInk,
+                                    weight: FontWeight.w900)),
                           ),
                         ),
                       ],
@@ -1013,7 +1024,8 @@ class _EmptyShelf extends StatelessWidget {
                   shadowColor: t.shadow,
                   onTap: onSearch,
                   child: Text('Search by title',
-                      style: VText.body(15, t.onMoney, weight: FontWeight.w900)),
+                      style:
+                          VText.body(15, t.onMoney, weight: FontWeight.w900)),
                 ),
                 const SizedBox(height: 10),
                 Row(
@@ -1023,7 +1035,8 @@ class _EmptyShelf extends StatelessWidget {
                         shadowOffset: 3,
                         onTap: onScan,
                         child: Text('Scan barcode',
-                            style: VText.body(13, t.text, weight: FontWeight.w900)),
+                            style: VText.body(13, t.text,
+                                weight: FontWeight.w900)),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -1032,7 +1045,8 @@ class _EmptyShelf extends StatelessWidget {
                         shadowOffset: 3,
                         onTap: onImport,
                         child: Text('Import Steam',
-                            style: VText.body(13, t.text, weight: FontWeight.w900)),
+                            style: VText.body(13, t.text,
+                                weight: FontWeight.w900)),
                       ),
                     ),
                   ],

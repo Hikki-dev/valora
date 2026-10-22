@@ -20,7 +20,8 @@ class OnboardingPanel extends ConsumerWidget {
         color: t.surface,
         border: Border(left: BorderSide(color: t.line, width: 3)),
         boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 30, offset: Offset(-8, 0)),
+          BoxShadow(
+              color: Colors.black26, blurRadius: 30, offset: Offset(-8, 0)),
         ],
       ),
       child: SafeArea(

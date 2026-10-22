@@ -199,9 +199,7 @@ class _DetailState extends ConsumerState<_Detail> {
           textColor: t.money,
           onPressed: () {},
         ),
-      ))
-          .closed
-          .then((reason) async {
+      )).closed.then((reason) async {
         if (reason == SnackBarClosedReason.action) {
           pending.remove(game.id);
           return;
@@ -282,8 +280,8 @@ class _DetailState extends ConsumerState<_Detail> {
                   fit: StackFit.expand,
                   children: [
                     ColoredBox(
-                        color:
-                            Color.alphaBlend(tint.withValues(alpha: 0.42), t.surface2)),
+                        color: Color.alphaBlend(
+                            tint.withValues(alpha: 0.42), t.surface2)),
                     CustomPaint(
                         painter: RaysPainter(
                             color: t.rays, origin: const Offset(0.75, 0.6))),
@@ -418,7 +416,8 @@ class _DetailState extends ConsumerState<_Detail> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _TitleBlock(game: game, value: value, large: true),
+                              _TitleBlock(
+                                  game: game, value: value, large: true),
                               const SizedBox(height: 22),
                               for (var i = 0; i < sections.length; i++) ...[
                                 if (i > 0) const SizedBox(height: 18),
@@ -450,7 +449,8 @@ Widget _reveal(BuildContext context, Widget child, int i) {
 }
 
 class _IconBtn extends StatelessWidget {
-  const _IconBtn({required this.icon, required this.label, required this.onTap});
+  const _IconBtn(
+      {required this.icon, required this.label, required this.onTap});
   final IconData icon;
   final String label;
   final VoidCallback onTap;
@@ -497,7 +497,8 @@ class _CoverCard extends StatelessWidget {
 }
 
 class _TitleBlock extends StatelessWidget {
-  const _TitleBlock({required this.game, required this.value, this.large = false});
+  const _TitleBlock(
+      {required this.game, required this.value, this.large = false});
   final Game game;
   final double? value;
   final bool large;
@@ -517,8 +518,8 @@ class _TitleBlock extends StatelessWidget {
         Text(game.title,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: VText.display(large ? 34 : 22, t.text)
-                .copyWith(height: 1.12)),
+            style:
+                VText.display(large ? 34 : 22, t.text).copyWith(height: 1.12)),
         const SizedBox(height: 8),
         Text(
           [
@@ -548,8 +549,8 @@ class _Tag extends StatelessWidget {
     final t = VTokens.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-          color: bg, border: Border.all(color: t.line, width: 2)),
+      decoration:
+          BoxDecoration(color: bg, border: Border.all(color: t.line, width: 2)),
       child: Text(text, style: VText.label(12, fg, spacing: 1)),
     );
   }
@@ -578,7 +579,8 @@ class _ValueCard extends StatelessWidget {
     final t = VTokens.of(context);
     final fetched = game.fetchedAt;
     final stale = game.isPriceCacheStale;
-    final age = fetched == null ? 'never checked' : 'checked ${timeAgo(fetched)}';
+    final age =
+        fetched == null ? 'never checked' : 'checked ${timeAgo(fetched)}';
 
     return HardBox(
       color: t.money,
@@ -611,8 +613,7 @@ class _ValueCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: stale ? t.lossBg : t.gainBg,
                   border: Border.all(color: kInk, width: 2),
@@ -682,7 +683,9 @@ class _Conditions extends StatelessWidget {
             _CondCard(
                 title: 'Store price',
                 hint: 'Digital copy',
-                price: prices?.digitalPrice ?? prices?.currentPrice ?? game.activeMarketValue,
+                price: prices?.digitalPrice ??
+                    prices?.currentPrice ??
+                    game.activeMarketValue,
                 mine: true,
                 loading: loading,
                 currency: currency),
@@ -778,7 +781,8 @@ class _CondCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                 color: t.money,
-                child: Text('YOURS', style: VText.label(10, t.onMoney, spacing: 1)),
+                child: Text('YOURS',
+                    style: VText.label(10, t.onMoney, spacing: 1)),
               ),
           ]),
           Text(hint, style: VText.body(12, t.muted, weight: FontWeight.w500)),
@@ -786,7 +790,10 @@ class _CondCard extends StatelessWidget {
           Text(
             loading ? '···' : currency.formatOrDash(price),
             style: VText.display(
-                20, price == null && !loading ? t.muted : (mine ? t.moneyText : t.text)),
+                20,
+                price == null && !loading
+                    ? t.muted
+                    : (mine ? t.moneyText : t.text)),
           ),
         ],
       ),
@@ -824,7 +831,8 @@ class _Investment extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
                 color: bg ?? Colors.transparent,
-                border: Border.all(color: bg == null ? t.soft : t.line, width: 2)),
+                border:
+                    Border.all(color: bg == null ? t.soft : t.line, width: 2)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -932,8 +940,7 @@ class _Message extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(title,
-                textAlign: TextAlign.center,
-                style: VText.display(22, t.text)),
+                textAlign: TextAlign.center, style: VText.display(22, t.text)),
             const SizedBox(height: 8),
             Text(body,
                 textAlign: TextAlign.center,

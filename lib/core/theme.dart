@@ -12,8 +12,9 @@ ThemeMode initialThemeMode = ThemeMode.light;
 Future<void> loadSavedThemeMode() async {
   try {
     final prefs = await SharedPreferences.getInstance();
-    initialThemeMode =
-        prefs.getString(_themePrefKey) == 'dark' ? ThemeMode.dark : ThemeMode.light;
+    initialThemeMode = prefs.getString(_themePrefKey) == 'dark'
+        ? ThemeMode.dark
+        : ThemeMode.light;
   } catch (_) {
     // Storage unavailable (private window etc.): stay on the light default.
   }

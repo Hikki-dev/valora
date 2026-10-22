@@ -29,16 +29,17 @@ void main() {
       expect(usd.formatOrDash(null), '—');
       expect(lkr.formatOrDash(null), '—');
       expect(usd.formatOrDash(12.5), '\$12.50');
-      expect(usd.formatOrDash(0), '\$0.00'); // a real zero (free-to-play) is still shown
+      expect(usd.formatOrDash(0),
+          '\$0.00'); // a real zero (free-to-play) is still shown
     });
 
     test('copyWith Functionality', () {
       final state = CurrencyState(currency: AppCurrency.usd, lkrRate: 300.0);
       final newState = state.copyWith(currency: AppCurrency.lkr);
-      
+
       expect(newState.currency, AppCurrency.lkr);
       expect(newState.lkrRate, 300.0);
-      
+
       final rateUpdate = newState.copyWith(lkrRate: 310.0);
       expect(rateUpdate.lkrRate, 310.0);
       expect(rateUpdate.currency, AppCurrency.lkr);

@@ -110,7 +110,8 @@ class _PressableBoxState extends State<PressableBox> {
           onTapUp: (_) => setState(() => _down = false),
           onTapCancel: () => setState(() => _down = false),
           child: AnimatedContainer(
-            duration: reduce ? Duration.zero : const Duration(milliseconds: 110),
+            duration:
+                reduce ? Duration.zero : const Duration(milliseconds: 110),
             curve: Curves.easeOut,
             transform: Matrix4.translationValues(shift, shift, 0),
             constraints: BoxConstraints(minHeight: widget.minHeight),
@@ -260,7 +261,8 @@ class StarburstBadge extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               CustomPaint(
-                  size: Size.square(size), painter: StarburstPainter(fill: fill)),
+                  size: Size.square(size),
+                  painter: StarburstPainter(fill: fill)),
               Transform.rotate(
                 angle: rotation,
                 child: OutlinedText(text,
@@ -354,7 +356,8 @@ class HeroPainter extends CustomPainter {
     final tp = TextPainter(
       text: const TextSpan(
           text: 'V',
-          style: TextStyle(fontFamily: VFont.display, fontSize: 7, color: kInk)),
+          style:
+              TextStyle(fontFamily: VFont.display, fontSize: 7, color: kInk)),
       textDirection: TextDirection.ltr,
     )..layout();
     tp.paint(canvas, Offset(21 - tp.width / 2, 31 - tp.height / 2));
@@ -367,7 +370,8 @@ class HeroPainter extends CustomPainter {
 }
 
 class HeroFigure extends StatelessWidget {
-  const HeroFigure({super.key, this.width = 60, this.armEnd = const Offset(38, 12)});
+  const HeroFigure(
+      {super.key, this.width = 60, this.armEnd = const Offset(38, 12)});
   final double width;
   final Offset? armEnd;
 
@@ -421,12 +425,14 @@ class RaysPainter extends CustomPainter {
       final path = Path()
         ..moveTo(c.dx, c.dy)
         ..lineTo(c.dx + far * math.cos(a), c.dy + far * math.sin(a))
-        ..lineTo(c.dx + far * math.cos(a + width), c.dy + far * math.sin(a + width))
+        ..lineTo(
+            c.dx + far * math.cos(a + width), c.dy + far * math.sin(a + width))
         ..close();
       canvas.drawPath(path, p);
     }
   }
 
   @override
-  bool shouldRepaint(RaysPainter old) => old.color != color || old.origin != origin;
+  bool shouldRepaint(RaysPainter old) =>
+      old.color != color || old.origin != origin;
 }

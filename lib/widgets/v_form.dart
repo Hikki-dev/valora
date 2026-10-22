@@ -41,13 +41,16 @@ class VField extends StatelessWidget {
     final t = VTokens.of(context);
     final hasError = errorText != null;
     OutlineInputBorder border(Color c) => OutlineInputBorder(
-        borderRadius: BorderRadius.zero, borderSide: BorderSide(color: c, width: 2));
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(color: c, width: 2));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text.rich(TextSpan(children: [
-          TextSpan(text: label, style: VText.body(13, t.text, weight: FontWeight.w900)),
+          TextSpan(
+              text: label,
+              style: VText.body(13, t.text, weight: FontWeight.w900)),
           if (optional)
             TextSpan(
                 text: '  optional',
@@ -64,14 +67,16 @@ class VField extends StatelessWidget {
           style: VText.body(16, t.text, weight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: VText.body(16, t.muted.withValues(alpha: 0.7), weight: FontWeight.w500),
+            hintStyle: VText.body(16, t.muted.withValues(alpha: 0.7),
+                weight: FontWeight.w500),
             prefixText: prefixText,
             suffixIcon: trailing,
             prefixStyle: VText.body(16, t.text, weight: FontWeight.w900),
             filled: true,
             fillColor: t.bg,
             isDense: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             enabledBorder: border(hasError ? t.danger : t.soft),
             focusedBorder: border(hasError ? t.danger : t.line),
           ),
@@ -117,8 +122,10 @@ class VSheetFrame extends StatelessWidget {
             color: t.surface,
             border: Border(
               top: BorderSide(color: t.line, width: 3),
-              left: wide ? BorderSide(color: t.line, width: 3) : BorderSide.none,
-              right: wide ? BorderSide(color: t.line, width: 3) : BorderSide.none,
+              left:
+                  wide ? BorderSide(color: t.line, width: 3) : BorderSide.none,
+              right:
+                  wide ? BorderSide(color: t.line, width: 3) : BorderSide.none,
             ),
           ),
           child: SingleChildScrollView(
@@ -169,7 +176,8 @@ class VSheetFrame extends StatelessWidget {
 
 /// Condition picker in plain language ("CIB" explained).
 class VConditionPicker extends StatelessWidget {
-  const VConditionPicker({super.key, required this.value, required this.onChanged});
+  const VConditionPicker(
+      {super.key, required this.value, required this.onChanged});
   final GameCondition value;
   final ValueChanged<GameCondition> onChanged;
 
@@ -180,8 +188,10 @@ class VConditionPicker extends StatelessWidget {
   ];
 
   static String helpFor(GameCondition c) => switch (c) {
-        GameCondition.loose => 'Just the disc or cartridge. No case, no manual.',
-        GameCondition.cib || GameCondition.boxed =>
+        GameCondition.loose =>
+          'Just the disc or cartridge. No case, no manual.',
+        GameCondition.cib ||
+        GameCondition.boxed =>
           'Game + case + manual. Collector sites call this “CIB” (complete in box).',
         GameCondition.new_ => 'Brand new, factory shrink-wrap still on.',
       };
@@ -197,7 +207,8 @@ class VConditionPicker extends StatelessWidget {
             style: VText.body(13, t.text, weight: FontWeight.w900)),
         const SizedBox(height: 6),
         Container(
-          decoration: BoxDecoration(border: Border.all(color: t.line, width: 2)),
+          decoration:
+              BoxDecoration(border: Border.all(color: t.line, width: 2)),
           child: Row(
             children: [
               for (final o in _options)
@@ -214,7 +225,8 @@ class VConditionPicker extends StatelessWidget {
                         alignment: Alignment.center,
                         color: current == o.$1 ? t.text : Colors.transparent,
                         child: Text(o.$2,
-                            style: VText.body(14, current == o.$1 ? t.bg : t.text,
+                            style: VText.body(
+                                14, current == o.$1 ? t.bg : t.text,
                                 weight: FontWeight.w900)),
                       ),
                     ),

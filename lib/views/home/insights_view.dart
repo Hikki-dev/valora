@@ -35,10 +35,11 @@ class InsightsView extends ConsumerWidget {
                       style: VText.body(14, t.muted))),
               data: (games) {
                 // Only games with a real price can be ranked.
-                final priced =
-                    games.where((g) => (g.activeMarketValue ?? 0) > 0).toList()
-                      ..sort((a, b) =>
-                          b.activeMarketValue!.compareTo(a.activeMarketValue!));
+                final priced = games
+                    .where((g) => (g.activeMarketValue ?? 0) > 0)
+                    .toList()
+                  ..sort((a, b) =>
+                      b.activeMarketValue!.compareTo(a.activeMarketValue!));
                 if (priced.isEmpty) return _Empty(pad: pad);
 
                 final total =
@@ -66,7 +67,8 @@ class InsightsView extends ConsumerWidget {
                 return RefreshIndicator(
                   onRefresh: () async => ref.refresh(allGamesProvider.future),
                   child: ListView(
-                    padding: EdgeInsets.fromLTRB(pad, isDesktop ? 32 : 16, pad, 40),
+                    padding:
+                        EdgeInsets.fromLTRB(pad, isDesktop ? 32 : 16, pad, 40),
                     children: [
                       Text('THE NUMBERS', style: VText.label(12, t.muted)),
                       const SizedBox(height: 4),

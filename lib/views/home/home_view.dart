@@ -722,8 +722,8 @@ class _CrownCard extends StatelessWidget {
             children: [
               HardBox(
                 shadowOffset: 4,
-                child:
-                    AspectRatio(aspectRatio: 3 / 4, child: GameCover(game: game)),
+                child: AspectRatio(
+                    aspectRatio: 3 / 4, child: GameCover(game: game)),
               ),
               Positioned(
                 left: -8,

@@ -84,7 +84,8 @@ class _HistoricalPriceChartState extends ConsumerState<HistoricalPriceChart> {
           text:
               'History starts building after the first price check. Come back in a few days.');
     } else if (pts.isEmpty) {
-      body = const _Note(text: 'No price recorded in this range. Try a longer one.');
+      body = const _Note(
+          text: 'No price recorded in this range. Try a longer one.');
     } else if (pts.length == 1) {
       body = _Note(
           text: 'Only one price so far: ${currency.format(pts.first.price)}. '
@@ -167,8 +168,7 @@ class _RangeChip extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
               decoration: BoxDecoration(
                 color: selected ? t.money : Colors.transparent,
-                border: Border.all(
-                    color: selected ? t.line : t.soft, width: 2),
+                border: Border.all(color: selected ? t.line : t.soft, width: 2),
               ),
               child: Text(label,
                   style: VText.body(12, selected ? t.onMoney : t.muted,
@@ -229,7 +229,8 @@ class _Chart extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = VTokens.of(context);
     final spots = [
-      for (var i = 0; i < points.length; i++) FlSpot(i.toDouble(), points[i].price)
+      for (var i = 0; i < points.length; i++)
+        FlSpot(i.toDouble(), points[i].price)
     ];
     var minY = spots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
     var maxY = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
@@ -259,7 +260,10 @@ class _Chart extends StatelessWidget {
           lineBarsData: [
             if (purchase != null)
               LineChartBarData(
-                spots: [FlSpot(0, purchase!), FlSpot(spots.length - 1.0, purchase!)],
+                spots: [
+                  FlSpot(0, purchase!),
+                  FlSpot(spots.length - 1.0, purchase!)
+                ],
                 color: t.muted,
                 barWidth: 1.5,
                 dashArray: [6, 5],
@@ -301,8 +305,7 @@ class _Chart extends StatelessWidget {
               tooltipBorder: BorderSide(color: t.line, width: 2),
               getTooltipItems: (touched) => touched.map((s) {
                 if (s.barIndex == 0 && purchase != null) {
-                  return LineTooltipItem(
-                      'You paid\n${currency.format(s.y)}',
+                  return LineTooltipItem('You paid\n${currency.format(s.y)}',
                       VText.body(11, t.muted));
                 }
                 final p = points[s.x.toInt().clamp(0, points.length - 1)];

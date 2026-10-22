@@ -66,7 +66,9 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Couldn\u2019t save. Check your connection and try again.')),
+          const SnackBar(
+              content: Text(
+                  'Couldn\u2019t save. Check your connection and try again.')),
         );
       }
     } finally {
@@ -89,7 +91,8 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
       eyebrow: widget.game.title,
       onClose: () => Navigator.pop(context),
       child: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,7 +122,8 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
                 hint: 'https://…',
                 optional: true,
                 helper: 'Leave empty to use the automatic cover.',
-                errorText: urlBad ? 'That doesn\u2019t look like a web link' : null,
+                errorText:
+                    urlBad ? 'That doesn\u2019t look like a web link' : null,
                 onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 20),
@@ -143,8 +147,8 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2.5, color: t.onMoney))
                     : Text('Save changes',
-                        style: VText.body(15, t.onMoney,
-                            weight: FontWeight.w900)),
+                        style:
+                            VText.body(15, t.onMoney, weight: FontWeight.w900)),
               ),
               const SizedBox(height: 12),
             ],

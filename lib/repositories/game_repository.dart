@@ -204,7 +204,8 @@ class GameRepository {
     final channel = _client
         .channel('valuations_$userId')
         .onPostgresChanges(
-          event: PostgresChangeEvent.all, // first price for a game arrives as an INSERT
+          event: PostgresChangeEvent
+              .all, // first price for a game arrives as an INSERT
           schema: 'public',
           table: 'valuations',
           filter: PostgresChangeFilter(
@@ -261,5 +262,6 @@ final libraryStreamProvider = StreamProvider<List<Game>>((ref) {
   final pending = ref.watch(pendingDeletesProvider);
   final stream = repo.getGamesStream(user.id);
   if (pending.isEmpty) return stream;
-  return stream.map((games) => games.where((g) => !pending.contains(g.id)).toList());
+  return stream
+      .map((games) => games.where((g) => !pending.contains(g.id)).toList());
 });

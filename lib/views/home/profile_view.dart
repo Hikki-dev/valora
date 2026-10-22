@@ -18,7 +18,8 @@ class ProfileView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = VTokens.of(context);
     final user = Supabase.instance.client.auth.currentUser;
-    final total = ref.watch(homeControllerProvider.select((s) => s.totalValuation));
+    final total =
+        ref.watch(homeControllerProvider.select((s) => s.totalValuation));
     final count = ref.watch(homeControllerProvider.select((s) => s.totalGames));
     final hide = ref.watch(homeControllerProvider.select((s) => s.hidePricing));
     final currency = ref.watch(currencyProvider);
@@ -38,7 +39,8 @@ class ProfileView extends ConsumerWidget {
               children: [
                 Text('YOU', style: VText.label(12, t.muted)),
                 const SizedBox(height: 4),
-                Text('Profile', style: VText.display(isDesktop ? 36 : 28, t.text)),
+                Text('Profile',
+                    style: VText.display(isDesktop ? 36 : 28, t.text)),
                 const SizedBox(height: 18),
                 HardBox(
                   shadowOffset: 4,
@@ -86,7 +88,8 @@ class ProfileView extends ConsumerWidget {
                   child: Column(children: [
                     _SettingRow(
                       label: 'Theme',
-                      hint: 'Light is easier outdoors, dark is easier at night.',
+                      hint:
+                          'Light is easier outdoors, dark is easier at night.',
                       control: VSegmented(
                         semanticLabel: 'Theme',
                         options: const ['Light', 'Dark'],
@@ -109,7 +112,9 @@ class ProfileView extends ConsumerWidget {
                         onChanged: (i) {
                           if ((i == 1) !=
                               (currency.currency == AppCurrency.lkr)) {
-                            ref.read(currencyProvider.notifier).toggleCurrency();
+                            ref
+                                .read(currencyProvider.notifier)
+                                .toggleCurrency();
                           }
                         },
                       ),
@@ -117,7 +122,8 @@ class ProfileView extends ConsumerWidget {
                     Divider(color: t.soft, thickness: 2, height: 24),
                     _SettingRow(
                       label: 'Hide values',
-                      hint: 'Masks prices on Home, handy when sharing your screen.',
+                      hint:
+                          'Masks prices on Home, handy when sharing your screen.',
                       control: Switch(
                         value: hide,
                         activeThumbColor: t.onMoney,
@@ -156,14 +162,15 @@ class ProfileView extends ConsumerWidget {
                     Divider(color: t.soft, thickness: 2, height: 20),
                     FutureBuilder<PackageInfo>(
                       future: PackageInfo.fromPlatform(),
-                      builder: (_, s) =>
-                          _Info('Version', s.hasData ? 'v${s.data!.version}' : '…'),
+                      builder: (_, s) => _Info(
+                          'Version', s.hasData ? 'v${s.data!.version}' : '…'),
                     ),
                   ]),
                 ),
                 const SizedBox(height: 24),
                 PressableBox(
-                  onTap: () => ref.read(authControllerProvider.notifier).signOut(),
+                  onTap: () =>
+                      ref.read(authControllerProvider.notifier).signOut(),
                   color: Colors.transparent,
                   shadowOffset: 0,
                   semanticLabel: 'Sign out',
@@ -171,7 +178,8 @@ class ProfileView extends ConsumerWidget {
                     Icon(Icons.logout_rounded, size: 18, color: t.danger),
                     const SizedBox(width: 8),
                     Text('Sign out',
-                        style: VText.body(14, t.danger, weight: FontWeight.w900)),
+                        style:
+                            VText.body(14, t.danger, weight: FontWeight.w900)),
                   ]),
                 ),
               ],
