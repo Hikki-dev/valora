@@ -102,7 +102,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
           : Stack(fit: StackFit.expand, children: [
               Image.asset('assets/art/hero_portrait.jpg',
                   fit: BoxFit.cover, alignment: Alignment.topCenter),
-              ColoredBox(color: t.bg.withValues(alpha: 0.88)),
+              ColoredBox(color: t.bg.withValues(alpha: 0.93)),
               SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),

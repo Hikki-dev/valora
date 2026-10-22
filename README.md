@@ -6,6 +6,10 @@
 
 Find out what your game collection is worth, and watch it change.
 
+<p align="center"><img src="docs/images/demo.gif" alt="The Valora sign-in page on a computer, then on a phone, then the create account form on a phone" width="100%"></p>
+
+<p align="center"><sub>The sign-in page on a computer and on a phone. Click a picture further down to see it full size.</sub></p>
+
 Add the games you own, physical or digital. Valora shows what each one sells for today, what you paid, and how your whole shelf adds up. It works in the browser and on your phone.
 
 You do not need to know anything about prices or investing. Everything is explained in plain words on the way.
@@ -106,6 +110,14 @@ The design is called **Midnight Manga**: bold outlines, hard shadows and comic p
 * On a **phone** the sign-in page uses a portrait picture behind the form, with a large Valora logo at the top.
 * The loading screen shows its three comic panels on larger screens and a clean logo on a phone.
 
+<a href="docs/images/login-desktop.png"><img src="docs/images/login-desktop.png" alt="Sign-in page on a computer: comic art on the left, the sign-in form on the right" width="100%"></a>
+
+On a computer, the left side shows a landscape picture, the Valora name and the three comic panels.
+
+<p align="center"><a href="docs/images/login-mobile.png"><img src="docs/images/login-mobile.png" alt="Sign-in page on a phone: a large Valora logo above the sign-in form, on a portrait comic background" width="320"></a></p>
+
+On a phone, a large Valora logo sits above the form. The comic panels are left out so the form comes first.
+
 The pictures are in `assets/art`. They are sized for the web, so the page stays quick to open.
 
 ## Project layout
@@ -137,6 +149,10 @@ The comic pictures in `assets/art` are artwork from third parties. Make sure you
 ## Contributing
 
 Pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first. It is short.
+
+## Licence
+
+MIT. See [LICENSE](LICENSE).
 
 ---
 
