@@ -33,6 +33,9 @@ enum AppPlatform {
   static AppPlatform fromString(String val) {
     if (val == 'playstation_physical') return AppPlatform.ps4Physical;
     if (val == 'psn_digital') return AppPlatform.ps4Digital;
+    if (val == 'nintendo_physical' || val == 'nintendo_digital') {
+      return AppPlatform.nintendo;
+    }
 
     return AppPlatform.values.firstWhere(
       (e) => e.value == val,
@@ -225,13 +228,16 @@ class Game {
     );
   }
 
-  double? get activeMarketValue =>
-      currentValue ?? estimatedValue ?? purchasePrice;
+  /// Live appraisal, else the user's own estimate, else unknown (null).
+  /// It deliberately does NOT fall back to the purchase price: showing what you
+  /// paid as today's "market value" is a made-up number.
+  double? get activeMarketValue => currentValue ?? estimatedValue;
 
+  /// 0 when the market value is unknown (so no fake loss is shown).
   double get profitOrLoss {
-    final paid = purchasePrice ?? 0.0;
-    final market = activeMarketValue ?? 0.0;
-    return market - paid;
+    final market = activeMarketValue;
+    if (market == null) return 0.0;
+    return market - (purchasePrice ?? 0.0);
   }
 
   bool get isPriceCacheStale {

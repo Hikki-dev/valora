@@ -104,6 +104,18 @@ Deno.serve(async (req) => {
       priceData = NO_PRICE('unavailable')
     }
 
+    // 5b. The source answered but had no price. Never replace a last-known price
+    // with blanks; just note that we checked so the cache TTL is respected.
+    if (!hasPrice(priceData) && hasPrice(cached)) {
+      const { data: touched } = await supabase
+        .from('valuations')
+        .update({ fetched_at: new Date().toISOString() })
+        .eq('game_id', body.gameId)
+        .select()
+        .single()
+      return json(touched ?? cached)
+    }
+
     // 6. Upsert to DB
     const { data: valuation, error: upsertError } = await supabase
       .from('valuations')
@@ -141,6 +153,9 @@ Deno.serve(async (req) => {
 })
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+const hasPrice = (r: any): boolean =>
+  !!r && [r.price_loose, r.price_complete, r.price_new, r.price_digital].some((v) => v != null)
 
 function priceChanged(prev: any, next: PriceResult): boolean {
   if (!prev) return true
