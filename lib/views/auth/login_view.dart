@@ -76,7 +76,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isDesktop = MediaQuery.sizeOf(context).width >= 900;
     final error = _validationError ??
-        (authState.hasError ? _getFriendlyError(authState.error.toString()) : null);
+        (authState.hasError
+            ? _getFriendlyError(authState.error.toString())
+            : null);
 
     final form = _form(context, t, authState.isLoading, isDark, error);
 
@@ -84,7 +86,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
       backgroundColor: t.bg,
       body: isDesktop
           ? Row(children: [
-              Expanded(flex: 5, child: _Hero(t: t, big: true)),
+              Expanded(flex: 5, child: _Hero(t: t)),
               Expanded(
                 flex: 4,
                 child: Center(
@@ -97,19 +99,24 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 ),
               ),
             ])
-          : SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(height: 190, child: _Hero(t: t, big: false)),
-                    const SizedBox(height: 24),
-                    form,
-                  ],
+          : Stack(fit: StackFit.expand, children: [
+              Image.asset('assets/art/hero_portrait.jpg',
+                  fit: BoxFit.cover, alignment: Alignment.topCenter),
+              ColoredBox(color: t.bg.withValues(alpha: 0.88)),
+              SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _MobileBrand(t: t),
+                      const SizedBox(height: 28),
+                      form,
+                    ],
+                  ),
                 ),
               ),
-            ),
+            ]),
     );
   }
 
@@ -118,7 +125,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(_isLogin ? 'WELCOME BACK' : 'NEW HERE', style: VText.label(12, t.muted)),
+        Text(_isLogin ? 'WELCOME BACK' : 'NEW HERE',
+            style: VText.label(12, t.muted)),
         const SizedBox(height: 4),
         Text(_isLogin ? 'Sign in' : 'Create your account',
             style: VText.display(28, t.text)),
@@ -245,9 +253,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
 /// Original comic-panel hero: halftone, speed lines, the V mark and the animated fight strip.
 class _Hero extends StatelessWidget {
-  const _Hero({required this.t, required this.big});
+  const _Hero({required this.t});
   final VTokens t;
-  final bool big;
 
   @override
   Widget build(BuildContext context) {
@@ -258,21 +265,20 @@ class _Hero extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: big ? 56 : 40,
-              height: big ? 56 : 40,
+              width: 56,
+              height: 56,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                   color: t.money, border: Border.all(color: kInk, width: 3)),
-              child: Text('V',
-                  style: VText.display(big ? 32 : 22, t.onMoney)),
+              child: Text('V', style: VText.display(32, t.onMoney)),
             ),
             const SizedBox(width: 12),
-            Text('Valora', style: VText.display(big ? 40 : 28, t.text)),
+            Text('Valora', style: VText.display(40, t.text)),
           ],
         ),
-        SizedBox(height: big ? 28 : 14),
-        ComicFightStrip(width: big ? 420 : 300),
-        if (big) ...[
+        const SizedBox(height: 28),
+        const ComicFightStrip(width: 420),
+        ...[
           const SizedBox(height: 28),
           Text('Know what your game collection is worth.',
               style: VText.body(18, t.text, weight: FontWeight.w900)),
@@ -283,16 +289,80 @@ class _Hero extends StatelessWidget {
       ],
     );
 
-    if (!big) return Center(child: FittedBox(child: content));
     return Stack(
       fit: StackFit.expand,
       children: [
-        ColoredBox(color: t.surface2),
-        CustomPaint(painter: RaysPainter(color: t.rays, origin: const Offset(0.5, 0.5))),
+        Image.asset('assets/art/hero_landscape.jpg', fit: BoxFit.cover),
+        ColoredBox(color: t.surface2.withValues(alpha: 0.82)),
+        CustomPaint(
+            painter:
+                RaysPainter(color: t.rays, origin: const Offset(0.5, 0.5))),
         CustomPaint(painter: HalftonePainter(color: t.dots, spacing: 9)),
-        Positioned(right: 0, top: 0, bottom: 0, child: Container(width: 3, color: t.line)),
+        Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: Container(width: 3, color: t.line)),
         Center(child: content),
       ],
+    );
+  }
+}
+
+/// Phone header: a big tilted V block, an outlined yellow wordmark and a one-line promise.
+class _MobileBrand extends StatelessWidget {
+  const _MobileBrand({required this.t});
+  final VTokens t;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      header: true,
+      label: 'Valora. Know what your game collection is worth.',
+      child: ExcludeSemantics(
+        child: Column(
+          children: [
+            Transform.rotate(
+              angle: -0.1,
+              child: SizedBox(
+                width: 96,
+                height: 96,
+                child: Stack(children: [
+                  Positioned.fill(
+                    child: Transform.translate(
+                      offset: const Offset(8, 8),
+                      child: Container(
+                          decoration: BoxDecoration(
+                              color: t.money,
+                              border: Border.all(color: kInk, width: 3))),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: kInk,
+                          border: Border.all(color: kInk, width: 4)),
+                      child: Text('V', style: VText.display(66, t.money)),
+                    ),
+                  ),
+                ]),
+              ),
+            ),
+            const SizedBox(height: 18),
+            OutlinedText('VALORA', size: 54, fill: t.money, strokeWidth: 8),
+            const SizedBox(height: 10),
+            HardBox(
+              color: t.surface,
+              borderWidth: 2,
+              shadowOffset: 3,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: Text('KNOW WHAT YOUR GAMES ARE WORTH',
+                  style: VText.label(11, t.text, spacing: 1)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

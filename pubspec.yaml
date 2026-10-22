@@ -80,6 +80,7 @@ flutter:
   # build-time inputs and must not be shipped inside the app bundle.
   assets:
     - assets/icon/valora_icon.png
+    - assets/art/
   fonts:
     # Midnight Manga design system (SIL OFL, subset to Latin + the few kana the UI uses)
     - family: DelaGothicOne

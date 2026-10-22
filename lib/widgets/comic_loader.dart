@@ -3,13 +3,20 @@ import 'package:flutter/material.dart';
 import '../core/tokens.dart';
 import 'comic.dart';
 
-double _seg(double t, double a, double b) => ((t - a) / (b - a)).clamp(0.0, 1.0);
+double _seg(double t, double a, double b) =>
+    ((t - a) / (b - a)).clamp(0.0, 1.0);
 double _lerp(double a, double b, double t) => a + (b - a) * t;
 double _easeOut(double t) => 1 - math.pow(1 - t, 3).toDouble();
 
 /// Three-panel animated comic (wind-up, impact, K.O.), looping every 4 seconds.
 /// Original characters: Valora's hero vs. the hooded villain "Fake Prices".
 /// With reduced motion on, all three panels show as a still.
+const _defaultPanels = <ImageProvider>[
+  AssetImage('assets/art/panel_1.jpg'),
+  AssetImage('assets/art/panel_2.jpg'),
+  AssetImage('assets/art/panel_3.jpg'),
+];
+
 class ComicFightStrip extends StatefulWidget {
   const ComicFightStrip({super.key, this.width = 310, this.panelImages});
   final double width;
@@ -46,8 +53,8 @@ class _ComicFightStripState extends State<ComicFightStrip>
   }
 
   Widget _art(int i, Widget drawn) {
-    final imgs = widget.panelImages;
-    if (imgs == null || imgs.length <= i) return drawn;
+    final imgs = widget.panelImages ?? _defaultPanels;
+    if (imgs.length <= i) return drawn;
     return Image(image: imgs[i], fit: BoxFit.cover, gaplessPlayback: true);
   }
 
@@ -247,8 +254,7 @@ class _Panel1Painter extends CustomPainter {
     canvas.rotate(lean);
     canvas.translate(-21 * hs, -56 * hs);
     canvas.scale(hs);
-    HeroPainter(armEnd: const Offset(36, 30))
-        .paint(canvas, const Size(42, 56));
+    HeroPainter(armEnd: const Offset(36, 30)).paint(canvas, const Size(42, 56));
     canvas.restore();
   }
 
@@ -261,9 +267,22 @@ class _Panel2Painter extends CustomPainter {
   final double t;
 
   static const _pts = [
-    [47, 24], [55, 44], [76, 38], [70, 58], [90, 66], [68, 76], [78, 98],
-    [56, 90], [47, 112], [38, 90], [16, 98], [26, 76], [4, 66], [24, 58],
-    [18, 38], [39, 44]
+    [47, 24],
+    [55, 44],
+    [76, 38],
+    [70, 58],
+    [90, 66],
+    [68, 76],
+    [78, 98],
+    [56, 90],
+    [47, 112],
+    [38, 90],
+    [16, 98],
+    [26, 76],
+    [4, 66],
+    [24, 58],
+    [18, 38],
+    [39, 44]
   ];
 
   @override
@@ -272,7 +291,11 @@ class _Panel2Painter extends CustomPainter {
     canvas.scale(size.width / 94, size.height / 150);
     final lines = _stroke(2)..color = const Color(0x59151215);
     for (final l in [
-      [0, 40, 94, 70], [0, 75, 94, 75], [0, 110, 94, 80], [0, 20, 94, 62], [0, 130, 94, 88]
+      [0, 40, 94, 70],
+      [0, 75, 94, 75],
+      [0, 110, 94, 80],
+      [0, 20, 94, 62],
+      [0, 130, 94, 88]
     ]) {
       canvas.drawLine(Offset(l[0].toDouble(), l[1].toDouble()),
           Offset(l[2].toDouble(), l[3].toDouble()), lines);
@@ -383,7 +406,8 @@ class _Panel3Painter extends CustomPainter {
     final tp = TextPainter(
       text: const TextSpan(
           text: r'$??',
-          style: TextStyle(fontFamily: VFont.display, fontSize: 9, color: kInk)),
+          style:
+              TextStyle(fontFamily: VFont.display, fontSize: 9, color: kInk)),
       textDirection: TextDirection.ltr,
     )..layout();
     tp.paint(canvas, Offset(58 - tp.width / 2, 93 - tp.height / 2));
@@ -441,7 +465,8 @@ class ComicLoader extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             CustomPaint(
-                painter: RaysPainter(color: t.rays, origin: const Offset(0.5, 0.4))),
+                painter:
+                    RaysPainter(color: t.rays, origin: const Offset(0.5, 0.4))),
             Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
@@ -453,17 +478,19 @@ class ComicLoader extends StatelessWidget {
                     Text('VALORA',
                         style: VText.display(30, t.text, spacing: 4)),
                     const SizedBox(height: 4),
-                    Text('ヴァローラ',
-                        style: VText.label(14, t.muted, spacing: 3)),
+                    Text('ヴァローラ', style: VText.label(14, t.muted, spacing: 3)),
                     const SizedBox(height: 22),
-                    ComicFightStrip(panelImages: panelImages),
-                    const SizedBox(height: 22),
+                    if (MediaQuery.sizeOf(context).width >= 600) ...[
+                      ComicFightStrip(panelImages: panelImages),
+                      const SizedBox(height: 22),
+                    ],
                     SizedBox(
                       width: 290,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(label, style: VText.label(14, t.text, spacing: 1)),
+                          Text(label,
+                              style: VText.label(14, t.text, spacing: 1)),
                           const SizedBox(height: 8),
                           _Segments(progress: progress),
                           if (steps.isNotEmpty) const SizedBox(height: 12),
@@ -510,11 +537,17 @@ class _StepRow extends StatelessWidget {
               border: Border.all(color: on ? t.line : t.soft, width: 2),
             ),
             child: step.done
-                ? Text('✓', style: TextStyle(fontSize: 10, color: t.onMoney, fontWeight: FontWeight.w900))
+                ? Text('✓',
+                    style: TextStyle(
+                        fontSize: 10,
+                        color: t.onMoney,
+                        fontWeight: FontWeight.w900))
                 : null,
           ),
           const SizedBox(width: 10),
-          Text(step.text, style: VText.body(13, on ? t.text : t.muted, weight: FontWeight.w500)),
+          Text(step.text,
+              style: VText.body(13, on ? t.text : t.muted,
+                  weight: FontWeight.w500)),
         ],
       ),
     );
@@ -528,8 +561,8 @@ class _VMark extends StatefulWidget {
 }
 
 class _VMarkState extends State<_VMark> with SingleTickerProviderStateMixin {
-  late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
+  late final AnimationController _c = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 1500));
 
   @override
   void didChangeDependencies() {
@@ -597,9 +630,10 @@ class _Segments extends StatefulWidget {
   State<_Segments> createState() => _SegmentsState();
 }
 
-class _SegmentsState extends State<_Segments> with SingleTickerProviderStateMixin {
-  late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 1600));
+class _SegmentsState extends State<_Segments>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 1600));
 
   @override
   void didChangeDependencies() {
@@ -626,7 +660,9 @@ class _SegmentsState extends State<_Segments> with SingleTickerProviderStateMixi
         animation: _c,
         builder: (context, _) {
           final p = widget.progress;
-          final filled = p != null ? (p.clamp(0.0, 1.0) * 12).round() : (_c.value * 15).floor();
+          final filled = p != null
+              ? (p.clamp(0.0, 1.0) * 12).round()
+              : (_c.value * 15).floor();
           return Row(
             children: [
               for (var i = 0; i < 12; i++) ...[
@@ -637,7 +673,8 @@ class _SegmentsState extends State<_Segments> with SingleTickerProviderStateMixi
                     decoration: BoxDecoration(
                       color: p != null
                           ? (i < filled ? t.money : t.surface2)
-                          : ((i - filled).abs() <= 2 || (filled > 12 && i < filled - 12 + 0)
+                          : ((i - filled).abs() <= 2 ||
+                                  (filled > 12 && i < filled - 12 + 0)
                               ? t.money
                               : t.surface2),
                       border: Border.all(color: t.line, width: 1),

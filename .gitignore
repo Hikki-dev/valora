@@ -48,3 +48,6 @@ app.*.map.json
 .vercel
 supabase/.temp/
 test/tmp/
+
+# Original artwork (large); the web-sized copies live in assets/art
+/images/
