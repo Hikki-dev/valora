@@ -17,6 +17,9 @@ class VField extends StatelessWidget {
     this.prefixText,
     this.onChanged,
     this.optional = false,
+    this.obscure = false,
+    this.onSubmitted,
+    this.trailing,
   });
 
   final String label;
@@ -29,6 +32,9 @@ class VField extends StatelessWidget {
   final String? prefixText;
   final ValueChanged<String>? onChanged;
   final bool optional;
+  final bool obscure;
+  final ValueChanged<String>? onSubmitted;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +59,14 @@ class VField extends StatelessWidget {
           maxLines: maxLines,
           keyboardType: keyboardType,
           onChanged: onChanged,
+          obscureText: obscure,
+          onSubmitted: onSubmitted,
           style: VText.body(16, t.text, weight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: VText.body(16, t.muted.withValues(alpha: 0.7), weight: FontWeight.w500),
             prefixText: prefixText,
+            suffixIcon: trailing,
             prefixStyle: VText.body(16, t.text, weight: FontWeight.w900),
             filled: true,
             fillColor: t.bg,
