@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/game.dart';
+import '../../core/tokens.dart';
 import '../../repositories/game_repository.dart';
+import '../../widgets/comic.dart';
+import '../../widgets/v_form.dart';
 
 class EditGameSheet extends ConsumerStatefulWidget {
   final Game game;
@@ -56,14 +58,15 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
 
       if (mounted) {
         Navigator.pop(context);
+        ref.invalidate(libraryStreamProvider);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Game updated successfully')),
+          const SnackBar(content: Text('Saved')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating game: $e')),
+          const SnackBar(content: Text('Couldn\u2019t save. Check your connection and try again.')),
         );
       }
     } finally {
@@ -73,211 +76,81 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
-    final cardColor =
-        isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05);
+    final t = VTokens.of(context);
+    final priceText = _purchasePriceController.text.trim();
+    final priceBad = priceText.isNotEmpty && double.tryParse(priceText) == null;
+    final urlText = _coverUrlController.text.trim();
+    final urlBad = urlText.isNotEmpty &&
+        !(Uri.tryParse(urlText)?.hasAbsolutePath ?? false) &&
+        !urlText.startsWith('http');
 
-    return Container(
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 32,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 40,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
-            blurRadius: 40,
-            spreadRadius: 10,
-          ),
-        ],
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'EDIT GAME',
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(Icons.close,
-                      color: textColor.withValues(alpha: 0.5)),
-                ),
+    return VSheetFrame(
+      title: 'Edit game',
+      eyebrow: widget.game.title,
+      onClose: () => Navigator.pop(context),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.game.platform.isPhysical) ...[
+                VConditionPicker(
+                    value: _condition,
+                    onChanged: (c) => setState(() => _condition = c)),
+                const SizedBox(height: 20),
               ],
-            ),
-            const SizedBox(height: 32),
-
-            // Condition Chips
-            Text('CONDITION',
-                style: TextStyle(
-                    color: textColor.withValues(alpha: 0.5),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5)),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              children: GameCondition.values.map((c) {
-                final isSelected = _condition == c;
-                return ChoiceChip(
-                  label: Text(c.label),
-                  selected: isSelected,
-                  onSelected: (val) => setState(() => _condition = c),
-                  selectedColor: Colors.orangeAccent.withValues(alpha: 0.2),
-                  labelStyle: TextStyle(
-                    color: isSelected ? Colors.orangeAccent : textColor,
-                    fontWeight: isSelected ? FontWeight.w900 : FontWeight.w500,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(
-                      color:
-                          isSelected ? Colors.orangeAccent : Colors.transparent,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Purchase Price
-            _buildTextField(
-              label: 'PURCHASE PRICE',
-              controller: _purchasePriceController,
-              keyboardType: TextInputType.number,
-              hint: '0.00',
-              prefix: const Icon(Icons.attach_money,
-                  color: Colors.greenAccent, size: 20),
-              textColor: textColor,
-              cardColor: cardColor,
-            ),
-
-            const SizedBox(height: 24),
-
-            // Cover URL
-            _buildTextField(
-              label: 'CUSTOM COVER URL',
-              controller: _coverUrlController,
-              hint: 'https://...',
-              prefix: const Icon(Icons.image_outlined,
-                  color: Colors.cyanAccent, size: 20),
-              textColor: textColor,
-              cardColor: cardColor,
-            ),
-
-            const SizedBox(height: 24),
-
-            // Notes
-            _buildTextField(
-              label: 'NOTES',
-              controller: _notesController,
-              hint: 'Where you bought it or general notes...',
-              maxLines: 3,
-              prefix:
-                  const Icon(Icons.notes, color: Colors.blueAccent, size: 20),
-              textColor: textColor,
-              cardColor: cardColor,
-            ),
-
-            const SizedBox(height: 40),
-
-            // Save Button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: _isSaving ? null : _save,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orangeAccent,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 0,
-                ),
-                child: _isSaving
-                    ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          valueColor: AlwaysStoppedAnimation(Colors.black),
-                        ),
-                      )
-                    : const Text(
-                        'SAVE CHANGES',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w900, letterSpacing: 1),
-                      ),
+              VField(
+                label: 'What you paid',
+                controller: _purchasePriceController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                prefixText: '\$ ',
+                hint: '0.00',
+                optional: true,
+                helper: 'Used to work out your profit or loss.',
+                errorText: priceBad ? 'Enter a number, like 49.99' : null,
+                onChanged: (_) => setState(() {}),
               ),
-            ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
-          ],
+              const SizedBox(height: 20),
+              VField(
+                label: 'Cover image link',
+                controller: _coverUrlController,
+                hint: 'https://…',
+                optional: true,
+                helper: 'Leave empty to use the automatic cover.',
+                errorText: urlBad ? 'That doesn\u2019t look like a web link' : null,
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 20),
+              VField(
+                label: 'Notes',
+                controller: _notesController,
+                hint: 'Where you bought it, edition, etc.',
+                maxLines: 3,
+                optional: true,
+              ),
+              const SizedBox(height: 28),
+              PressableBox(
+                onTap: (_isSaving || priceBad || urlBad) ? null : _save,
+                color: (priceBad || urlBad) ? t.soft : t.money,
+                semanticLabel: 'Save changes',
+                minHeight: 52,
+                child: _isSaving
+                    ? SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2.5, color: t.onMoney))
+                    : Text('Save changes',
+                        style: VText.body(15, t.onMoney,
+                            weight: FontWeight.w900)),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    String? hint,
-    Widget? prefix,
-    int maxLines = 1,
-    TextInputType? keyboardType,
-    required Color textColor,
-    required Color cardColor,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: TextStyle(
-                color: textColor.withValues(alpha: 0.5),
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5)),
-        const SizedBox(height: 10),
-        Container(
-          decoration: BoxDecoration(
-            color: cardColor,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: TextField(
-            controller: controller,
-            maxLines: maxLines,
-            keyboardType: keyboardType,
-            style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: TextStyle(color: textColor.withValues(alpha: 0.2)),
-              prefixIcon: prefix != null
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: prefix,
-                    )
-                  : null,
-              border: InputBorder.none,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
