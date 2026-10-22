@@ -488,6 +488,7 @@ class ValoraApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
+      themeAnimationDuration: const Duration(milliseconds: 250),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );

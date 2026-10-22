@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../controllers/auth_controller.dart';
+import '../../widgets/google_logo.dart';
 
 class LoginView extends ConsumerStatefulWidget {
   const LoginView({super.key});
@@ -369,18 +369,25 @@ class _LoginViewState extends ConsumerState<LoginView> {
                               OutlinedButton.icon(
                                 onPressed:
                                     authState.isLoading ? null : _submitGoogle,
-                                icon: const FaIcon(FontAwesomeIcons.google,
-                                    size: 20),
+                                icon: const GoogleLogo(size: 20),
                                 label: Text(_isLogin
                                     ? 'Continue with Google'
                                     : 'Join with Google'),
+                                // Google's published button colours for light / dark surfaces.
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: textColor,
+                                  backgroundColor: isDark
+                                      ? const Color(0xFF131314)
+                                      : Colors.white,
+                                  foregroundColor: isDark
+                                      ? const Color(0xFFE3E3E3)
+                                      : const Color(0xFF1F1F1F),
                                   side: BorderSide(
-                                      color: borderColor, width: 1.5),
+                                      color: isDark
+                                          ? const Color(0xFF8E918F)
+                                          : const Color(0xFF747775)),
                                   minimumSize: const Size(double.infinity, 54),
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16)),
+                                      borderRadius: BorderRadius.circular(12)),
                                 ),
                               )
                                   .animate(

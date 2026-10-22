@@ -3,9 +3,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'core/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await loadSavedThemeMode();
 
   // SECURE: Values injected at build time, not bundled as files
   const supabaseUrl = String.fromEnvironment('SUPABASE_URL');

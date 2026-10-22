@@ -1,12 +1,39 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+const _themePrefKey = 'theme_mode';
+
+/// Read once in main() before runApp so a returning dark-mode user never sees
+/// a light flash. Light is the default for everyone else.
+ThemeMode initialThemeMode = ThemeMode.light;
+
+Future<void> loadSavedThemeMode() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    initialThemeMode =
+        prefs.getString(_themePrefKey) == 'dark' ? ThemeMode.dark : ThemeMode.light;
+  } catch (_) {
+    // Storage unavailable (private window etc.): stay on the light default.
+  }
+}
 
 class ThemeNotifier extends Notifier<ThemeMode> {
   @override
-  ThemeMode build() => ThemeMode.dark;
+  ThemeMode build() => initialThemeMode;
 
   void toggle() {
     state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    unawaited(_save());
+  }
+
+  Future<void> _save() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          _themePrefKey, state == ThemeMode.dark ? 'dark' : 'light');
+    } catch (_) {}
   }
 }
 
@@ -92,7 +119,7 @@ class AppTheme {
   static ThemeData get lightTheme {
     final base = ThemeData.light();
     return base.copyWith(
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: const Color(0xFFF5F0E6),
       primaryColor: accentAmber,
       colorScheme: ColorScheme.light(
         primary: accentAmber,
