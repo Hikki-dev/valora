@@ -19,6 +19,10 @@ import '../../controllers/home_controller.dart';
 import '../../models/wishlist_item.dart';
 import '../collections/widgets/game_box_3d.dart';
 import 'barcode_scanner_view.dart';
+import '../../core/tokens.dart';
+import '../../widgets/app_shell.dart';
+import '../../widgets/comic.dart';
+import '../../widgets/v_form.dart';
 
 class AddGameModal extends ConsumerStatefulWidget {
   final bool isWishlistMode;
@@ -26,12 +30,16 @@ class AddGameModal extends ConsumerStatefulWidget {
   final AppPlatform? initialPlatform;
   final WishlistItem? prefillItem;
 
+  /// Open the camera straight away (Home's "Scan barcode" shortcut).
+  final bool autoScan;
+
   const AddGameModal({
     super.key,
     this.isWishlistMode = false,
     this.initialQuery,
     this.initialPlatform,
     this.prefillItem,
+    this.autoScan = false,
   });
 
   @override
@@ -89,6 +97,12 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
     } else if (widget.initialQuery != null) {
       _titleController.text = widget.initialQuery!;
       _performSearch(widget.initialQuery!);
+    }
+
+    if (widget.autoScan) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _scanBarcode();
+      });
     }
 
     if (widget.initialPlatform != null) {
@@ -346,15 +360,16 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       if (mounted) {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(widget.isWishlistMode
-                ? 'Game added to Wishlist!'
-                : 'Game added to Collection!'),
-            backgroundColor: Colors.cyan));
+          content: Text(widget.isWishlistMode
+              ? 'Game added to Wishlist!'
+              : 'Game added to Collection!'),
+        ));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+                'Couldn\u2019t save. Check your connection and try again.')));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -363,248 +378,242 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
-
-    return Container(
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 32,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 32,
-      ),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 40,
-            offset: const Offset(0, -10),
-          ),
-        ],
-      ),
+    final t = VTokens.of(context);
+    final configuring = _configuring;
+    return VSheetFrame(
+      eyebrow: widget.isWishlistMode ? 'WISHLIST' : 'LIBRARY',
+      title: configuring
+          ? 'Confirm details'
+          : (widget.isWishlistMode ? 'Save for later' : 'Add a game'),
+      onClose: () => Navigator.pop(context),
       child: AnimatedSwitcher(
-        duration: 300.ms,
-        child: _configuring
-            ? _buildConfigurator(textColor, isDark)
-            : _buildSearchPhase(textColor),
+        duration: const Duration(milliseconds: 220),
+        child: KeyedSubtree(
+          key: ValueKey(configuring),
+          child: configuring ? _buildConfigurator(t) : _buildSearchPhase(t),
+        ),
       ),
     );
   }
 
-  Widget _buildSearchPhase(Color textColor) {
+  Widget _chip(VTokens t, String label, bool on, VoidCallback tap) {
+    return GestureDetector(
+      onTap: tap,
+      behavior: HitTestBehavior.opaque,
+      child: Semantics(
+        button: true,
+        selected: on,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+              color: on ? t.money : t.bg,
+              border: Border.all(color: on ? t.line : t.soft, width: 2)),
+          child: Text(label,
+              style: VText.body(13, on ? t.onMoney : t.text,
+                  weight: FontWeight.w900)),
+        ),
+      ),
+    );
+  }
+
+  Widget _label(VTokens t, String text) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child:
+            Text(text, style: VText.body(13, t.text, weight: FontWeight.w900)),
+      );
+
+  Widget _buildSearchPhase(VTokens t) {
+    final q = _titleController.text.trim();
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const SizedBox(height: 16),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              widget.isWishlistMode ? 'SAVE FOR LATER' : 'FIND NEW GEMS',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
-                color: textColor,
+            Expanded(
+              child: VField(
+                label: 'Game title',
+                controller: _titleController,
+                hint: 'e.g. Persona 5 Royal',
+                onChanged: _onSearchChanged,
               ),
             ),
-            if (_uiPlatform != 'Steam' && _uiPlatform != 'Epic Games')
-              IconButton(
-                icon: Icon(Icons.qr_code_scanner, color: textColor),
-                onPressed: _scanBarcode,
-                tooltip: 'Scan Barcode',
+            if (_uiPlatform != 'Steam' && _uiPlatform != 'Epic Games') ...[
+              const SizedBox(width: 10),
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: PressableBox(
+                  onTap: _scanBarcode,
+                  semanticLabel: 'Scan barcode',
+                  shadowOffset: 3,
+                  minHeight: 50,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Icon(Icons.qr_code_scanner, color: t.text),
+                ),
               ),
+            ],
           ],
         ),
-        const SizedBox(height: 24),
-        TextField(
-          controller: _titleController,
-          onChanged: _onSearchChanged,
-          autofocus: true,
-          style: TextStyle(color: textColor, fontSize: 18),
-          decoration: InputDecoration(
-            hintText: 'Search for a game title...',
-            hintStyle: TextStyle(color: textColor.withValues(alpha: 0.3)),
-            prefixIcon:
-                Icon(Icons.search, color: textColor.withValues(alpha: 0.5)),
-            filled: true,
-            fillColor: textColor.withValues(alpha: 0.05),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
         if (_isSearching)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 32.0),
-            child: Center(child: CircularProgressIndicator(color: Colors.cyan)),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 28),
+            child: Center(child: CircularProgressIndicator(color: t.text)),
           ),
         if (!_isSearching && _searchResults.isNotEmpty) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           if (_searchModeLabel != null)
             Padding(
-              padding: const EdgeInsets.only(bottom: 12.0),
+              padding: const EdgeInsets.only(bottom: 10),
               child: Text(_searchModeLabel!,
-                  style: TextStyle(
-                      color: textColor.withValues(alpha: 0.5),
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic)),
+                  style: VText.body(12, t.muted, weight: FontWeight.w500)),
             ),
           ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 350),
+            constraints: const BoxConstraints(maxHeight: 340),
             child: ListView.separated(
+              shrinkWrap: true,
               itemCount: _searchResults.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, index) => _buildSearchResultRow(
-                  _searchResults[index], textColor, index),
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (context, index) =>
+                  _buildSearchResultRow(_searchResults[index], t, index),
             ),
           ),
         ],
-        // Steam Sync permanently visible as requested
-        if (!_isSearching && _titleController.text.isEmpty)
+        if (!_isSearching && q.isEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 32.0),
+            padding: const EdgeInsets.only(top: 22),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('HAVE A STEAM ACCOUNT?',
-                    style: TextStyle(
-                        color: Colors.white24,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1)),
-                const SizedBox(height: 12),
-                TextButton.icon(
-                  onPressed: () {
+                Text(
+                    'Type a title and pick it from the list, or scan the barcode on the case.',
+                    style: VText.body(13, t.muted, weight: FontWeight.w500)),
+                const SizedBox(height: 18),
+                PressableBox(
+                  onTap: () {
                     Navigator.pop(context);
                     showDialog(
                       context: context,
                       builder: (context) => const LibrarySyncView(),
                     );
                   },
-                  icon: const FaIcon(FontAwesomeIcons.steam,
-                      size: 16, color: Colors.blueAccent),
-                  label: const Text('SYNC YOUR ENTIRE STEAM LIBRARY',
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold)),
+                  shadowOffset: 3,
+                  semanticLabel: 'Sync Steam library',
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        FaIcon(FontAwesomeIcons.steam, size: 16, color: t.text),
+                        const SizedBox(width: 10),
+                        Text('Import my whole Steam library',
+                            style: VText.body(14, t.text,
+                                weight: FontWeight.w900)),
+                      ]),
                 ),
               ],
             ),
           ),
-        if (!_isSearching &&
-            _searchResults.isEmpty &&
-            _titleController.text.length > 2)
+        if (!_isSearching && _searchResults.isEmpty && q.length > 2)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 32.0),
-            child: Column(
-              children: [
-                Icon(Icons.search_off,
-                    size: 48, color: textColor.withValues(alpha: 0.2)),
-                const SizedBox(height: 16),
-                Text('No matches found. Try expanding your search.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: textColor.withValues(alpha: 0.4))),
-              ],
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Text('No matches. Try fewer words, or check the spelling.',
+                textAlign: TextAlign.center,
+                style: VText.body(14, t.muted, weight: FontWeight.w500)),
           ),
+        const SizedBox(height: 8),
       ],
     );
   }
 
-  Widget _buildSearchResultRow(dynamic gameObj, Color textColor, int index) {
+  Widget _buildSearchResultRow(dynamic gameObj, VTokens t, int index) {
     final game = gameObj as Map<String, dynamic>;
     final String? steamAppId = game['steamAppID']?.toString();
     final String? thumb = steamAppId != null && steamAppId.isNotEmpty
         ? 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/$steamAppId/library_600x900.jpg'
         : game['thumb']?.toString();
     final String title = game['external']?.toString() ?? 'Unknown Title';
-    final String gameId = game['gameID']?.toString() ?? '';
 
-    return Container(
-      decoration: BoxDecoration(
-        color: textColor.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: textColor.withValues(alpha: 0.05)),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: SizedBox(
-          width: 50,
-          child: Hero(
-            tag: 'search_preview_$gameId',
-            child: GameBox3D(coverUrl: thumb, title: title),
-          ),
-        ),
-        title: Text(title,
-            style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
-        onTap: () {
-          _titleController.text = title;
-          setState(() {
-            _selectedGame = game;
-            _configuring = true;
-          });
-          if (_resolvedPlatform.isPlayStation ||
-              _resolvedPlatform == AppPlatform.nintendo) {
-            final tempGame = Game(
-              id: '',
-              collectionId: '',
-              userId: '',
-              title: title,
-              platform: _resolvedPlatform,
-              condition: _conditionValue,
-            );
-            unawaited(_scrapePhysicalPrice(tempGame));
-          } else if (_resolvedPlatform.isDigital) {
-            final cheapest = game['cheapest'];
-            if (cheapest != null) {
-              _estimatedValueController.text = cheapest.toString();
-            }
+    final row = PressableBox(
+      shadowOffset: 3,
+      minHeight: 72,
+      padding: const EdgeInsets.all(8),
+      semanticLabel: 'Choose $title',
+      onTap: () {
+        _titleController.text = title;
+        setState(() {
+          _selectedGame = game;
+          _configuring = true;
+        });
+        if (_resolvedPlatform.isPlayStation ||
+            _resolvedPlatform == AppPlatform.nintendo) {
+          final tempGame = Game(
+            id: '',
+            collectionId: '',
+            userId: '',
+            title: title,
+            platform: _resolvedPlatform,
+            condition: _conditionValue,
+          );
+          unawaited(_scrapePhysicalPrice(tempGame));
+        } else if (_resolvedPlatform.isDigital) {
+          final cheapest = game['cheapest'];
+          if (cheapest != null) {
+            _estimatedValueController.text = cheapest.toString();
           }
-        },
+        }
+      },
+      child: Row(
+        children: [
+          SizedBox(width: 46, child: GameBox3D(coverUrl: thumb, title: title)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: VText.body(15, t.text, weight: FontWeight.w900)),
+          ),
+          Icon(Icons.chevron_right, color: t.muted),
+        ],
       ),
-    )
+    );
+    if (index > 5) return row;
+    return row
         .animate()
-        .fadeIn(duration: 300.ms, delay: (index * 50).ms)
-        .slideX(begin: 0.1, end: 0);
+        .fadeIn(duration: 220.ms, delay: (index * 40).ms)
+        .slideY(begin: 0.04, end: 0, duration: 220.ms, delay: (index * 40).ms);
   }
 
-  Widget _buildConfigurator(Color textColor, bool isDark) {
-    bool isPhys = _format == 'Physical';
+  Widget _buildConfigurator(VTokens t) {
+    final isPhys = _format == 'Physical';
     final selected = _selectedGame as Map<String, dynamic>;
-
-    String? steamAppId = selected['steamAppID']?.toString();
-    String? thumb = steamAppId != null && steamAppId.isNotEmpty
+    final steamAppId = selected['steamAppID']?.toString();
+    final thumb = steamAppId != null && steamAppId.isNotEmpty
         ? 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/$steamAppId/library_600x900.jpg'
         : selected['thumb']?.toString();
+    final prefix = _inputCurrency == 'USD' ? '\$ ' : 'Rs. ';
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            IconButton(
-                icon: Icon(Icons.arrow_back, color: textColor),
-                onPressed: () => setState(() => _configuring = false)),
-            Expanded(
-                child: Text('Configure Details',
-                    style: TextStyle(
-                        color: textColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900))),
-          ],
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: () => setState(() => _configuring = false),
+            style: TextButton.styleFrom(
+                foregroundColor: t.text, minimumSize: const Size(44, 44)),
+            icon: const Icon(Icons.arrow_back, size: 18),
+            label: Text('Back to search',
+                style: VText.body(13, t.text, weight: FontWeight.w900)),
+          ),
         ),
-        const SizedBox(height: 16),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-                width: 80,
-                height: 110,
+                width: 84,
+                height: 116,
                 child: GameBox3D(
                     coverUrl: _customImageUrlController.text.isNotEmpty
                         ? _customImageUrlController.text
@@ -612,230 +621,143 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                     title: _titleController.text)),
             const SizedBox(width: 16),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextField(
-                    controller: _titleController,
-                    style: TextStyle(
-                        color: textColor, fontWeight: FontWeight.bold),
-                    decoration: const InputDecoration(
-                        labelText: 'Title', border: InputBorder.none),
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButton<String>(
-                          value: _uiPlatform,
-                          dropdownColor:
-                              isDark ? const Color(0xFF1A1A1A) : Colors.white,
-                          style: TextStyle(color: textColor),
-                          items: [
-                            'PlayStation 5',
-                            'PlayStation 4',
-                            'Nintendo',
-                            'Steam',
-                            'Epic Games'
-                          ]
-                              .map((p) =>
-                                  DropdownMenuItem(value: p, child: Text(p)))
-                              .toList(),
-                          onChanged: (v) => setState(() => _uiPlatform = v!),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      DropdownButton<String>(
-                        value: _format,
-                        dropdownColor:
-                            isDark ? const Color(0xFF1A1A1A) : Colors.white,
-                        style: TextStyle(color: textColor),
-                        items: ['Physical', 'Digital']
-                            .map((f) =>
-                                DropdownMenuItem(value: f, child: Text(f)))
-                            .toList(),
-                        onChanged: (v) => setState(() => _format = v!),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+              child: VField(label: 'Title', controller: _titleController),
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
+        _label(t, 'Platform'),
+        Wrap(spacing: 8, runSpacing: 8, children: [
+          for (final p in const [
+            'PlayStation 5',
+            'PlayStation 4',
+            'Nintendo',
+            'Steam',
+            'Epic Games'
+          ])
+            _chip(
+                t, p, _uiPlatform == p, () => setState(() => _uiPlatform = p)),
+        ]),
+        const SizedBox(height: 20),
+        _label(t, 'Format'),
+        Wrap(spacing: 8, children: [
+          for (final f in const ['Physical', 'Digital'])
+            _chip(t, f, _format == f, () => setState(() => _format = f)),
+        ]),
         if (isPhys) ...[
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('REGION',
-                        style: TextStyle(
-                            color: Colors.white24,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold)),
-                    DropdownButton<String>(
-                      isExpanded: true,
-                      value: _region,
-                      dropdownColor:
-                          isDark ? const Color(0xFF1A1A1A) : Colors.white,
-                      items: ['R1 (USA)', 'R2 (UK/EU)', 'R3 (Asia)', 'Japan']
-                          .map(
-                              (r) => DropdownMenuItem(value: r, child: Text(r)))
-                          .toList(),
-                      onChanged: (v) => setState(() => _region = v!),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('CONDITION',
-                        style: TextStyle(
-                            color: Colors.white24,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold)),
-                    DropdownButton<GameCondition>(
-                      isExpanded: true,
-                      value: _conditionValue,
-                      dropdownColor:
-                          isDark ? const Color(0xFF1A1A1A) : Colors.white,
-                      items: GameCondition.values
-                          .map((c) => DropdownMenuItem(
-                              value: c,
-                              child: Text(
-                                  c.toString().split('.').last.toUpperCase())))
-                          .toList(),
-                      onChanged: (v) => setState(() {
-                        _conditionValue = v!;
-                        final tempGame = Game(
-                          id: '',
-                          collectionId: '',
-                          userId: '',
-                          title: _titleController.text,
-                          platform: _resolvedPlatform,
-                          condition: _conditionValue,
-                        );
-                        unawaited(_scrapePhysicalPrice(tempGame));
-                      }),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          const SizedBox(height: 20),
+          VConditionPicker(
+            value: _conditionValue,
+            onChanged: (c) => setState(() {
+              _conditionValue = c;
+              final tempGame = Game(
+                id: '',
+                collectionId: '',
+                userId: '',
+                title: _titleController.text,
+                platform: _resolvedPlatform,
+                condition: _conditionValue,
+              );
+              unawaited(_scrapePhysicalPrice(tempGame));
+            }),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
+          _label(t, 'Region'),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final r in const [
+              'R1 (USA)',
+              'R2 (UK/EU)',
+              'R3 (Asia)',
+              'Japan'
+            ])
+              _chip(t, r, _region == r, () => setState(() => _region = r)),
+          ]),
         ],
+        const SizedBox(height: 20),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('CURRENCY',
-                      style: TextStyle(
-                          color: Colors.white24,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold)),
-                  DropdownButton<String>(
-                    isExpanded: true,
-                    value: _inputCurrency,
-                    dropdownColor:
-                        isDark ? const Color(0xFF1A1A1A) : Colors.white,
-                    items: ['USD', 'LKR']
-                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                        .toList(),
-                    onChanged: (v) => setState(() => _inputCurrency = v!),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              flex: 2,
-              child: TextField(
-                controller: _priceController,
-                keyboardType: TextInputType.number,
-                style: TextStyle(color: textColor),
-                decoration: InputDecoration(
-                  labelText:
-                      widget.isWishlistMode ? 'TARGET PRICE' : 'PURCHASE PRICE',
-                  prefixText: _inputCurrency == 'USD' ? '\$ ' : 'Rs. ',
-                ),
-              ),
+            Text('Currency',
+                style: VText.body(13, t.text, weight: FontWeight.w900)),
+            const Spacer(),
+            VSegmented(
+              semanticLabel: 'Currency',
+              options: const ['USD', 'LKR'],
+              index: _inputCurrency == 'USD' ? 0 : 1,
+              onChanged: (i) =>
+                  setState(() => _inputCurrency = i == 0 ? 'USD' : 'LKR'),
+              height: 36,
             ),
           ],
         ),
         const SizedBox(height: 16),
-        TextField(
+        VField(
+          label: widget.isWishlistMode ? 'Target price' : 'What you paid',
+          controller: _priceController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          prefixText: prefix,
+          hint: '0.00',
+          optional: true,
+          helper: widget.isWishlistMode
+              ? 'We\u2019ll flag the game when the price drops to this.'
+              : 'Used to work out your profit or loss.',
+        ),
+        const SizedBox(height: 16),
+        VField(
+          label: 'Market value',
           controller: _estimatedValueController,
-          keyboardType: TextInputType.number,
-          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
-          decoration: InputDecoration(
-            labelText: 'MARKET VALUE (AUTO)',
-            suffixIcon: _isScraping
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: Padding(
-                        padding: EdgeInsets.all(12),
-                        child: CircularProgressIndicator(strokeWidth: 2)))
-                : null,
-            prefixText: _inputCurrency == 'USD' ? '\$ ' : 'Rs. ',
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          prefixText: prefix,
+          helper: _isScraping
+              ? 'Checking live prices\u2026'
+              : 'Filled in from live prices. Change it only if you know better.',
+        ),
+        Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            title: Text('More options',
+                style: VText.body(14, t.muted, weight: FontWeight.w900)),
+            childrenPadding: const EdgeInsets.only(bottom: 8),
+            children: [
+              VField(
+                  label: 'Publisher',
+                  controller: _publisherController,
+                  optional: true),
+              const SizedBox(height: 14),
+              VField(
+                  label: 'Release year',
+                  controller: _yearController,
+                  keyboardType: TextInputType.number,
+                  optional: true),
+              const SizedBox(height: 14),
+              VField(
+                  label: 'Cover image link',
+                  controller: _customImageUrlController,
+                  hint: 'https://\u2026',
+                  optional: true,
+                  onChanged: (_) => setState(() {})),
+            ],
           ),
         ),
-        const SizedBox(height: 24),
-        ExpansionTile(
-          title: const Text('Advanced Options',
-              style: TextStyle(fontSize: 14, color: Colors.white54)),
-          childrenPadding: const EdgeInsets.only(bottom: 16),
-          children: [
-            TextField(
-              controller: _publisherController,
-              decoration: const InputDecoration(labelText: 'Publisher'),
-              style: TextStyle(color: textColor),
-            ),
-            TextField(
-              controller: _yearController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Release Year'),
-              style: TextStyle(color: textColor),
-            ),
-            TextField(
-              controller: _customImageUrlController,
-              decoration: const InputDecoration(labelText: 'Custom Image URL'),
-              style: TextStyle(color: textColor),
-            ),
-          ],
-        ),
-        const SizedBox(height: 32),
-        ElevatedButton(
-          onPressed: _isSaving ? null : _saveGame,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.cyan,
-            foregroundColor: Colors.black,
-            padding: const EdgeInsets.symmetric(vertical: 18),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            elevation: 0,
-          ),
+        const SizedBox(height: 16),
+        PressableBox(
+          onTap: _isSaving ? null : _saveGame,
+          color: t.money,
+          minHeight: 54,
+          semanticLabel:
+              widget.isWishlistMode ? 'Save to wishlist' : 'Add to library',
           child: _isSaving
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
+              ? SizedBox(
+                  width: 22,
+                  height: 22,
                   child: CircularProgressIndicator(
-                      strokeWidth: 2, color: Colors.black))
+                      strokeWidth: 2.5, color: t.onMoney))
               : Text(
-                  widget.isWishlistMode
-                      ? 'SAVE TO WISHLIST'
-                      : 'ADD TO MY COLLECTION',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w900, letterSpacing: 1.2)),
+                  widget.isWishlistMode ? 'Save to wishlist' : 'Add to library',
+                  style: VText.body(15, t.onMoney, weight: FontWeight.w900)),
         ),
+        const SizedBox(height: 8),
       ],
     );
   }

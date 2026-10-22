@@ -23,13 +23,23 @@ void main() {
       expect(state.format(100.0), 'Rs. 32575');
     });
 
+    test('Missing price renders as a dash, never a fake 0.00', () {
+      final usd = CurrencyState(currency: AppCurrency.usd, lkrRate: 300.0);
+      final lkr = CurrencyState(currency: AppCurrency.lkr, lkrRate: 300.0);
+      expect(usd.formatOrDash(null), '—');
+      expect(lkr.formatOrDash(null), '—');
+      expect(usd.formatOrDash(12.5), '\$12.50');
+      expect(usd.formatOrDash(0),
+          '\$0.00'); // a real zero (free-to-play) is still shown
+    });
+
     test('copyWith Functionality', () {
       final state = CurrencyState(currency: AppCurrency.usd, lkrRate: 300.0);
       final newState = state.copyWith(currency: AppCurrency.lkr);
-      
+
       expect(newState.currency, AppCurrency.lkr);
       expect(newState.lkrRate, 300.0);
-      
+
       final rateUpdate = newState.copyWith(lkrRate: 310.0);
       expect(rateUpdate.lkrRate, 310.0);
       expect(rateUpdate.currency, AppCurrency.lkr);

@@ -1,12 +1,40 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+const _themePrefKey = 'theme_mode';
+
+/// Read once in main() before runApp so a returning dark-mode user never sees
+/// a light flash. Light is the default for everyone else.
+ThemeMode initialThemeMode = ThemeMode.light;
+
+Future<void> loadSavedThemeMode() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    initialThemeMode = prefs.getString(_themePrefKey) == 'dark'
+        ? ThemeMode.dark
+        : ThemeMode.light;
+  } catch (_) {
+    // Storage unavailable (private window etc.): stay on the light default.
+  }
+}
 
 class ThemeNotifier extends Notifier<ThemeMode> {
   @override
-  ThemeMode build() => ThemeMode.dark;
+  ThemeMode build() => initialThemeMode;
 
   void toggle() {
     state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    unawaited(_save());
+  }
+
+  Future<void> _save() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          _themePrefKey, state == ThemeMode.dark ? 'dark' : 'light');
+    } catch (_) {}
   }
 }
 
@@ -16,7 +44,7 @@ final themeProvider = NotifierProvider<ThemeNotifier, ThemeMode>(() {
 
 class AppTheme {
   // Brand Colors - Audit Specification
-  static const Color surface0 = Color(0xFF09090B);
+  static const Color surface0 = Color(0xFF0B0A12);
   static const Color surface1 = Color(0xFF111113);
   static const Color surface2 = Color(0xFF1E1E22);
   static const Color accentAmber = Color(0xFFF5A623);
@@ -47,37 +75,37 @@ class AppTheme {
       ),
       textTheme: base.textTheme
           .apply(
-            fontFamily: 'PlusJakartaSans',
+            fontFamily: 'ZenKakuGothicNew',
             bodyColor: textPrimary,
             displayColor: textPrimary,
           )
           .copyWith(
             displayLarge: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w800,
                 color: textPrimary),
             displayMedium: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w800,
                 color: textPrimary),
             displaySmall: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w800,
                 color: textPrimary),
             headlineLarge: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: textPrimary),
             headlineMedium: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: textPrimary),
             headlineSmall: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: textPrimary),
             titleLarge: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: textPrimary),
           ),
@@ -92,7 +120,7 @@ class AppTheme {
   static ThemeData get lightTheme {
     final base = ThemeData.light();
     return base.copyWith(
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: const Color(0xFFF5F0E6),
       primaryColor: accentAmber,
       colorScheme: ColorScheme.light(
         primary: accentAmber,
@@ -101,37 +129,37 @@ class AppTheme {
       ),
       textTheme: base.textTheme
           .apply(
-            fontFamily: 'PlusJakartaSans',
+            fontFamily: 'ZenKakuGothicNew',
             bodyColor: Colors.black87,
             displayColor: Colors.black87,
           )
           .copyWith(
             displayLarge: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w800,
                 color: Colors.black87),
             displayMedium: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w800,
                 color: Colors.black87),
             displaySmall: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w800,
                 color: Colors.black87),
             headlineLarge: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: Colors.black87),
             headlineMedium: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: Colors.black87),
             headlineSmall: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: Colors.black87),
             titleLarge: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: Colors.black87),
           ),

@@ -7,11 +7,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ValuationChart extends ConsumerWidget {
   final List<ValueSnapshot> history;
   final bool hidePricing;
+  final Color? lineColor;
+  final double height;
 
   const ValuationChart({
     super.key,
     required this.history,
     required this.hidePricing,
+    this.lineColor,
+    this.height = 200,
   });
 
   @override
@@ -20,11 +24,11 @@ class ValuationChart extends ConsumerWidget {
 
     final currency = ref.read(currencyProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accentColor = Theme.of(context).primaryColor;
+    final accentColor = lineColor ?? Theme.of(context).primaryColor;
 
     return Container(
-      height: 200,
-      padding: const EdgeInsets.only(top: 24, bottom: 8, right: 16),
+      height: height,
+      padding: const EdgeInsets.only(top: 16, bottom: 4, right: 8),
       child: LineChart(
         LineChartData(
           gridData: const FlGridData(show: false),
@@ -42,7 +46,7 @@ class ValuationChart extends ConsumerWidget {
               dotData: const FlDotData(show: false),
               belowBarData: BarAreaData(
                 show: true,
-                color: accentColor.withValues(alpha: 0.1),
+                color: accentColor.withValues(alpha: 0.12),
               ),
             ),
           ],

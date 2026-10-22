@@ -76,33 +76,30 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  # Explicit list: launcher/splash source images (Tatsumaki.jpg, batman.jpg) are
+  # build-time inputs and must not be shipped inside the app bundle.
   assets:
-    - assets/icon/
+    - assets/icon/valora_icon.png
+    - assets/art/
   fonts:
-    - family: Syne
+    # Midnight Manga design system (SIL OFL, subset to Latin + the few kana the UI uses)
+    - family: DelaGothicOne
       fonts:
-        - asset: assets/fonts/Syne-Regular.ttf
+        - asset: assets/fonts/DelaGothicOne-Regular.ttf
+    - family: DotGothic16
+      fonts:
+        - asset: assets/fonts/DotGothic16-Regular.ttf
+    - family: ZenKakuGothicNew
+      fonts:
+        - asset: assets/fonts/ZenKakuGothicNew-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Syne-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Syne-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Syne-Bold.ttf
+        - asset: assets/fonts/ZenKakuGothicNew-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Syne-ExtraBold.ttf
-          weight: 800
-    - family: PlusJakartaSans
-      fonts:
-        - asset: assets/fonts/PlusJakartaSans-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/PlusJakartaSans-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
-          weight: 600
+        - asset: assets/fonts/ZenKakuGothicNew-Black.ttf
+          weight: 900
 
 flutter_native_splash:
   color: "#0A0A0F"
-  background_image: "assets/icon/batman_optimized.jpg"
   android: true
   ios: true
   web: false # We already have our custom HTML splash in web/index.html

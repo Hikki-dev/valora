@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shimmer/shimmer.dart';
 import '../../controllers/auth_controller.dart';
+import '../../core/tokens.dart';
+import '../../widgets/comic.dart';
+import '../../widgets/comic_loader.dart';
+import '../../widgets/google_logo.dart';
+import '../../widgets/v_form.dart';
 
 class LoginView extends ConsumerStatefulWidget {
   const LoginView({super.key});
@@ -19,16 +21,6 @@ class _LoginViewState extends ConsumerState<LoginView> {
   bool _isLogin = true;
   bool _obscurePassword = true;
   String? _validationError;
-  bool _entranceComplete = false; // Add this
-
-  @override
-  void initState() {
-    super.initState();
-    // Mark entrance as complete after the staggered animations finish
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      if (mounted) setState(() => _entranceComplete = true);
-    });
-  }
 
   void _submit() {
     setState(() => _validationError = null);
@@ -79,385 +71,174 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
   @override
   Widget build(BuildContext context) {
+    final t = VTokens.of(context);
     final authState = ref.watch(authControllerProvider);
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDesktop = MediaQuery.sizeOf(context).width >= 900;
+    final error = _validationError ??
+        (authState.hasError
+            ? _getFriendlyError(authState.error.toString())
+            : null);
 
-    // Liquid Glass Aesthetics
-    final containerBg = isDark
-        ? Colors.black.withValues(alpha: 0.6)
-        : Colors.white.withValues(alpha: 0.85);
-    final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.1)
-        : Colors.black.withValues(alpha: 0.1);
-
-    final width = MediaQuery.sizeOf(context).width;
-    final isDesktop = width >= 900;
-
-    // Heroic responsive assets
-    final backgroundImage = isDesktop
-        ? 'assets/icon/batman_optimized.jpg'
-        : 'assets/icon/Splash.webp';
+    final form = _form(context, t, authState.isLoading, isDark, error);
 
     return Scaffold(
-      backgroundColor: Colors.black, // Dark foundation for the image stack
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // 1. Cinematic Background Layer
-          Image.asset(
-            backgroundImage,
-            fit: BoxFit.cover,
-            alignment: Alignment.center,
-          ).animate().fadeIn(duration: 800.ms).scale(
-              begin: const Offset(1.15, 1.15),
-              end: const Offset(1.0, 1.0),
-              duration: 12.seconds, // Epic long zoom
-              curve: Curves.linear),
-
-          // 2. Artistic Gradient Overlay
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withValues(alpha: 0.3),
-                  Colors.black.withValues(alpha: 0.5),
-                  Colors.black.withValues(alpha: 0.9),
-                ],
-                stops: const [0.0, 0.4, 1.0],
-              ),
-            ),
-          ),
-
-          // 3. Login Content Layer
-          Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 450),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Valora',
-                      style: TextStyle(
-                        fontFamily: 'Syne',
-                        fontSize: 64,
-                        fontWeight: FontWeight.w700, // Standardized
-                        color: Colors.white70,
-                        letterSpacing: -0.5,
-                        shadows: [
-                          Shadow(
-                            color: Colors.white24,
-                            blurRadius: 20,
-                            offset: Offset(0, 0),
-                          ),
-                        ],
-                      ),
-                    )
-                        .animate()
-                        .fadeIn(delay: 200.ms, duration: 800.ms)
-                        .moveY(begin: 15, end: 0, curve: Curves.easeOutBack)
-                        .shimmer(
-                            delay: 1200.ms,
-                            duration: 1800.ms,
-                            color: Colors.white30)
-                        .moveY(
-                            begin: 0,
-                            end: -8,
-                            duration: 2.seconds,
-                            curve: Curves.easeInOut,
-                            delay: 3.seconds), // Gentle float after entry
-                    const SizedBox(height: 8),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: Text(
-                        _isLogin
-                            ? 'COLLECTION VALUATION ENGINE'
-                            : 'JOIN THE ARCHIVE',
-                        key: ValueKey<bool>(_isLogin),
-                        style: TextStyle(
-                            color: Colors.amber.withValues(alpha: 0.8),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2.0),
-                        textAlign: TextAlign.center,
-                      ),
-                    ).animate(delay: 400.ms).fadeIn(),
-                    const SizedBox(height: 48),
-
-                    // Glassmorphic Login Container
-                    Container(
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: containerBg,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: borderColor),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.4),
-                            blurRadius: 30,
-                            spreadRadius: 5,
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: AnimatedSize(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          alignment: Alignment.topCenter,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              TextField(
-                                controller: _emailController,
-                                style: TextStyle(color: textColor),
-                                decoration: InputDecoration(
-                                  labelText: 'Email',
-                                  labelStyle: TextStyle(
-                                      color: textColor.withValues(alpha: 0.5)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide:
-                                          BorderSide(color: borderColor)),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(
-                                          color: theme.primaryColor, width: 2)),
-                                ),
-                                keyboardType: TextInputType.emailAddress,
-                              )
-                                  .animate(
-                                      delay: _entranceComplete ? 0.ms : 600.ms)
-                                  .fadeIn()
-                                  .slideX(begin: 0.1, end: 0),
-                              const SizedBox(height: 16),
-                              TextField(
-                                controller: _passwordController,
-                                style: TextStyle(color: textColor),
-                                decoration: InputDecoration(
-                                    labelText: 'Password',
-                                    labelStyle: TextStyle(
-                                        color:
-                                            textColor.withValues(alpha: 0.5)),
-                                    enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide:
-                                            BorderSide(color: borderColor)),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide(
-                                            color: theme.primaryColor,
-                                            width: 2)),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        _obscurePassword
-                                            ? Icons.visibility
-                                            : Icons.visibility_off,
-                                        color: textColor.withValues(alpha: 0.5),
-                                      ),
-                                      onPressed: () => setState(() =>
-                                          _obscurePassword = !_obscurePassword),
-                                    )),
-                                obscureText: _obscurePassword,
-                                onSubmitted: (_) => _submit(),
-                                textInputAction: _isLogin
-                                    ? TextInputAction.done
-                                    : TextInputAction.next,
-                              )
-                                  .animate(
-                                      delay: _entranceComplete ? 0.ms : 750.ms)
-                                  .fadeIn()
-                                  .slideX(begin: 0.1, end: 0),
-                              if (!_isLogin) ...[
-                                const SizedBox(height: 16),
-                                TextField(
-                                  controller: _confirmPasswordController,
-                                  style: TextStyle(color: textColor),
-                                  decoration: InputDecoration(
-                                    labelText: 'Confirm Password',
-                                    labelStyle: TextStyle(
-                                        color:
-                                            textColor.withValues(alpha: 0.5)),
-                                    enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide:
-                                            BorderSide(color: borderColor)),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide(
-                                            color: theme.primaryColor,
-                                            width: 2)),
-                                  ),
-                                  obscureText: _obscurePassword,
-                                  onSubmitted: (_) => _submit(),
-                                  textInputAction: TextInputAction.done,
-                                )
-                                    .animate(
-                                        delay:
-                                            _entranceComplete ? 0.ms : 900.ms)
-                                    .fadeIn()
-                                    .slideX(begin: 0.1, end: 0),
-                              ],
-                              const SizedBox(height: 32),
-                              if (authState.isLoading)
-                                Shimmer.fromColors(
-                                  baseColor: textColor.withValues(alpha: 0.1),
-                                  highlightColor:
-                                      textColor.withValues(alpha: 0.2),
-                                  child: Container(
-                                    height: 54,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                )
-                              else
-                                ElevatedButton(
-                                  onPressed: _submit,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: theme.primaryColor,
-                                    foregroundColor: theme.colorScheme.surface,
-                                    minimumSize:
-                                        const Size(double.infinity, 54),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16)),
-                                    elevation: 0,
-                                  ),
-                                  child: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 300),
-                                    child: Text(
-                                        _isLogin ? 'Sign In' : 'Sign Up',
-                                        key: ValueKey<bool>(_isLogin),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 16)),
-                                  ),
-                                )
-                                    .animate(
-                                        delay:
-                                            _entranceComplete ? 0.ms : 1000.ms)
-                                    .fadeIn()
-                                    .slideY(begin: 0.2, end: 0)
-                                    .shimmer(
-                                        delay: 2.seconds,
-                                        duration: 1.seconds,
-                                        color: Colors.white24),
-                              const SizedBox(height: 24),
-                              Row(
-                                children: [
-                                  Expanded(child: Divider(color: borderColor)),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16),
-                                    child: Text('OR',
-                                        style: TextStyle(
-                                            color: textColor.withValues(
-                                                alpha: 0.5),
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold)),
-                                  ),
-                                  Expanded(child: Divider(color: borderColor)),
-                                ],
-                              )
-                                  .animate(
-                                      delay: _entranceComplete ? 0.ms : 1150.ms)
-                                  .fadeIn(),
-                              const SizedBox(height: 24),
-                              OutlinedButton.icon(
-                                onPressed:
-                                    authState.isLoading ? null : _submitGoogle,
-                                icon: const FaIcon(FontAwesomeIcons.google,
-                                    size: 20),
-                                label: Text(_isLogin
-                                    ? 'Continue with Google'
-                                    : 'Join with Google'),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: textColor,
-                                  side: BorderSide(
-                                      color: borderColor, width: 1.5),
-                                  minimumSize: const Size(double.infinity, 54),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16)),
-                                ),
-                              )
-                                  .animate(
-                                      delay: _entranceComplete ? 0.ms : 1300.ms)
-                                  .fadeIn()
-                                  .slideY(begin: 0.2, end: 0),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ).animate().fadeIn(delay: 400.ms, duration: 600.ms).scale(
-                        begin: const Offset(0.95, 0.95),
-                        end: const Offset(1.0, 1.0),
-                        curve: Curves.easeOutCubic),
-
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () => setState(() {
-                        _isLogin = !_isLogin;
-                        _validationError = null;
-                        if (_isLogin) {
-                          _confirmPasswordController.clear();
-                        }
-                      }),
-                      style:
-                          TextButton.styleFrom(foregroundColor: Colors.white70),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: Text(
-                          _isLogin
-                              ? 'Don\'t have an account? Create one'
-                              : 'Already have an account? Sign In',
-                          key: ValueKey<bool>(_isLogin),
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          if (_validationError != null || authState.hasError)
-            Positioned(
-              bottom: 48,
-              left: 24,
-              right: 24,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 400),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                      color: Colors.redAccent.withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            blurRadius: 20)
-                      ]),
-                  child: Text(
-                    _validationError ??
-                        _getFriendlyError(authState.error.toString()),
-                    style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
+      backgroundColor: t.bg,
+      body: isDesktop
+          ? Row(children: [
+              Expanded(flex: 5, child: _Hero(t: t)),
+              Expanded(
+                flex: 4,
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(40),
+                    child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 420),
+                        child: form),
                   ),
                 ),
               ),
-            ).animate().slideY(begin: 1, end: 0, curve: Curves.easeOutBack),
+            ])
+          : Stack(fit: StackFit.expand, children: [
+              Image.asset('assets/art/hero_portrait.jpg',
+                  fit: BoxFit.cover, alignment: Alignment.topCenter),
+              ColoredBox(color: t.bg.withValues(alpha: 0.93)),
+              SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _MobileBrand(t: t),
+                      const SizedBox(height: 28),
+                      form,
+                    ],
+                  ),
+                ),
+              ),
+            ]),
+    );
+  }
+
+  Widget _form(BuildContext context, VTokens t, bool loading, bool isDark,
+      String? error) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(_isLogin ? 'WELCOME BACK' : 'NEW HERE',
+            style: VText.label(12, t.muted)),
+        const SizedBox(height: 4),
+        Text(_isLogin ? 'Sign in' : 'Create your account',
+            style: VText.display(28, t.text)),
+        const SizedBox(height: 6),
+        Text(
+            _isLogin
+                ? 'See what your game collection is worth.'
+                : 'Track what your games are worth, free.',
+            style: VText.body(14, t.muted, weight: FontWeight.w500)),
+        const SizedBox(height: 22),
+        PressableBox(
+          onTap: loading ? null : _submitGoogle,
+          color: isDark ? const Color(0xFF131314) : Colors.white,
+          semanticLabel: 'Continue with Google',
+          minHeight: 52,
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            const GoogleLogo(size: 20),
+            const SizedBox(width: 12),
+            Text(_isLogin ? 'Continue with Google' : 'Join with Google',
+                style: VText.body(15,
+                    isDark ? const Color(0xFFE3E3E3) : const Color(0xFF1F1F1F),
+                    weight: FontWeight.w900)),
+          ]),
+        ),
+        const SizedBox(height: 18),
+        Row(children: [
+          Expanded(child: Container(height: 2, color: t.soft)),
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text('or with email', style: VText.body(12, t.muted))),
+          Expanded(child: Container(height: 2, color: t.soft)),
+        ]),
+        const SizedBox(height: 18),
+        AutofillGroup(
+          child: Column(children: [
+            VField(
+              label: 'Email',
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              hint: 'you@example.com',
+            ),
+            const SizedBox(height: 16),
+            VField(
+              label: 'Password',
+              controller: _passwordController,
+              hint: _isLogin ? '' : 'At least 8 characters',
+              obscure: _obscurePassword,
+              onSubmitted: (_) => _isLogin ? _submit() : null,
+              trailing: IconButton(
+                tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+                icon: Icon(
+                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                    color: t.muted),
+                onPressed: () =>
+                    setState(() => _obscurePassword = !_obscurePassword),
+              ),
+            ),
+            if (!_isLogin) ...[
+              const SizedBox(height: 16),
+              VField(
+                label: 'Confirm password',
+                controller: _confirmPasswordController,
+                obscure: _obscurePassword,
+                onSubmitted: (_) => _submit(),
+              ),
+            ],
+          ]),
+        ),
+        if (error != null) ...[
+          const SizedBox(height: 14),
+          Semantics(
+            liveRegion: true,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                  color: t.lossBg, border: Border.all(color: kInk, width: 2)),
+              child: Text(error,
+                  style: VText.body(13, t.lossInk, weight: FontWeight.w700)),
+            ),
+          ),
         ],
-      ),
+        const SizedBox(height: 20),
+        PressableBox(
+          onTap: loading ? null : _submit,
+          color: t.money,
+          semanticLabel: _isLogin ? 'Sign in' : 'Sign up',
+          minHeight: 52,
+          child: loading
+              ? SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2.5, color: t.onMoney))
+              : Text(_isLogin ? 'Sign in' : 'Create account',
+                  style: VText.body(15, t.onMoney, weight: FontWeight.w900)),
+        ),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: () => setState(() {
+            _isLogin = !_isLogin;
+            _validationError = null;
+            _confirmPasswordController.clear();
+          }),
+          style: TextButton.styleFrom(
+              minimumSize: const Size(44, 44), foregroundColor: t.text),
+          child: Text(
+              _isLogin
+                  ? 'New here? Create an account'
+                  : 'Already have an account? Sign in',
+              style: VText.body(14, t.text, weight: FontWeight.w900)),
+        ),
+      ],
     );
   }
 
@@ -467,5 +248,121 @@ class _LoginViewState extends ConsumerState<LoginView> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+}
+
+/// Original comic-panel hero: halftone, speed lines, the V mark and the animated fight strip.
+class _Hero extends StatelessWidget {
+  const _Hero({required this.t});
+  final VTokens t;
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  color: t.money, border: Border.all(color: kInk, width: 3)),
+              child: Text('V', style: VText.display(32, t.onMoney)),
+            ),
+            const SizedBox(width: 12),
+            Text('Valora', style: VText.display(40, t.text)),
+          ],
+        ),
+        const SizedBox(height: 28),
+        const ComicFightStrip(width: 420),
+        ...[
+          const SizedBox(height: 28),
+          Text('Know what your game collection is worth.',
+              style: VText.body(18, t.text, weight: FontWeight.w900)),
+          const SizedBox(height: 6),
+          Text('Real market prices. No guesses.',
+              style: VText.body(14, t.muted, weight: FontWeight.w500)),
+        ],
+      ],
+    );
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.asset('assets/art/hero_landscape.jpg', fit: BoxFit.cover),
+        ColoredBox(color: t.surface2.withValues(alpha: 0.82)),
+        CustomPaint(
+            painter:
+                RaysPainter(color: t.rays, origin: const Offset(0.5, 0.5))),
+        CustomPaint(painter: HalftonePainter(color: t.dots, spacing: 9)),
+        Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: Container(width: 3, color: t.line)),
+        Center(child: content),
+      ],
+    );
+  }
+}
+
+/// Phone header: a big tilted V block, an outlined yellow wordmark and a one-line promise.
+class _MobileBrand extends StatelessWidget {
+  const _MobileBrand({required this.t});
+  final VTokens t;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      header: true,
+      label: 'Valora. Know what your game collection is worth.',
+      child: ExcludeSemantics(
+        child: Column(
+          children: [
+            Transform.rotate(
+              angle: -0.1,
+              child: SizedBox(
+                width: 96,
+                height: 96,
+                child: Stack(children: [
+                  Positioned.fill(
+                    child: Transform.translate(
+                      offset: const Offset(8, 8),
+                      child: Container(
+                          decoration: BoxDecoration(
+                              color: t.money,
+                              border: Border.all(color: kInk, width: 3))),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: kInk,
+                          border: Border.all(color: kInk, width: 4)),
+                      child: Text('V', style: VText.display(66, t.money)),
+                    ),
+                  ),
+                ]),
+              ),
+            ),
+            const SizedBox(height: 18),
+            OutlinedText('VALORA', size: 54, fill: t.money, strokeWidth: 8),
+            const SizedBox(height: 10),
+            HardBox(
+              color: t.surface,
+              borderWidth: 2,
+              shadowOffset: 3,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: Text('KNOW WHAT YOUR GAMES ARE WORTH',
+                  style: VText.label(11, t.text, spacing: 1)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

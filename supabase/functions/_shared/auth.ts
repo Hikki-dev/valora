@@ -8,10 +8,8 @@ import { createClient } from '@supabase/supabase-js'
 export async function verifyUser(req: Request) {
   const authHeader = req.headers.get('Authorization')
   if (!authHeader?.startsWith('Bearer ')) {
-    throw new Error('Missing or invalid Authorization header')
+    throw new Error('Unauthorized: missing or invalid Authorization header')
   }
-
-  const token = authHeader.replace('Bearer ', '')
 
   // Initialize client with User's JWT (not service role)
   const supabase = createClient(
@@ -26,25 +24,10 @@ export async function verifyUser(req: Request) {
   const { data: { user }, error } = await supabase.auth.getUser()
 
   if (error || !user) {
-    const errorMsg = error?.message ?? 'Invalid session';
-    console.error(`[Auth] Verification failed: ${errorMsg}`);
-    console.debug(`[Auth] URL: ${Deno.env.get('SUPABASE_URL')}`);
-    
-    // Safety: Inspect token properties without verifying (to debug 401s)
-    try {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(atob(parts[1]));
-        console.debug(`[Auth Debug] ISS: ${payload.iss}`);
-        console.debug(`[Auth Debug] SUB: ${payload.sub}`);
-        console.debug(`[Auth Debug] ROLE: ${payload.role}`);
-        console.debug(`[Auth Debug] EXP: ${new Date(payload.exp * 1000).toISOString()}`);
-      }
-    } catch (e) {
-      console.debug(`[Auth Debug] Could not parse token: ${e}`);
-    }
-
-    throw new Error(`Unauthorized: ${errorMsg}`);
+    // Log the reason server-side only. (The previous version also decoded and
+    // logged JWT claims — issuer, subject, expiry — which does not belong in logs.)
+    console.error(`[Auth] Verification failed: ${error?.message ?? 'Invalid session'}`)
+    throw new Error('Unauthorized')
   }
 
   return { user, supabase }

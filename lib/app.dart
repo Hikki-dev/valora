@@ -5,6 +5,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'utils/platform_utils.dart';
 
 import 'core/theme.dart';
+import 'core/tokens.dart';
+import 'widgets/app_shell.dart';
+import 'views/collections/add_game_modal.dart';
 import 'views/home/home_view.dart';
 import 'views/auth/login_view.dart';
 import 'views/collections/collections_view.dart';
@@ -66,6 +69,28 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     });
   }
 
+  void _go(int index) {
+    switch (index) {
+      case 0:
+        context.go('/');
+      case 1:
+        context.go('/collections');
+      case 2:
+        context.go('/wishlists');
+      case 3:
+        context.go('/profile');
+    }
+  }
+
+  void _openAddGame() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const AddGameModal(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
@@ -78,9 +103,11 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     if (location.startsWith('/wishlists')) currentIndex = 2;
     if (location.startsWith('/profile')) currentIndex = 3;
 
+    final t = VTokens.of(context);
     final onboardingState = ref.watch(onboardingControllerProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
+    final dealCount = ref.watch(wishlistDealCountProvider).valueOrNull ?? 0;
+    final isLkr = ref.watch(currencyProvider).currency == AppCurrency.lkr;
 
     Widget body = Stack(
       children: [
@@ -100,11 +127,41 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
 
     if (!isMobile) {
       return Scaffold(
+        backgroundColor: t.bg,
         body: Row(
           children: [
             isDesktop
-                ? _buildSidebar(context, ref, currentIndex, isDark)
-                : _buildNavigationRail(context, ref, currentIndex, isDark),
+                ? VSidebar(
+                    index: currentIndex,
+                    onNav: _go,
+                    onAddGame: _openAddGame,
+                    onInsights: () => context.go('/insights'),
+                    isDark: isDark,
+                    onTheme: (dark) {
+                      if (dark != isDark) {
+                        ref.read(themeProvider.notifier).toggle();
+                      }
+                    },
+                    isLkr: isLkr,
+                    onCurrency: (lkr) {
+                      if (lkr != isLkr) {
+                        ref.read(currencyProvider.notifier).toggleCurrency();
+                      }
+                    },
+                    onSignOut: () =>
+                        ref.read(authControllerProvider.notifier).signOut(),
+                    dealCount: dealCount,
+                  )
+                : VRail(
+                    index: currentIndex,
+                    onNav: _go,
+                    onAddGame: _openAddGame,
+                    isDark: isDark,
+                    onTheme: () => ref.read(themeProvider.notifier).toggle(),
+                    onSignOut: () =>
+                        ref.read(authControllerProvider.notifier).signOut(),
+                    dealCount: dealCount,
+                  ),
             Expanded(child: body),
           ],
         ),
@@ -112,269 +169,11 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     }
 
     return Scaffold(
+      backgroundColor: t.bg,
       body: body,
       bottomNavigationBar: onboardingState.type == OnboardingType.none
-          ? BottomNavigationBar(
-              currentIndex: currentIndex,
-              onTap: (index) {
-                if (index == 0) context.go('/');
-                if (index == 1) context.go('/collections');
-                if (index == 2) context.go('/wishlists');
-                if (index == 3) context.go('/profile');
-              },
-              type: BottomNavigationBarType.fixed,
-              backgroundColor: isDark ? const Color(0xFF0A0A0F) : Colors.white,
-              selectedItemColor: Colors.cyanAccent,
-              unselectedItemColor: textColor.withValues(alpha: 0.4),
-              items: [
-                const BottomNavigationBarItem(
-                    icon: Icon(Icons.home_rounded), label: 'Home'),
-                const BottomNavigationBarItem(
-                    icon: Icon(Icons.library_books), label: 'Library'),
-                BottomNavigationBarItem(
-                    icon: Badge(
-                      isLabelVisible:
-                          ref.watch(wishlistDealCountProvider).valueOrNull !=
-                                  null &&
-                              ref.watch(wishlistDealCountProvider).value! > 0,
-                      label: Text(
-                          '${ref.watch(wishlistDealCountProvider).valueOrNull ?? 0}'),
-                      child: const Icon(Icons.favorite),
-                    ),
-                    label: 'Wishlist'),
-                const BottomNavigationBarItem(
-                    icon: Icon(Icons.person), label: 'Profile'),
-              ],
-            )
+          ? VBottomNav(index: currentIndex, onTap: _go, dealCount: dealCount)
           : null,
-    );
-  }
-
-  Widget _buildSidebar(
-      BuildContext context, WidgetRef ref, int currentIndex, bool isDark) {
-    final themeToggleIcon = isDark ? Icons.light_mode : Icons.dark_mode;
-    final textColor = isDark ? Colors.white : Colors.black87;
-
-    return Container(
-      width: 260,
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF14141A) : Colors.white,
-        border:
-            Border(right: BorderSide(color: textColor.withValues(alpha: 0.05))),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: InkWell(
-              onTap: () => context.go('/'),
-              borderRadius: BorderRadius.circular(12),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .primaryColor
-                          .withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(Icons.auto_graph,
-                        color: Theme.of(context).primaryColor, size: 24),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Valora',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
-                      color: textColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildSidebarItem(context, Icons.home_rounded, 'Home',
-              currentIndex == 0, () => context.go('/')),
-          _buildSidebarItem(context, Icons.library_books, 'Library',
-              currentIndex == 1, () => context.go('/collections')),
-          _buildSidebarItem(context, Icons.favorite, 'Wishlist',
-              currentIndex == 2, () => context.go('/wishlists')),
-          _buildSidebarItem(context, Icons.person, 'Profile', currentIndex == 3,
-              () => context.go('/profile')),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                _buildSidebarAction(context, themeToggleIcon, 'Toggle Theme',
-                    () => ref.read(themeProvider.notifier).toggle()),
-                _buildSidebarAction(
-                    context,
-                    Icons.currency_exchange,
-                    'Currency',
-                    () => ref.read(currencyProvider.notifier).toggleCurrency()),
-                const Divider(height: 32),
-                _buildSidebarAction(context, Icons.logout, 'Sign Out',
-                    () => ref.read(authControllerProvider.notifier).signOut(),
-                    isDestructive: true),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSidebarItem(BuildContext context, IconData icon, String label,
-      bool isSelected, VoidCallback onTap) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = Theme.of(context).primaryColor;
-    final textColor = isDark ? Colors.white : Colors.black87;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? activeColor.withValues(alpha: 0.1)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                color:
-                    isSelected ? activeColor : textColor.withValues(alpha: 0.5),
-                size: 20,
-              ),
-              const SizedBox(width: 16),
-              Text(
-                label,
-                style: TextStyle(
-                  color:
-                      isSelected ? textColor : textColor.withValues(alpha: 0.5),
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSidebarAction(
-      BuildContext context, IconData icon, String label, VoidCallback onTap,
-      {bool isDestructive = false}) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
-    final color =
-        isDestructive ? Colors.redAccent : textColor.withValues(alpha: 0.6);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Row(
-          children: [
-            Icon(icon, color: color, size: 18),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 14,
-                fontWeight: isDestructive ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavigationRail(
-      BuildContext context, WidgetRef ref, int currentIndex, bool isDark) {
-    final textColor = isDark ? Colors.white : Colors.black87;
-
-    return NavigationRail(
-      selectedIndex: currentIndex,
-      onDestinationSelected: (index) {
-        if (index == 0) context.go('/');
-        if (index == 1) context.go('/collections');
-        if (index == 2) context.go('/wishlists');
-        if (index == 3) context.go('/profile');
-      },
-      backgroundColor: isDark ? const Color(0xFF14141A) : Colors.white,
-      indicatorColor: Colors.cyanAccent.withValues(alpha: 0.2),
-      selectedIconTheme: const IconThemeData(color: Colors.cyanAccent),
-      unselectedIconTheme:
-          IconThemeData(color: textColor.withValues(alpha: 0.4)),
-      labelType: NavigationRailLabelType.none,
-      destinations: [
-        const NavigationRailDestination(
-          icon: Icon(Icons.home_rounded),
-          selectedIcon: Icon(Icons.home_rounded),
-          label: Text('Home'),
-        ),
-        const NavigationRailDestination(
-          icon: Icon(Icons.library_books),
-          selectedIcon: Icon(Icons.library_books),
-          label: Text('Library'),
-        ),
-        NavigationRailDestination(
-          icon: Badge(
-            isLabelVisible:
-                ref.watch(wishlistDealCountProvider).valueOrNull != null &&
-                    ref.watch(wishlistDealCountProvider).value! > 0,
-            label: Text(
-                '${ref.watch(wishlistDealCountProvider).valueOrNull ?? 0}'),
-            child: const Icon(Icons.favorite),
-          ),
-          label: const Text('Wishlist'),
-        ),
-        const NavigationRailDestination(
-          icon: Icon(Icons.person),
-          selectedIcon: Icon(Icons.person),
-          label: Text('Profile'),
-        ),
-      ],
-      leading: const Padding(
-        padding: EdgeInsets.symmetric(vertical: 24),
-        child: Icon(Icons.auto_graph, color: Colors.cyanAccent, size: 28),
-      ),
-      trailing: Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            IconButton(
-              icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode,
-                  size: 20, color: textColor.withValues(alpha: 0.4)),
-              onPressed: () => ref.read(themeProvider.notifier).toggle(),
-            ),
-            const SizedBox(height: 12),
-            IconButton(
-              icon: Icon(Icons.logout,
-                  size: 20, color: Colors.redAccent.withValues(alpha: 0.6)),
-              onPressed: () =>
-                  ref.read(authControllerProvider.notifier).signOut(),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -454,6 +253,8 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
+bool _firstFrameSignalled = false;
+
 class ValoraApp extends ConsumerWidget {
   const ValoraApp({super.key});
 
@@ -474,8 +275,11 @@ class ValoraApp extends ConsumerWidget {
         ref.read(onboardingControllerProvider.notifier).checkOnboarding();
       }
 
-      // Signal to the web container that the first frame is rendered
-      PlatformUtils.signalFirstFrame();
+      // Signal to the web container that the first frame is rendered (once).
+      if (!_firstFrameSignalled) {
+        _firstFrameSignalled = true;
+        PlatformUtils.signalFirstFrame();
+      }
     });
 
     return MaterialApp.router(
@@ -483,6 +287,7 @@ class ValoraApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
+      themeAnimationDuration: const Duration(milliseconds: 250),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );

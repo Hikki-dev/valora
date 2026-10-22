@@ -22,19 +22,20 @@ void main() {
     });
 
     test('Active Market Value Priority', () {
-      // Priority: Current Appraisal > Estimated > Purchase
+      // Priority: Current Appraisal > Estimated. Unknown stays unknown (no purchase-price fallback).
       final game1 = baseGame.copyWith(estimatedValue: 50.0);
       expect(game1.activeMarketValue, 50.0);
 
       final game2 = game1.copyWith(currentValue: 70.0);
       expect(game2.activeMarketValue, 70.0);
 
-      expect(baseGame.activeMarketValue, 40.0);
+      expect(baseGame.activeMarketValue, isNull);
+      expect(baseGame.profitOrLoss, 0.0);
     });
 
     test('Price Cache Stale Logic - Digital (6h TTL)', () {
       final now = DateTime.now();
-      
+
       final freshGame = baseGame.copyWith(
         fetchedAt: now.subtract(const Duration(hours: 5)),
       );

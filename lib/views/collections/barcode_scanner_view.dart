@@ -101,7 +101,7 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
                     'SCAN BARCODE',
                     style: TextStyle(
                         color: Colors.amber,
-                        fontFamily: 'Syne',
+                        fontFamily: 'DelaGothicOne',
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2,
                         fontSize: 20),

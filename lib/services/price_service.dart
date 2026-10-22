@@ -93,7 +93,7 @@ class PriceService {
             '[PriceService] 401 on "${game.title}". Forcing hard session refresh...');
         _refreshFuture = null;
         await _client.auth.refreshSession();
-        return fetchPrices(game, force: force, retryCount: 1);
+        return await fetchPrices(game, force: force, retryCount: 1);
       }
 
       if (response.status != 200) {

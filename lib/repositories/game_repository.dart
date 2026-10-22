@@ -191,24 +191,41 @@ class GameRepository {
         .map((response) => response.map((e) => Game.fromJson(e)).toList());
   }
 
+  /// Emits (debounced) when one of this user's valuations changes.
+  ///
+  /// A bulk price refresh updates many rows in quick succession; without the
+  /// debounce every single row change re-fetched the entire library (N updates
+  /// -> N full reloads). The realtime filter also stops other users' traffic
+  /// from reaching this client.
   Stream<void> valuationUpdateStream(String userId) {
     final controller = StreamController<void>();
+    Timer? debounce;
 
     final channel = _client
         .channel('valuations_$userId')
         .onPostgresChanges(
-          event: PostgresChangeEvent.update,
+          event: PostgresChangeEvent
+              .all, // first price for a game arrives as an INSERT
           schema: 'public',
           table: 'valuations',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: userId,
+          ),
           callback: (payload) {
-            if (!controller.isClosed) {
-              controller.add(null);
-            }
+            debounce?.cancel();
+            debounce = Timer(const Duration(milliseconds: 800), () {
+              if (!controller.isClosed) {
+                controller.add(null);
+              }
+            });
           },
         )
         .subscribe();
 
     controller.onCancel = () {
+      debounce?.cancel();
       _client.removeChannel(channel);
       controller.close();
     };
@@ -216,6 +233,18 @@ class GameRepository {
     return controller.stream;
   }
 }
+
+/// Games removed by the user whose delete is still undoable (the real delete runs after
+/// the Undo window closes). Hidden from every list in the meantime.
+class PendingDeletes extends Notifier<Set<String>> {
+  @override
+  Set<String> build() => <String>{};
+  void add(String id) => state = {...state, id};
+  void remove(String id) => state = {...state}..remove(id);
+}
+
+final pendingDeletesProvider =
+    NotifierProvider<PendingDeletes, Set<String>>(PendingDeletes.new);
 
 final libraryStreamProvider = StreamProvider<List<Game>>((ref) {
   final user = ref.watch(authControllerProvider).value;
@@ -230,5 +259,9 @@ final libraryStreamProvider = StreamProvider<List<Game>>((ref) {
     }
   });
 
-  return repo.getGamesStream(user.id);
+  final pending = ref.watch(pendingDeletesProvider);
+  final stream = repo.getGamesStream(user.id);
+  if (pending.isEmpty) return stream;
+  return stream
+      .map((games) => games.where((g) => !pending.contains(g.id)).toList());
 });

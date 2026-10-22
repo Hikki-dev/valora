@@ -19,6 +19,11 @@ class CurrencyState {
     );
   }
 
+  /// Formats a possibly-missing price. A missing price renders as an em dash
+  /// instead of a misleading 0.00.
+  String formatOrDash(double? usdValue) =>
+      usdValue == null ? '—' : format(usdValue);
+
   String format(double usdValue) {
     if (currency == AppCurrency.usd) {
       return '\$${usdValue.toStringAsFixed(2)}';

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../controllers/onboarding_controller.dart';
-import '../../core/theme.dart';
+import '../../core/tokens.dart';
+import '../../widgets/comic.dart';
 import 'onboarding_content.dart';
 
 class OnboardingPanel extends ConsumerWidget {
@@ -12,17 +13,15 @@ class OnboardingPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = VTokens.of(context);
     return Container(
       width: 320,
-      decoration: const BoxDecoration(
-        color: AppTheme.surface1,
-        borderRadius: BorderRadius.horizontal(left: Radius.circular(32)),
-        boxShadow: [
+      decoration: BoxDecoration(
+        color: t.surface,
+        border: Border(left: BorderSide(color: t.line, width: 3)),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black54,
-            blurRadius: 40,
-            offset: Offset(-10, 0),
-          ),
+              color: Colors.black26, blurRadius: 30, offset: Offset(-8, 0)),
         ],
       ),
       child: SafeArea(
@@ -33,17 +32,10 @@ class OnboardingPanel extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'WHAT\'S NEW',
-                    style: TextStyle(
-                      fontFamily: 'Syne',
-                      fontWeight: FontWeight.w800,
-                      fontSize: 18,
-                      letterSpacing: 1,
-                    ),
-                  ),
+                  Text('What\u2019s new', style: VText.display(20, t.text)),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    tooltip: 'Close',
+                    icon: Icon(Icons.close, color: t.text),
                     onPressed: () => ref
                         .read(onboardingControllerProvider.notifier)
                         .completeOnboarding(),
@@ -64,33 +56,23 @@ class OnboardingPanel extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.surface2,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                            color: t.money,
+                            border: Border.all(color: t.line, width: 2)),
                         child: IconTheme(
-                          data: const IconThemeData(
-                              color: AppTheme.accentAmber, size: 24),
+                          data: IconThemeData(color: t.onMoney, size: 24),
                           child: item.icon,
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         item.subtitle,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          fontFamily: 'Syne',
-                          letterSpacing: -0.5,
-                        ),
+                        style: VText.body(18, t.text, weight: FontWeight.w900),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         item.description,
-                        style: const TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 14,
-                          height: 1.5,
-                        ),
+                        style: VText.body(14, t.muted, weight: FontWeight.w500)
+                            .copyWith(height: 1.5),
                       ),
                       const SizedBox(height: 12),
                       ...item.bulletPoints.map((point) => Padding(
@@ -98,15 +80,13 @@ class OnboardingPanel extends ConsumerWidget {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('• ',
-                                    style: TextStyle(
-                                        color: AppTheme.accentAmber,
-                                        fontWeight: FontWeight.bold)),
+                                Text('• ',
+                                    style: VText.body(13, t.moneyText,
+                                        weight: FontWeight.w900)),
                                 Expanded(
                                     child: Text(point,
-                                        style: const TextStyle(
-                                            fontSize: 13,
-                                            color: AppTheme.textSecondary))),
+                                        style: VText.body(13, t.muted,
+                                            weight: FontWeight.w500))),
                               ],
                             ),
                           )),
@@ -120,21 +100,15 @@ class OnboardingPanel extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(24.0),
-              child: ElevatedButton(
-                onPressed: () => ref
+              child: PressableBox(
+                onTap: () => ref
                     .read(onboardingControllerProvider.notifier)
                     .completeOnboarding(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.accentAmber,
-                  foregroundColor: Colors.black,
-                  minimumSize: const Size(double.infinity, 56),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  elevation: 0,
-                ),
-                child: const Text('GOT IT',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w900, fontFamily: 'Syne')),
+                color: t.money,
+                minHeight: 52,
+                semanticLabel: 'Got it',
+                child: Text('Got it',
+                    style: VText.body(15, t.onMoney, weight: FontWeight.w900)),
               ),
             ),
           ],
