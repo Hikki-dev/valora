@@ -11,8 +11,13 @@ double _easeOut(double t) => 1 - math.pow(1 - t, 3).toDouble();
 /// Original characters: Valora's hero vs. the hooded villain "Fake Prices".
 /// With reduced motion on, all three panels show as a still.
 class ComicFightStrip extends StatefulWidget {
-  const ComicFightStrip({super.key, this.width = 310});
+  const ComicFightStrip({super.key, this.width = 310, this.panelImages});
   final double width;
+
+  /// Optional art for the three panels (wind-up, impact, K.O.). When given, these images
+  /// replace the built-in drawn art but keep the same reveal, pop and screen-shake timing.
+  /// Use only images you own or have a licence to use.
+  final List<ImageProvider>? panelImages;
 
   @override
   State<ComicFightStrip> createState() => _ComicFightStripState();
@@ -38,6 +43,12 @@ class _ComicFightStripState extends State<ComicFightStrip>
   void dispose() {
     _c.dispose();
     super.dispose();
+  }
+
+  Widget _art(int i, Widget drawn) {
+    final imgs = widget.panelImages;
+    if (imgs == null || imgs.length <= i) return drawn;
+    return Image(image: imgs[i], fit: BoxFit.cover, gaplessPlayback: true);
   }
 
   @override
@@ -78,7 +89,7 @@ class _ComicFightStripState extends State<ComicFightStrip>
                           scale: _lerp(0.8, 1, _easeOut(r1)),
                           shadow: t.shadow,
                           line: t.line,
-                          art: CustomPaint(painter: _Panel1Painter(v)),
+                          art: _art(0, CustomPaint(painter: _Panel1Painter(v))),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -90,7 +101,7 @@ class _ComicFightStripState extends State<ComicFightStrip>
                           scale: _lerp(_lerp(0.7, 1.06, r2a), 1, r2b),
                           shadow: t.shadow,
                           line: t.line,
-                          art: CustomPaint(painter: _Panel2Painter(v)),
+                          art: _art(1, CustomPaint(painter: _Panel2Painter(v))),
                           overlay: const Positioned(
                             left: 0,
                             right: 0,
@@ -112,7 +123,7 @@ class _ComicFightStripState extends State<ComicFightStrip>
                           scale: _lerp(_lerp(0.7, 1.06, r3a), 1, r3b),
                           shadow: t.shadow,
                           line: t.line,
-                          art: CustomPaint(painter: _Panel3Painter(v)),
+                          art: _art(2, CustomPaint(painter: _Panel3Painter(v))),
                           overlay: const Positioned(
                             left: 0,
                             right: 0,
@@ -408,7 +419,11 @@ class ComicLoader extends StatelessWidget {
     this.label = 'NOW LOADING…',
     this.steps = const [],
     this.progress,
+    this.panelImages,
   });
+
+  /// See [ComicFightStrip.panelImages].
+  final List<ImageProvider>? panelImages;
 
   final String label;
   final List<LoaderStep> steps;
@@ -441,7 +456,7 @@ class ComicLoader extends StatelessWidget {
                     Text('ヴァローラ',
                         style: VText.label(14, t.muted, spacing: 3)),
                     const SizedBox(height: 22),
-                    const ComicFightStrip(),
+                    ComicFightStrip(panelImages: panelImages),
                     const SizedBox(height: 22),
                     SizedBox(
                       width: 290,

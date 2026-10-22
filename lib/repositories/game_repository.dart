@@ -233,6 +233,18 @@ class GameRepository {
   }
 }
 
+/// Games removed by the user whose delete is still undoable (the real delete runs after
+/// the Undo window closes). Hidden from every list in the meantime.
+class PendingDeletes extends Notifier<Set<String>> {
+  @override
+  Set<String> build() => <String>{};
+  void add(String id) => state = {...state, id};
+  void remove(String id) => state = {...state}..remove(id);
+}
+
+final pendingDeletesProvider =
+    NotifierProvider<PendingDeletes, Set<String>>(PendingDeletes.new);
+
 final libraryStreamProvider = StreamProvider<List<Game>>((ref) {
   final user = ref.watch(authControllerProvider).value;
   if (user == null) return Stream.value([]);
@@ -246,5 +258,8 @@ final libraryStreamProvider = StreamProvider<List<Game>>((ref) {
     }
   });
 
-  return repo.getGamesStream(user.id);
+  final pending = ref.watch(pendingDeletesProvider);
+  final stream = repo.getGamesStream(user.id);
+  if (pending.isEmpty) return stream;
+  return stream.map((games) => games.where((g) => !pending.contains(g.id)).toList());
 });
