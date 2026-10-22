@@ -43,7 +43,7 @@ final themeProvider = NotifierProvider<ThemeNotifier, ThemeMode>(() {
 
 class AppTheme {
   // Brand Colors - Audit Specification
-  static const Color surface0 = Color(0xFF09090B);
+  static const Color surface0 = Color(0xFF0B0A12);
   static const Color surface1 = Color(0xFF111113);
   static const Color surface2 = Color(0xFF1E1E22);
   static const Color accentAmber = Color(0xFFF5A623);
@@ -74,37 +74,37 @@ class AppTheme {
       ),
       textTheme: base.textTheme
           .apply(
-            fontFamily: 'PlusJakartaSans',
+            fontFamily: 'ZenKakuGothicNew',
             bodyColor: textPrimary,
             displayColor: textPrimary,
           )
           .copyWith(
             displayLarge: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w800,
                 color: textPrimary),
             displayMedium: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w800,
                 color: textPrimary),
             displaySmall: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w800,
                 color: textPrimary),
             headlineLarge: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: textPrimary),
             headlineMedium: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: textPrimary),
             headlineSmall: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: textPrimary),
             titleLarge: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: textPrimary),
           ),
@@ -128,37 +128,37 @@ class AppTheme {
       ),
       textTheme: base.textTheme
           .apply(
-            fontFamily: 'PlusJakartaSans',
+            fontFamily: 'ZenKakuGothicNew',
             bodyColor: Colors.black87,
             displayColor: Colors.black87,
           )
           .copyWith(
             displayLarge: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w800,
                 color: Colors.black87),
             displayMedium: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w800,
                 color: Colors.black87),
             displaySmall: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w800,
                 color: Colors.black87),
             headlineLarge: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: Colors.black87),
             headlineMedium: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: Colors.black87),
             headlineSmall: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: Colors.black87),
             titleLarge: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'DelaGothicOne',
                 fontWeight: FontWeight.w700,
                 color: Colors.black87),
           ),

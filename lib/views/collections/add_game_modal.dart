@@ -26,12 +26,16 @@ class AddGameModal extends ConsumerStatefulWidget {
   final AppPlatform? initialPlatform;
   final WishlistItem? prefillItem;
 
+  /// Open the camera straight away (Home's "Scan barcode" shortcut).
+  final bool autoScan;
+
   const AddGameModal({
     super.key,
     this.isWishlistMode = false,
     this.initialQuery,
     this.initialPlatform,
     this.prefillItem,
+    this.autoScan = false,
   });
 
   @override
@@ -89,6 +93,12 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
     } else if (widget.initialQuery != null) {
       _titleController.text = widget.initialQuery!;
       _performSearch(widget.initialQuery!);
+    }
+
+    if (widget.autoScan) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _scanBarcode();
+      });
     }
 
     if (widget.initialPlatform != null) {

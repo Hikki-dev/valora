@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0B0A12">
+  <meta name="theme-color" content="#F5F0E6">
   <meta name="description" content="Valora - Premium Game Collection Tracker">
 
   <!-- iOS meta tags & icons -->
@@ -25,90 +25,131 @@
 
   <link rel="manifest" href="manifest.json">
 
-  <!-- Splash is pure CSS: it paints on the very first frame, before any JS/WASM/image downloads. -->
+  <!--
+    Splash = the app's loading screen, as pure CSS/inline SVG so it paints on the very first frame,
+    before any JS/WASM downloads. Same design as the in-app ComicLoader (lib/widgets/comic_loader.dart):
+    V mark + a 3-panel comic (wind-up, impact, K.O.) that loops every 4s. Original characters.
+  -->
   <style>
-    html, body {
-      background-color: #0B0A12;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
+    html, body { margin: 0; padding: 0; overflow: hidden; background: #F5F0E6; }
+    html[data-theme="dark"], html[data-theme="dark"] body { background: #0B0A12; }
 
     #valora-splash {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 28px;
-      background-color: #0B0A12;
-      background-image: repeating-conic-gradient(from 0deg at 50% 44%, rgba(244,239,230,.07) 0 2deg, transparent 2deg 9deg);
-      color: #F4EFE6;
-      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --bg: #F5F0E6; --text: #15121F; --line: #15121F; --surface: #fff; --money: #FFC247;
+      --shadow: #15121F; --rays: rgba(21,18,31,.06); --track: #EDE6D6;
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 18px;
+      background-color: var(--bg);
+      background-image: repeating-conic-gradient(from 0deg at 50% 40%, var(--rays) 0 2deg, transparent 2deg 9deg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
       transition: opacity .25s ease-out;
     }
+    html[data-theme="dark"] #valora-splash {
+      --bg: #0B0A12; --text: #F4EFE6; --line: #F4EFE6; --surface: #15131F;
+      --shadow: #FFC247; --rays: rgba(244,239,230,.07); --track: #1E1B2E;
+    }
 
-    #valora-splash .mark {
-      position: relative;
-      width: 120px;
-      height: 120px;
-      transform: rotate(-6deg);
-    }
-    #valora-splash .mark::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      transform: translate(8px, 8px);
-      background: #FFC247;
-    }
+    #valora-splash .mark { position: relative; width: 84px; height: 84px; animation: v-bob 3s ease-in-out infinite; }
+    #valora-splash .mark::before { content: ''; position: absolute; inset: 0; transform: translate(6px, 6px); background: var(--money); border: 2px solid var(--line); }
     #valora-splash .mark span {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0B0A12;
-      border: 4px solid #F4EFE6;
-      font-size: 78px;
-      font-weight: 900;
-      line-height: 1;
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: var(--surface); border: 4px solid var(--line); font-size: 56px; font-weight: 900; line-height: 1;
     }
+    #valora-splash .title { font-size: 28px; font-weight: 900; letter-spacing: .14em; margin-top: 2px; }
 
-    #valora-splash .title {
-      font-size: 30px;
-      font-weight: 900;
-      letter-spacing: .14em;
-    }
+    #valora-splash .strip { width: min(310px, 86vw); height: 150px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; animation: v-shake 4s infinite; margin-top: 6px; }
+    #valora-splash .pnl { position: relative; border: 3px solid var(--line); box-shadow: 4px 4px 0 var(--shadow); overflow: hidden; }
+    #valora-splash .pnl svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+    #valora-splash .cap { position: absolute; left: 0; right: 0; top: 0; background: #FFE08A; color: #15121F; border-bottom: 3px solid #15121F; padding: 2px 6px; font: 10px/1.3 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .04em; white-space: nowrap; overflow: hidden; z-index: 2; }
+    #valora-splash .p1 { background: #FFC247; } #valora-splash .p2 { background: #FF5C8A; } #valora-splash .p3 { background: #39E3FF; }
+    #valora-splash .pn1 { animation: v-pn1 4s infinite; }
+    #valora-splash .pn2 { animation: v-pn2 4s infinite; }
+    #valora-splash .pn3 { animation: v-pn3 4s infinite; }
+    #valora-splash .fist { animation: v-fist 4s cubic-bezier(.2,.8,.2,1) infinite; }
+    #valora-splash .burst { animation: v-burst 4s infinite; transform-box: fill-box; transform-origin: center; }
+    #valora-splash .fly { animation: v-fly 4s cubic-bezier(.2,.8,.2,1) infinite; transform-box: fill-box; transform-origin: center; }
+    #valora-splash .stars { animation: v-stars 4s infinite; transform-box: fill-box; transform-origin: center; }
+    #valora-splash .sfx { position: absolute; left: 0; right: 0; bottom: 2px; text-align: center; font: 900 26px/1 Impact, 'Arial Black', system-ui, sans-serif; -webkit-text-stroke: 4px #15121F; paint-order: stroke fill; opacity: 0; z-index: 2; }
+    #valora-splash .sfx2 { color: #F4EFE6; animation: v-sfx2 4s infinite; }
+    #valora-splash .sfx3 { color: #FFC247; animation: v-sfx3 4s infinite; }
 
-    #valora-splash .bar {
-      width: 240px;
-      height: 12px;
-      transform: skewX(-14deg);
-      background: #2C2842;
-      overflow: hidden;
-    }
-    #valora-splash .bar i {
-      display: block;
-      height: 100%;
-      width: 40%;
-      background: #FFC247;
-      animation: valora-slide 1.1s ease-in-out infinite;
-    }
-    @keyframes valora-slide {
-      0%   { transform: translateX(-100%); }
-      100% { transform: translateX(260%); }
-    }
+    #valora-splash .bar { width: min(290px, 80vw); height: 12px; transform: skewX(-14deg); background: var(--track); border: 1px solid var(--line); overflow: hidden; margin-top: 4px; }
+    #valora-splash .bar i { display: block; height: 100%; width: 40%; background: var(--money); animation: v-slide 1.1s ease-in-out infinite; }
+    #valora-splash .label { font: 13px ui-monospace, Menlo, Consolas, monospace; letter-spacing: .06em; width: min(290px, 80vw); }
+
+    @keyframes v-bob { 0%,100% { transform: rotate(-6deg) translateY(0); } 50% { transform: rotate(-6deg) translateY(-5px); } }
+    @keyframes v-slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+    @keyframes v-pn1 { 0% { opacity: 0; transform: scale(.8); } 5%,92% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+    @keyframes v-pn2 { 0%,28% { opacity: 0; transform: scale(.7); } 34% { opacity: 1; transform: scale(1.06); } 38%,92% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+    @keyframes v-pn3 { 0%,58% { opacity: 0; transform: scale(.7); } 64% { opacity: 1; transform: scale(1.06); } 68%,92% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+    @keyframes v-fist { 0%,28% { transform: translateX(-46px) scale(.8); } 34% { transform: translateX(0) scale(1.08); } 40%,100% { transform: translateX(0) scale(1); } }
+    @keyframes v-burst { 0%,32% { opacity: 0; transform: scale(.3) rotate(-12deg); } 38% { opacity: 1; transform: scale(1.15) rotate(-6deg); } 44%,92% { opacity: 1; transform: scale(1) rotate(-6deg); } 100% { opacity: 0; } }
+    @keyframes v-fly { 0%,58% { transform: translate(-16px,0) rotate(0); } 70%,100% { transform: translate(6px,-8px) rotate(-38deg); } }
+    @keyframes v-stars { 0%,64% { opacity: 0; transform: scale(.3); } 72% { opacity: 1; transform: scale(1.1); } 78%,92% { opacity: 1; transform: scale(1); } 100% { opacity: 0; } }
+    @keyframes v-sfx2 { 0%,33% { opacity: 0; } 40%,92% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes v-sfx3 { 0%,63% { opacity: 0; } 72%,92% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes v-shake { 0%,33% { transform: none; } 35% { transform: translate(-3px,2px); } 37% { transform: translate(3px,-2px); } 39% { transform: translate(-2px,1px); } 41%,100% { transform: none; } }
     @media (prefers-reduced-motion: reduce) {
-      #valora-splash .bar i { animation: none; width: 100%; }
+      #valora-splash *, #valora-splash { animation: none !important; }
+      #valora-splash .pnl svg, #valora-splash .sfx { opacity: 1; }
     }
   </style>
+  <script>
+    // Match the saved in-app theme (Flutter's shared_preferences stores it as "dark"/"light"); light is the default.
+    try { if (localStorage.getItem('flutter.theme_mode') === '"dark"') document.documentElement.setAttribute('data-theme', 'dark'); } catch (e) {}
+  </script>
 </head>
 <body>
-  <div id="valora-splash" role="status" aria-live="polite">
-    <div class="mark"><span>V</span></div>
+  <div id="valora-splash" role="status" aria-live="polite" aria-label="Loading Valora">
+    <div class="mark" aria-hidden="true"><span>V</span></div>
     <div class="title">VALORA</div>
+
+    <div class="strip" aria-hidden="true">
+      <div class="pnl p1">
+        <svg class="pn1" viewBox="0 0 94 150">
+          <defs><pattern id="vh" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.1" fill="#151215" opacity=".22"/></pattern></defs>
+          <rect width="94" height="150" fill="url(#vh)"/>
+          <path d="M26 56 C12 64 8 84 4 100 L30 100 Z" fill="#D81E5B" stroke="#15121F" stroke-width="2.5"/>
+          <rect x="24" y="88" width="7" height="22" fill="#1D3FBF" stroke="#15121F" stroke-width="2"/><rect x="33" y="88" width="7" height="22" fill="#1D3FBF" stroke="#15121F" stroke-width="2"/>
+          <path d="M22 58h22l4 32H18z" fill="#2B5CFF" stroke="#15121F" stroke-width="2.5"/>
+          <path d="M44 62 L60 52" stroke="#2B5CFF" stroke-width="9" stroke-linecap="round"/><circle cx="62" cy="51" r="6" fill="#F2C9A0" stroke="#15121F" stroke-width="2"/>
+          <path d="M22 62 L8 76" stroke="#2B5CFF" stroke-width="9" stroke-linecap="round"/>
+          <circle cx="33" cy="46" r="9.5" fill="#F2C9A0" stroke="#15121F" stroke-width="2.5"/><path d="M24 43h18v6H24z" fill="#15121F"/><path d="M27 46l5-1.5M39 46l-5-1.5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="33" cy="72" r="6" fill="#FFC247" stroke="#15121F" stroke-width="2"/><text x="33" y="75.5" text-anchor="middle" font-family="Impact,Arial Black,sans-serif" font-size="9" fill="#15121F">V</text>
+        </svg>
+        <div class="cap">1 · WIND-UP…</div>
+      </div>
+      <div class="pnl p2">
+        <svg class="pn2" viewBox="0 0 94 150">
+          <g stroke="#15121F" stroke-width="2" opacity=".35"><path d="M0 40L94 70M0 75L94 75M0 110L94 80M0 20L94 62M0 130L94 88"/></g>
+          <polygon class="burst" points="47,24 55,44 76,38 70,58 90,66 68,76 78,98 56,90 47,112 38,90 16,98 26,76 4,66 24,58 18,38 39,44" fill="#FFC247" stroke="#15121F" stroke-width="3"/>
+          <g class="fist">
+            <rect x="-6" y="62" width="42" height="26" rx="8" fill="#1D3FBF" stroke="#15121F" stroke-width="3"/>
+            <rect x="30" y="56" width="34" height="38" rx="12" fill="#2B5CFF" stroke="#15121F" stroke-width="3"/>
+            <path d="M42 62v26M52 62v26" stroke="#15121F" stroke-width="2"/>
+          </g>
+        </svg>
+        <div class="sfx sfx2">POW!</div>
+        <div class="cap">2 · IMPACT!</div>
+      </div>
+      <div class="pnl p3">
+        <svg class="pn3" viewBox="0 0 94 150">
+          <rect width="94" height="150" fill="url(#vh)"/>
+          <g stroke="#15121F" stroke-width="2" opacity=".35"><path d="M0 70L60 64M0 90L60 84M0 110L60 104"/></g>
+          <g class="fly">
+            <path d="M40 60 C40 40 76 40 76 60 L80 112 L36 112 Z" fill="#3A2A5C" stroke="#15121F" stroke-width="3"/>
+            <circle cx="58" cy="58" r="12" fill="#15121F"/><circle cx="53" cy="58" r="2.6" fill="#FF2D55"/><circle cx="63" cy="58" r="2.6" fill="#FF2D55"/>
+            <rect x="46" y="86" width="24" height="14" fill="#FFC247" stroke="#15121F" stroke-width="2"/><text x="58" y="97" text-anchor="middle" font-family="Impact,Arial Black,sans-serif" font-size="10" fill="#15121F">$??</text>
+          </g>
+          <g class="stars"><path d="M14 22l3.5 8 8 1-6 5.5 1.7 8.3-7.2-4.3-7.2 4.3 1.7-8.3-6-5.5 8-1z" fill="#FFC247" stroke="#15121F" stroke-width="1.5"/><path d="M72 14l2.5 5.6 5.6.7-4.2 3.9 1.2 5.8-5.1-3-5.1 3 1.2-5.8-4.2-3.9 5.6-.7z" fill="#FFC247" stroke="#15121F" stroke-width="1.5"/></g>
+        </svg>
+        <div class="sfx sfx3">K.O.!</div>
+        <div class="cap">3 · DOWN!</div>
+      </div>
+    </div>
+
+    <div class="label">NOW LOADING…</div>
     <div class="bar"><i></i></div>
   </div>
 
