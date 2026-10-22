@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,8 +8,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../controllers/home_controller.dart';
 import '../../controllers/onboarding_controller.dart';
-import '../../core/cache_manager.dart';
 import '../../core/currency_provider.dart';
+import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../core/tokens.dart';
 import '../../models/game.dart';
@@ -20,6 +19,7 @@ import '../../services/share_service.dart';
 import '../../services/update_service.dart';
 import '../../widgets/app_shell.dart';
 import '../../widgets/comic.dart';
+import '../../widgets/game_cover.dart';
 import '../collections/add_game_modal.dart';
 import '../collections/library_sync_view.dart';
 import '../onboarding/onboarding_content.dart';
@@ -275,14 +275,6 @@ class _MobileHeader extends ConsumerWidget {
   }
 }
 
-String _ago(DateTime d) {
-  final diff = DateTime.now().difference(d);
-  if (diff.inMinutes < 2) return 'just now';
-  if (diff.inHours < 1) return '${diff.inMinutes}m ago';
-  if (diff.inDays < 1) return '${diff.inHours}h ago';
-  return '${diff.inDays}d ago';
-}
-
 class _HeroCard extends ConsumerStatefulWidget {
   const _HeroCard({required this.isDesktop});
   final bool isDesktop;
@@ -348,7 +340,7 @@ class _HeroCardState extends ConsumerState<_HeroCard> {
         ? 'Checking prices…'
         : latest == null
             ? 'No prices yet'
-            : 'Prices updated ${_ago(latest)}';
+            : 'Prices updated ${timeAgo(latest)}';
 
     return HardBox(
       color: t.money,
@@ -644,38 +636,6 @@ class _QuickActions extends StatelessWidget {
   }
 }
 
-String _rank(double v) => v >= 100 ? 'S' : (v >= 40 ? 'A' : 'B');
-
-class _Cover extends StatelessWidget {
-  const _Cover({required this.game});
-  final Game game;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = VTokens.of(context);
-    final fallback = Container(
-      color: t.surface2,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(6),
-      child: Text(game.title,
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-          style: VText.body(11, t.muted)),
-    );
-    final url = game.coverUrl;
-    if (url == null || url.isEmpty) return fallback;
-    return CachedNetworkImage(
-      imageUrl: url,
-      cacheManager: gameCoverCacheManager,
-      memCacheWidth: 300,
-      fit: BoxFit.cover,
-      placeholder: (_, __) => ColoredBox(color: t.surface2),
-      errorWidget: (_, __, ___) => fallback,
-    );
-  }
-}
-
 class _CrownJewels extends ConsumerWidget {
   const _CrownJewels({required this.isDesktop});
   final bool isDesktop;
@@ -746,7 +706,7 @@ class _CrownCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = VTokens.of(context);
-    final rank = _rank(game.activeMarketValue ?? 0);
+    final rank = valueRank(game.activeMarketValue ?? 0);
     return PressableBox(
       shadowOffset: 0,
       padding: EdgeInsets.zero,
@@ -763,7 +723,7 @@ class _CrownCard extends StatelessWidget {
               HardBox(
                 shadowOffset: 4,
                 child:
-                    AspectRatio(aspectRatio: 3 / 4, child: _Cover(game: game)),
+                    AspectRatio(aspectRatio: 3 / 4, child: GameCover(game: game)),
               ),
               Positioned(
                 left: -8,
@@ -889,7 +849,7 @@ class _RecentlyAdded extends ConsumerWidget {
                       width: 96,
                       child: HardBox(
                         shadowOffset: 3,
-                        child: _Cover(game: g),
+                        child: GameCover(game: g),
                       ),
                     ),
                   ),

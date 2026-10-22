@@ -60,10 +60,14 @@ class PressableBox extends StatefulWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
     this.minHeight = 44,
     this.semanticLabel,
+    this.onPressStart,
   });
 
   final Widget child;
   final VoidCallback? onTap;
+
+  /// Fires the moment a finger/mouse goes down (use to warm data before navigation).
+  final VoidCallback? onPressStart;
   final Color? color;
   final double shadowOffset;
   final Color? shadowColor;
@@ -99,7 +103,10 @@ class _PressableBoxState extends State<PressableBox> {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: widget.onTap,
-          onTapDown: (_) => setState(() => _down = true),
+          onTapDown: (_) {
+            widget.onPressStart?.call();
+            setState(() => _down = true);
+          },
           onTapUp: (_) => setState(() => _down = false),
           onTapCancel: () => setState(() => _down = false),
           child: AnimatedContainer(
