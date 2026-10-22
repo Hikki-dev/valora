@@ -110,11 +110,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
             backgroundImage,
             fit: BoxFit.cover,
             alignment: Alignment.center,
-          ).animate().fadeIn(duration: 800.ms).scale(
-              begin: const Offset(1.15, 1.15),
-              end: const Offset(1.0, 1.0),
-              duration: 12.seconds, // Epic long zoom
-              curve: Curves.linear),
+          ).animate().fadeIn(duration: 400.ms),
 
           // 2. Artistic Gradient Overlay
           Container(

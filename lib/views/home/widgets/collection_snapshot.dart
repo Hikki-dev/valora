@@ -211,7 +211,7 @@ class CollectionSnapshotWidget extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Text(
-            currency.format(game.activeMarketValue ?? 0),
+            currency.formatOrDash(game.activeMarketValue),
             style: const TextStyle(
                 color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16),
           ),

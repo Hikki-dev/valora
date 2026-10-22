@@ -454,6 +454,8 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
+bool _firstFrameSignalled = false;
+
 class ValoraApp extends ConsumerWidget {
   const ValoraApp({super.key});
 
@@ -474,8 +476,11 @@ class ValoraApp extends ConsumerWidget {
         ref.read(onboardingControllerProvider.notifier).checkOnboarding();
       }
 
-      // Signal to the web container that the first frame is rendered
-      PlatformUtils.signalFirstFrame();
+      // Signal to the web container that the first frame is rendered (once).
+      if (!_firstFrameSignalled) {
+        _firstFrameSignalled = true;
+        PlatformUtils.signalFirstFrame();
+      }
     });
 
     return MaterialApp.router(

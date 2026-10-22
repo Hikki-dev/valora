@@ -22,6 +22,11 @@ import '../onboarding/onboarding_panel.dart';
 import '../onboarding/onboarding_content.dart';
 import '../../controllers/onboarding_controller.dart';
 
+/// One GitHub release lookup per app session (was: one per HomeView rebuild,
+/// which burns the 60 req/h unauthenticated GitHub rate limit).
+final updateInfoProvider = FutureProvider<UpdateInfo?>(
+    (ref) => UpdateService().checkForUpdate());
+
 class HomeView extends ConsumerWidget {
   const HomeView({super.key});
 
@@ -128,7 +133,7 @@ class HomeView extends ConsumerWidget {
               left: 16,
               right: 16,
               child: FutureBuilder<UpdateInfo?>(
-                future: UpdateService().checkForUpdate(),
+                future: ref.watch(updateInfoProvider.future),
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data!.isUpdateAvailable) {
                     final info = snapshot.data!;

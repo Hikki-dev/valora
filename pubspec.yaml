@@ -76,8 +76,12 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  # Explicit list: launcher/splash source images (Tatsumaki.jpg, batman.jpg) are
+  # build-time inputs and must not be shipped inside the app bundle.
   assets:
-    - assets/icon/
+    - assets/icon/Splash.webp
+    - assets/icon/batman_optimized.jpg
+    - assets/icon/valora_icon.png
   fonts:
     - family: Syne
       fonts:

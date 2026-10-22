@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
     if (!apiKey) throw new Error('STEAM_API_KEY not configured')
 
     const url = `https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${apiKey}&steamid=${steamId}&format=json&include_appinfo=1`
-    const response = await fetch(url)
+    const response = await fetch(url, { signal: AbortSignal.timeout(10000) })
     if (!response.ok) throw new Error(`Steam API error: ${response.statusText}`)
 
     const data = await response.json()
@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
   } catch (err: any) {
     const status = err.message.includes('Unauthorized') ? 401 :
                    err.message.includes('Invalid Steam') ? 400 : 500
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: status === 500 ? 'Steam sync failed' : err.message }), {
       status, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
   }

@@ -169,7 +169,7 @@ class InsightsView extends ConsumerWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            currency.format(game.activeMarketValue ?? 0),
+            currency.formatOrDash(game.activeMarketValue),
             style: TextStyle(
               color: isTop ? Colors.cyanAccent : textColor,
               fontWeight: FontWeight.w900,

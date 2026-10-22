@@ -64,7 +64,7 @@ void main() async {
     await Supabase.initialize(
       url: supabaseUrl,
       anonKey: supabaseAnonKey,
-    ).timeout(const Duration(seconds: 10));
+    ).timeout(const Duration(seconds: 4));
   } catch (e) {
     debugPrint("Startup Error (Supabase): $e");
   }

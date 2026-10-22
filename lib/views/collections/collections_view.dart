@@ -387,19 +387,26 @@ class CollectionsView extends ConsumerWidget {
                         itemCount: games.length,
                         itemBuilder: (context, index) {
                           final g = games[index];
+                          final card = _buildGameCard(
+                            context,
+                            ref,
+                            g,
+                            cardColor,
+                            textColor,
+                            mutedTextColor,
+                          );
+                          // Only the first screenful animates in. Lazily built
+                          // items further down must appear instantly: a delay of
+                          // index * 50ms would leave item 200 invisible for 10s.
                           return RepaintBoundary(
-                            child: _buildGameCard(
-                              context,
-                              ref,
-                              g,
-                              cardColor,
-                              textColor,
-                              mutedTextColor,
-                            )
-                                .animate()
-                                .fadeIn(
-                                    duration: 400.ms, delay: (index * 50).ms)
-                                .slideY(begin: 0.1, end: 0),
+                            child: index < 12
+                                ? card
+                                    .animate()
+                                    .fadeIn(
+                                        duration: 300.ms,
+                                        delay: (index * 30).ms)
+                                    .slideY(begin: 0.06, end: 0)
+                                : card,
                           );
                         },
                       ),
@@ -448,17 +455,12 @@ class CollectionsView extends ConsumerWidget {
 
     return RepaintBoundary(
       child: GestureDetector(
-        onTapDown: (_) {
-          // Preload data on touch start (mobile)
-          ref.read(gameRepositoryProvider).getGameById(game.id);
-          ref.read(gamePricesProvider(game.id));
-        },
+        // Warm the price provider on touch start so the detail page opens
+        // with data. (The old extra getGameById calls discarded their result
+        // and fired a network request on every hover.)
+        onTapDown: (_) => ref.read(gamePricesProvider(game.id)),
         onTap: () => context.push('/game/${game.id}'),
         child: MouseRegion(
-          onEnter: (_) {
-            // Preload data on hover (web)
-            ref.read(gameRepositoryProvider).getGameById(game.id);
-          },
           child: Hero(
             tag: 'game_cover_${game.id}',
             child: Container(
@@ -518,7 +520,7 @@ class CollectionsView extends ConsumerWidget {
                                 Text(
                                   ref
                                       .watch(currencyProvider)
-                                      .format(game.activeMarketValue ?? 0.0),
+                                      .formatOrDash(game.activeMarketValue),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w900,
                                     fontSize: 16,
