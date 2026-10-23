@@ -3,6 +3,13 @@ name: Android Release Build
 on:
   push:
     branches: [ "main" ]
+    # Docs and templates do not change the app, so they do not publish an APK.
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/pull_request_template.md'
+      - 'LICENSE'
 
 jobs:
   build:

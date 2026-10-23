@@ -24,8 +24,16 @@ All notable changes to **Valora** are written here in plain words.
 - The database in this repository now matches the live one.
 - Nintendo consoles are matched to the right platform.
 
+### Documentation
+- The README now tells the story from "what is this" to "run it yourself", one step at a time.
+- New guides in `docs/`: Getting started, How everything fits, Where prices come from, Your privacy and data, Running it yourself, Design, FAQ and Fixing problems.
+- A diagram of how the parts fit together, and screenshots of the sign-in page.
+- Issue and pull request templates, and a licence file (MIT).
+- Docs-only changes no longer publish a new Android build.
+
 ### Behind the scenes
 - All code is formatted, so the automatic checks pass.
+- The automatic checks use Flutter 3.41.4, the same as the website build.
 - Old fonts and unused pictures were removed to keep the app small.
 - Added `CONTRIBUTING.md`, `SECURITY.md` and a rewritten README.
 
