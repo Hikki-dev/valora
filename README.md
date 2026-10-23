@@ -1,6 +1,9 @@
 # Valora
 
 [![Valora CI/CD](https://github.com/Hikki-dev/valora/actions/workflows/flutter_cicd.yml/badge.svg)](https://github.com/Hikki-dev/valora/actions/workflows/flutter_cicd.yml)
+[![Licence: MIT](https://img.shields.io/github/license/Hikki-dev/valora)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/Hikki-dev/valora?label=latest%20build&color=ffc247)](https://github.com/Hikki-dev/valora/releases/latest)
+[![Live site](https://img.shields.io/badge/live-site-15121f)](https://valora-umber.vercel.app)
 [![Flutter](https://img.shields.io/badge/built%20with-Flutter-02569B)](https://flutter.dev)
 [![Supabase](https://img.shields.io/badge/backend-Supabase-3ECF8E)](https://supabase.com)
 
@@ -8,21 +11,30 @@ Find out what your game collection is worth, and watch it change.
 
 <p align="center"><img src="docs/images/demo.gif" alt="The Valora sign-in page on a computer, then on a phone, then the create account form on a phone" width="100%"></p>
 
-<p align="center"><sub>The sign-in page on a computer and on a phone. Click a picture further down to see it full size.</sub></p>
+<p align="center"><sub>The sign-in page on a computer and on a phone. <b><a href="https://valora-umber.vercel.app">Open the live site</a></b> to try it yourself.</sub></p>
 
-Add the games you own, physical or digital. Valora shows what each one sells for today, what you paid, and how your whole shelf adds up. It works in the browser and on your phone.
+Add the games you own, physical or digital. Valora looks up what each one sells for today, keeps the price with its date, and adds your whole shelf up for you. It works in the browser and on your phone.
 
 You do not need to know anything about prices or investing. Everything is explained in plain words on the way.
 
 ## On this page
 
-* [What you get](#what-you-get): the main parts of the app
-* [How a price gets to your screen](#how-a-price-gets-to-your-screen)
-* [Before you start](#before-you-start): what you need to run it yourself
-* [Run it](#run-it): on your computer, then on the web
+* [What you get](#what-you-get): the parts of the app, in one table
+* [How everything fits together](#how-everything-fits-together): one game, from adding it to seeing its price
+* [Try it first](#try-it-first): the live site and Android builds
+* [The app, step by step](#the-app-step-by-step)
+  * [1. Sign in](#1-sign-in)
+  * [2. Add a game](#2-add-a-game)
+  * [3. Home](#3-home)
+  * [4. Library](#4-library)
+  * [5. A game's page](#5-a-games-page)
+  * [6. Wishlist](#6-wishlist)
+  * [7. Insights](#7-insights)
+  * [8. Share and settings](#8-share-and-settings)
+* [Where prices come from](#where-prices-come-from)
 * [Your privacy and safety](#your-privacy-and-safety)
-* [Look and feel](#look-and-feel): the Midnight Manga design, phone and desktop
-* [Project layout](#project-layout)
+* [Run your own copy](#run-your-own-copy)
+* [Look and feel](#look-and-feel)
 * [Help and more reading](#help-and-more-reading)
 * [Legal and responsibility](#legal-and-responsibility)
 
@@ -30,36 +42,88 @@ You do not need to know anything about prices or investing. Everything is explai
 
 | Part | What it does |
 |---|---|
-| **Home** | Your collection's total value, how it moved, and your most valuable games |
+| **Home** | The total value of your collection, how it moved, and your most valuable games |
 | **Library** | Every game you own. Search, sort, and switch between a grid and a list |
-| **Game page** | The price range over time, the value for each condition, and what you paid |
-| **Wishlist** | Games you want, with a target price. It tells you when a game reaches it |
-| **Insights** | Where your money is: by console, by value, by how rare a game is |
-| **Steam sync** | Brings in your Steam library in one tap |
+| **Game page** | Its value, a price chart, a card for each condition, and what you paid |
+| **Wishlist** | Games you want, with a target price. It shows you when a game reaches it |
+| **Insights** | How many games are priced, the average, your top game, and a ranked list |
+| **Steam sync** | Brings in your Steam library in one go |
 | **Barcode scanner** | Point your phone at a boxed game to add it |
-| **Share a snapshot** | A clean picture of your ten most valuable games to post |
-| **Settings** | Light or dark mode, your currency, and a switch to hide the numbers |
+| **Share a snapshot** | A clean picture of your ten most valuable games |
+| **Settings** | Light or dark mode, US dollars or rupees, and a switch to hide the numbers |
 
-When there is no price for a game, Valora shows a dash. It never shows a made up number.
+When a game has no price, Valora shows a dash. It never shows a made up number.
 
-## How a price gets to your screen
+## How everything fits together
 
-1. You add a game by searching, scanning its barcode, or syncing Steam.
-2. A small server function (a Supabase Edge Function) looks up the current market price.
-3. The price is saved with the date, so the app can draw a history instead of one number.
-4. Your device only has to show it, so it stays fast and does not drain the battery.
+You add a game, and Valora does the rest. The app saves it in a locked database, asks a small server function for the price, and saves that price with today's date. Every day a job marks the wishlist games that reached your target.
 
-Prices are cached for a while so the same game is not looked up again and again: 6 hours for digital games and 24 hours for physical ones.
+<p align="center"><a href="docs/images/how-it-fits.svg"><img src="docs/images/how-it-fits.svg" alt="Diagram: you use the Valora app, which saves to a locked database and asks Edge Functions for prices from PriceCharting, the Steam store, CheapShark and UPCitemdb" width="100%"></a></p>
 
-## Before you start
+Click the picture to see it full size. The full story, part by part, is in [How everything fits](docs/How%20everything%20fits.md).
 
-You need three things:
+## Try it first
 
-1. [Flutter](https://docs.flutter.dev/get-started/install) (stable channel).
-2. A free [Supabase](https://supabase.com) project. This is where your data lives.
-3. Chrome, to run the web version while you work.
+* **[Open the live site](https://valora-umber.vercel.app).** Sign in with Google or an email address. It works on phones too.
+* **[Get an Android build](https://github.com/Hikki-dev/valora/releases/latest).** Every change to `main` that touches the app publishes a new APK.
 
-## Run it
+## The app, step by step
+
+Each screen explains itself. This is the order you will meet them. The same walk through, with more detail, is in [Getting started](docs/Getting%20started.md).
+
+### 1. Sign in
+
+<p align="center"><img src="docs/images/login-mobile.png" alt="Sign-in page on a phone: a large Valora logo above the sign-in form, on a portrait comic background" width="300"></p>
+
+Choose **Continue with Google**, or use an email and a password. Valora never sees your Google password.
+
+### 2. Add a game
+
+Search for it, scan its barcode, or sync your Steam library. For a disc game, choose how it is kept: **Loose**, **CIB** (complete in box), **Boxed** or **New**, because a sealed game is worth more than a loose disc. Add what you paid, if you like, and Valora will show whether you are up or down.
+
+### 3. Home
+
+Home answers one question: what is my collection worth today? You get the total, a chart of how it moved, and your most valuable games. A game with no price is left out of the total, so the total is never wrong in secret.
+
+### 4. Library
+
+Every game in one place. Search waits until you stop typing, so it stays smooth with thousands of games. Sort by value, name or most recently added, and switch between covers and a list.
+
+### 5. A game's page
+
+The game's value, what you paid, a price chart that fills in day by day, and a card for each condition. You can refresh the price, edit the game, or delete it. A delete can be undone for a few seconds.
+
+### 6. Wishlist
+
+Add a game you want and set a target price. When the market price drops to it, the game is marked as hit, so you know it is time to buy.
+
+### 7. Insights
+
+Three numbers (games with a price, the average, your top game) and a ranked list from most to least valuable. It tells you how many games have no price yet.
+
+### 8. Share and settings
+
+**Share** makes a clean picture of your ten most valuable games. In Settings you pick light or dark mode, US dollars or Sri Lankan rupees, and can **hide values** to show someone your shelf without the numbers.
+
+## Where prices come from
+
+Disc games are looked up at PriceCharting, Steam games at the Steam store, and other digital games at CheapShark. Prices are saved with their date, and reused for 24 hours (disc) or 6 hours (digital), so the app stays fast.
+
+A price is an estimate, not an offer. The details, including what happens when there is no price, are in [Where prices come from](docs/Where%20prices%20come%20from.md).
+
+## Your privacy and safety
+
+* **Only you can see your games.** Every table is locked with Row Level Security, so one person can never read another person's collection.
+* **Your Google password never reaches Valora.** Sign-in uses Google's signed ID token.
+* **Secret keys stay out of the code.** The app only holds the publishable key, which is meant to be public. Powerful keys live in the server's secret store.
+* **No selling of data and no adverts.**
+* **Safe connections.** All traffic uses HTTPS, and the website sends security headers (see `vercel.json`).
+
+The full picture is in [Your privacy and data](docs/Your%20privacy%20and%20data.md). To report a problem privately, read [SECURITY.md](SECURITY.md).
+
+## Run your own copy
+
+You need [Flutter](https://docs.flutter.dev/get-started/install) **3.41.4**, a free [Supabase](https://supabase.com) project and the Supabase CLI.
 
 ```bash
 git clone https://github.com/Hikki-dev/valora.git
@@ -67,7 +131,7 @@ cd valora
 flutter pub get
 ```
 
-Create a file called `.env.build` in the top folder. It is ignored by Git, so it never leaves your computer:
+Put your project's address and publishable key in a file called `.env.build`. Git ignores it, so it stays on your computer:
 
 ```json
 {
@@ -76,67 +140,41 @@ Create a file called `.env.build` in the top folder. It is ignored by Git, so it
 }
 ```
 
-Then start the app:
-
 ```bash
 flutter run -d chrome --dart-define-from-file=.env.build
 ```
 
 Without those two values the app shows a "Configuration Missing" page instead of starting. That is on purpose.
 
-To build the web version the way the website does:
+Setting up the database, the secrets and the price lookups, and putting it on the web, are covered one step at a time in [Running it yourself](docs/Running%20it%20yourself.md). Before you push a change, run:
 
 ```bash
-./scripts/build.sh --wasm
+dart format .
+flutter analyze
+flutter test
 ```
-
-The database is set up by the files in `supabase/migrations`. The price and barcode lookups live in `supabase/functions`.
-
-## Your privacy and safety
-
-* **Only you can see your games.** Every table is locked with Row Level Security, so one person can never read another person's collection.
-* **Your password never reaches Valora.** Google sign-in uses the standard ID token check.
-* **Secrets stay out of the code.** The keys are added when the app is built and are never stored in the repository.
-* **No selling of data.** Your library stays between you and your account.
-* **Safe connections.** All traffic uses HTTPS, and the website sends security headers (see `vercel.json`).
-
-To report a problem privately, read [SECURITY.md](SECURITY.md).
 
 ## Look and feel
 
-The design is called **Midnight Manga**: bold outlines, hard shadows and comic panels, in a light theme by default with a dark one you can switch to.
-
-* On a **computer** (900 pixels wide or more) the sign-in page uses a landscape picture beside the form.
-* On a **phone** the sign-in page uses a portrait picture behind the form, with a large Valora logo at the top.
-* The loading screen shows its three comic panels on larger screens and a clean logo on a phone.
+The design is called **Midnight Manga**: bold outlines, hard shadows and comic panels, light by default with a dark theme you can switch to.
 
 <a href="docs/images/login-desktop.png"><img src="docs/images/login-desktop.png" alt="Sign-in page on a computer: comic art on the left, the sign-in form on the right" width="100%"></a>
 
-On a computer, the left side shows a landscape picture, the Valora name and the three comic panels.
-
-<p align="center"><a href="docs/images/login-mobile.png"><img src="docs/images/login-mobile.png" alt="Sign-in page on a phone: a large Valora logo above the sign-in form, on a portrait comic background" width="320"></a></p>
-
-On a phone, a large Valora logo sits above the form. The comic panels are left out so the form comes first.
-
-The pictures are in `assets/art`. They are sized for the web, so the page stays quick to open.
-
-## Project layout
-
-| Folder | What is in it |
-|---|---|
-| `lib/views` | The screens: auth, home, collections, wishlists, onboarding |
-| `lib/widgets` | Shared pieces: the comic style, loader, forms, app shell |
-| `lib/controllers`, `lib/repositories`, `lib/services` | Sign-in, data access and background jobs |
-| `supabase/functions` | Edge Functions for prices, barcodes, Steam sync and price alerts |
-| `supabase/migrations` | The database, step by step |
-| `test` | Unit tests for prices, currencies and platforms |
-| `scripts` | Build and version helpers |
+On a computer (900 pixels wide or more) the left side shows a landscape picture, the Valora name and three comic panels. On a phone, a large Valora logo sits above the form, and the panels are left out so the form comes first. The rules behind the look are in [Design](docs/Design.md).
 
 ## Help and more reading
 
-* [CHANGELOG.md](CHANGELOG.md): what changed in each version, in plain words
-* [CONTRIBUTING.md](CONTRIBUTING.md): how to make a change that is easy to accept
-* [SECURITY.md](SECURITY.md): how to report a security problem
+| Page | What it answers |
+|---|---|
+| [Getting started](docs/Getting%20started.md) | How do I use each screen? |
+| [How everything fits](docs/How%20everything%20fits.md) | What are the parts, and how do they work together? |
+| [Where prices come from](docs/Where%20prices%20come%20from.md) | Where does a price come from, and how fresh is it? |
+| [Your privacy and data](docs/Your%20privacy%20and%20data.md) | What is kept, and who can see it? |
+| [Running it yourself](docs/Running%20it%20yourself.md) | How do I set up my own copy? |
+| [Design](docs/Design.md) | Why does it look like this, and what are the rules? |
+| [FAQ](docs/FAQ.md) | Quick answers |
+| [Fixing problems](docs/Fixing%20problems.md) | Something does not look right |
+| [CHANGELOG](CHANGELOG.md) | What changed in each version |
 
 ## Legal and responsibility
 
@@ -150,10 +188,10 @@ The comic pictures in `assets/art` are artwork from third parties. Make sure you
 
 Pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first. It is short.
 
+## Credits
+
+Prices come from [PriceCharting](https://www.pricecharting.com), the [Steam store](https://store.steampowered.com) and [CheapShark](https://www.cheapshark.com). Barcodes are looked up with [UPCitemdb](https://www.upcitemdb.com). Built with [Flutter](https://flutter.dev) and [Supabase](https://supabase.com), and hosted on [Vercel](https://vercel.com). The fonts are Dela Gothic One, Zen Kaku Gothic New and DotGothic16, under the SIL Open Font Licence.
+
 ## Licence
 
 MIT. See [LICENSE](LICENSE).
-
----
-
-Made for collectors, by a collector.

@@ -10,7 +10,7 @@ Open a [private security advisory](https://github.com/Hikki-dev/valora/security/
 
 * Every table uses Row Level Security, so a person can only read and change their own rows.
 * Google sign-in checks the ID token on the server. Passwords never reach Valora.
-* Keys are added at build time and are not stored in the repository.
+* Secret keys live in the server's secret store, not in the repository. The app only holds the publishable key, which is meant to be public.
 * The website sends security headers, set in `vercel.json`.
 
 ## What to never share
