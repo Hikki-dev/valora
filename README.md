@@ -69,7 +69,7 @@ Click the picture to see it full size. The full story, part by part, is in [How 
 
 ## The app, step by step
 
-Each screen explains itself. This is the order you will meet them. The same walk through, with more detail, is in [Getting started](docs/Getting%20started.md).
+Each screen explains itself. This is the order you will meet them. The pictures below show the real screens filled with made-up demo games (the games and prices are samples, not a real collection). Game covers are left as plain title tiles in these pictures. The same walk through, with more detail, is in [Getting started](docs/Getting%20started.md).
 
 ### 1. Sign in
 
@@ -83,9 +83,17 @@ Search for it, scan its barcode, or sync your Steam library. For a disc game, ch
 
 ### 3. Home
 
+<p align="center"><a href="docs/images/home-desktop.png"><img src="docs/images/home-desktop.png" alt="Home: total value, a rising price chart, value by platform and the most valuable games on a computer" width="100%"></a></p>
+
+<p align="center"><img src="docs/images/home-mobile.png" alt="Home: total value, a rising price chart, value by platform and the most valuable games on a phone" width="300"></p>
+
 Home answers one question: what is my collection worth today? You get the total, a chart of how it moved, and your most valuable games. A game with no price is left out of the total, so the total is never wrong in secret.
 
 ### 4. Library
+
+<p align="center"><a href="docs/images/library-desktop.png"><img src="docs/images/library-desktop.png" alt="Library: search box, platform filters, sort, and a grid of game cards each with a price on a computer" width="100%"></a></p>
+
+<p align="center"><img src="docs/images/library-mobile.png" alt="Library: search box, platform filters, sort, and a grid of game cards each with a price on a phone" width="300"></p>
 
 Every game in one place. Search waits until you stop typing, so it stays smooth with thousands of games. Sort by value, name or most recently added, and switch between covers and a list.
 
@@ -95,9 +103,17 @@ The game's value, what you paid, a price chart that fills in day by day, and a c
 
 ### 6. Wishlist
 
+<p align="center"><a href="docs/images/wishlist-desktop.png"><img src="docs/images/wishlist-desktop.png" alt="Wishlist: games with a target price, a current price and a "Target hit" tag on a computer" width="100%"></a></p>
+
+<p align="center"><img src="docs/images/wishlist-mobile.png" alt="Wishlist: games with a target price, a current price and a "Target hit" tag on a phone" width="300"></p>
+
 Add a game you want and set a target price. When the market price drops to it, the game is marked as hit, so you know it is time to buy.
 
 ### 7. Insights
+
+<p align="center"><a href="docs/images/insights-desktop.png"><img src="docs/images/insights-desktop.png" alt="Insights: three number cards and a ranked list of the most valuable games on a computer" width="100%"></a></p>
+
+<p align="center"><img src="docs/images/insights-mobile.png" alt="Insights: three number cards and a ranked list of the most valuable games on a phone" width="300"></p>
 
 Three numbers (games with a price, the average, your top game) and a ranked list from most to least valuable. It tells you how many games have no price yet.
 
