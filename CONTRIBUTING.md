@@ -40,3 +40,11 @@ flutter run -d chrome --dart-define-from-file=.env.build
 ## Commit messages
 
 Start with a short word that says what kind of change it is: `feat`, `fix`, `docs`, `style`, `perf`, `chore` or `db`. Then say what changed in one line.
+
+## Updating the README pictures
+
+The screen pictures in `docs/images/` are made by a test that fills the real screens with demo games, so it needs no account and no network:
+
+```bash
+flutter test test/screenshots
+```

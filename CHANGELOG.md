@@ -2,7 +2,12 @@
 
 All notable changes to **Valora** are written here in plain words.
 
-## [Unreleased] - 2026-10-22
+## [Unreleased] - 2026-10-24
+
+### Better docs
+- The README now shows the real Home, Library, Wishlist and Insights screens, on a computer and on a phone, using made-up demo games.
+- A small test makes those pictures, so they can be refreshed with one command.
+- Added a 1280 by 640 picture for the GitHub link preview.
 
 ### A new look: Midnight Manga
 - Every screen has a new look: Home, Library, game pages, Wishlist, Insights, Profile and Settings.
