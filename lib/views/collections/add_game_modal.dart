@@ -18,6 +18,7 @@ import '../../core/currency_provider.dart';
 import '../../controllers/home_controller.dart';
 import '../../models/wishlist_item.dart';
 import '../collections/widgets/game_box_3d.dart';
+import '../collections/widgets/search_result_tile.dart';
 import 'barcode_scanner_view.dart';
 import '../../core/tokens.dart';
 import '../../widgets/app_shell.dart';
@@ -552,11 +553,9 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         : game['thumb']?.toString();
     final String title = game['external']?.toString() ?? 'Unknown Title';
 
-    final row = PressableBox(
-      shadowOffset: 3,
-      minHeight: 72,
-      padding: const EdgeInsets.all(8),
-      semanticLabel: 'Choose $title',
+    final row = SearchResultTile(
+      title: title,
+      thumbUrl: thumb,
       onTap: () {
         _titleController.text = title;
         setState(() {
@@ -581,19 +580,6 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           }
         }
       },
-      child: Row(
-        children: [
-          SizedBox(width: 46, child: GameBox3D(coverUrl: thumb, title: title)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: VText.body(15, t.text, weight: FontWeight.w900)),
-          ),
-          Icon(Icons.chevron_right, color: t.muted),
-        ],
-      ),
     );
     if (index > 5) return row;
     return row
