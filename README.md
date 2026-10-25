@@ -24,13 +24,14 @@ You do not need to know anything about prices or investing. Everything is explai
 * [Try it first](#try-it-first): the live site and Android builds
 * [The app, step by step](#the-app-step-by-step)
   * [1. Sign in](#1-sign-in)
-  * [2. Add a game](#2-add-a-game)
+  * [2. Add a game](#2-add-a-game) (also scan a barcode, or bring in all of Steam)
   * [3. Home](#3-home)
   * [4. Library](#4-library)
   * [5. A game's page](#5-a-games-page)
   * [6. Wishlist](#6-wishlist)
   * [7. Insights](#7-insights)
-  * [8. Share and settings](#8-share-and-settings)
+  * [8. Settings](#8-settings)
+  * [9. Dark mode](#9-dark-mode)
 * [Where prices come from](#where-prices-come-from)
 * [Your privacy and safety](#your-privacy-and-safety)
 * [Run your own copy](#run-your-own-copy)
@@ -42,15 +43,15 @@ You do not need to know anything about prices or investing. Everything is explai
 
 | Part | What it does |
 |---|---|
-| **Home** | The total value of your collection, how it moved, and your most valuable games |
-| **Library** | Every game you own. Search, sort, and switch between a grid and a list |
-| **Game page** | Its value, a price chart, a card for each condition, and what you paid |
-| **Wishlist** | Games you want, with a target price. It shows you when a game reaches it |
+| **Home** | The total value of your collection, how it moved, a total for each platform, and your most valuable games |
+| **Library** | Every game you own. Search, filter by platform, sort, and (on a computer) switch between a grid and a list |
+| **Game page** | Its value, a value history chart, a price for each condition, and what you paid |
+| **Wishlist** | Games you want, with a target price. It tags a game when it reaches that price |
 | **Insights** | How many games are priced, the average, your top game, and a ranked list |
-| **Steam sync** | Brings in your Steam library in one go |
-| **Barcode scanner** | Point your phone at a boxed game to add it |
-| **Share a snapshot** | A clean picture of your ten most valuable games |
-| **Settings** | Light or dark mode, US dollars or rupees, and a switch to hide the numbers |
+| **Steam import** | Brings in your Steam library in one go, using your Steam ID |
+| **Barcode scanner** | Scan the barcode on a boxed game to look it up |
+| **Share a snapshot** | A picture of your ten most valuable games, made on your phone |
+| **Settings** | Light or dark mode, US dollars or Sri Lankan rupees, and a switch to hide the numbers |
 
 When a game has no price, Valora shows a dash. It never shows a made up number.
 
@@ -69,57 +70,113 @@ Click the picture to see it full size. The full story, part by part, is in [How 
 
 ## The app, step by step
 
-Each screen explains itself. This is the order you will meet them. The pictures below show the real screens filled with made-up demo games (the games and prices are samples, not a real collection). Game covers are left as plain title tiles in these pictures. The same walk through, with more detail, is in [Getting started](docs/Getting%20started.md).
+Every screen explains itself in plain words, so you can go at your own pace. Click a picture to see it full size. The pictures show the real screens filled with made-up demo games: the games and prices are samples, not a real collection, and covers appear as plain title tiles. The same walk through, with more detail, is in [Getting started](docs/Getting%20started.md).
 
 ### 1. Sign in
 
-<p align="center"><img src="docs/images/login-mobile.png" alt="Sign-in page on a phone: a large Valora logo above the sign-in form, on a portrait comic background" width="300"></p>
+<a href="docs/images/login-desktop.png"><img src="docs/images/login-desktop.png" alt="Sign-in page on a computer: comic art on the left, the sign-in form on the right" width="100%"></a>
+
+<p align="center"><img src="docs/images/login-mobile.png" alt="Sign-in page on a phone: a large Valora logo above the sign-in form" width="300"></p>
 
 Choose **Continue with Google**, or use an email and a password. Valora never sees your Google password.
 
 ### 2. Add a game
 
-Search for it, scan its barcode, or sync your Steam library. For a disc game, choose how it is kept: **Loose**, **CIB** (complete in box), **Boxed** or **New**, because a sealed game is worth more than a loose disc. Add what you paid, if you like, and Valora will show whether you are up or down.
+<a href="docs/images/add-game-desktop.png"><img src="docs/images/add-game-desktop.png" alt="The Add a game sheet: a title box with a barcode button, and an Import my whole Steam library button on a computer" width="100%"></a>
+
+<p align="center"><img src="docs/images/add-game-mobile.png" alt="The Add a game sheet: a title box with a barcode button, and an Import my whole Steam library button on a phone" width="300"></p>
+
+Press **Add game** (on Home, or in the side menu on a computer). Type the title and pick it from the list, or press the barcode button beside the box and scan the case. If you use Steam, **Import my whole Steam library** brings in every game at once. It asks for your Steam ID (the number that identifies your Steam profile), and the import screen shows you how to find it.
+
+After you pick a game, the sheet asks for a few details:
+
+* **Platform:** PlayStation 5, PlayStation 4, Nintendo, Steam or Epic Games.
+* **Format:** Physical or Digital.
+* **For a physical game:** the region (R1 USA, R2 UK/EU, R3 Asia or Japan) and the shape of your copy: **Game only** (just the disc or cartridge), **Complete** (game, case and manual) or **Sealed** (still in the shrink-wrap). A sealed game is worth more than a loose disc, so this matters.
+* **What you paid** (optional). Valora uses it to work out your profit or loss.
+* **Market value.** Filled in from live prices. Change it only if you know better.
+
+Press **Add to library** and the game is saved. A game you only want goes to the Wishlist instead.
 
 ### 3. Home
 
-<p align="center"><a href="docs/images/home-desktop.png"><img src="docs/images/home-desktop.png" alt="Home: total value, a rising price chart, value by platform and the most valuable games on a computer" width="100%"></a></p>
+<a href="docs/images/home-desktop.png"><img src="docs/images/home-desktop.png" alt="Home: the total value, a rising chart, value by platform and the most valuable games on a computer" width="100%"></a>
 
-<p align="center"><img src="docs/images/home-mobile.png" alt="Home: total value, a rising price chart, value by platform and the most valuable games on a phone" width="300"></p>
+<p align="center"><img src="docs/images/home-mobile.png" alt="Home: the total value, a rising chart, value by platform and the most valuable games on a phone" width="300"></p>
 
-Home answers one question: what is my collection worth today? You get the total, a chart of how it moved, and your most valuable games. A game with no price is left out of the total, so the total is never wrong in secret.
+Home answers one question: what is my collection worth today? The big yellow card shows the total, how much it moved this week, a chart of how it moved, and how long ago the prices were updated. **Refresh prices** looks everything up again.
+
+* The **share** button makes a picture of your ten most valuable games on a phone. On the web it shares a short text message instead.
+* The **eye** button hides every price, which is handy when you show someone your screen.
+* On a computer, **By platform** adds up PlayStation, PSN Digital, Steam, Epic Games and Nintendo separately.
+* **Most valuable** lists your top games. The letter on each cover is a rank: **S** is worth $100 or more, **A** is $40 or more, and **B** is below that.
+
+A game with no price is left out of the total, so the total is never wrong in secret.
 
 ### 4. Library
 
-<p align="center"><a href="docs/images/library-desktop.png"><img src="docs/images/library-desktop.png" alt="Library: search box, platform filters, sort, and a grid of game cards each with a price on a computer" width="100%"></a></p>
+<a href="docs/images/library-desktop.png"><img src="docs/images/library-desktop.png" alt="Library: a search box, platform filters, sort, and a grid of game cards each with a price on a computer" width="100%"></a>
 
-<p align="center"><img src="docs/images/library-mobile.png" alt="Library: search box, platform filters, sort, and a grid of game cards each with a price on a phone" width="300"></p>
+<p align="center"><img src="docs/images/library-mobile.png" alt="Library: a search box, platform filters, sort, and a grid of game cards each with a price on a phone" width="300"></p>
 
-Every game in one place. Search waits until you stop typing, so it stays smooth with thousands of games. Sort by value, name or most recently added, and switch between covers and a list.
+Every game in one place. Search waits until you stop typing, so it stays smooth with thousands of games. Filter by PlayStation, Nintendo, Steam or Epic, and sort by value, name or most recently added.
+
+On a computer you can also switch from the grid to a list, which shows more at once:
+
+<a href="docs/images/library-list-desktop.png"><img src="docs/images/library-list-desktop.png" alt="Library as a list on a computer, one row per game" width="100%"></a>
 
 ### 5. A game's page
 
-The game's value, what you paid, a price chart that fills in day by day, and a card for each condition. You can refresh the price, edit the game, or delete it. A delete can be undone for a few seconds.
+<a href="docs/images/game-desktop.png"><img src="docs/images/game-desktop.png" alt="A game page: current value, a value history chart and a price for each condition on a computer" width="100%"></a>
+
+<p align="center"><img src="docs/images/game-mobile.png" alt="A game page: current value, a value history chart and a price for each condition on a phone" width="300"></p>
+
+Open a game to see its **current value** for the copy you own, where the price came from, and how fresh it is. A small tag says **Fresh** or **Out of date**, and **Refresh** looks it up again.
+
+Under that you get:
+
+* **Value history**, with **1M**, **3M**, **1Y** and **All** buttons. The chart fills in as Valora saves new prices.
+* **Value by condition**: the price for **Game only**, **Complete** and **Sealed**, with a **Yours** tag on the one you own. A digital game shows its store price.
+* **What you paid** and your profit or loss, once you add it with **Edit details**.
+* **Remove from library**. A removal can be undone for a few seconds.
 
 ### 6. Wishlist
 
-<p align="center"><a href="docs/images/wishlist-desktop.png"><img src="docs/images/wishlist-desktop.png" alt="Wishlist: games with a target price, a current price and a "Target hit" tag on a computer" width="100%"></a></p>
+<a href="docs/images/wishlist-desktop.png"><img src="docs/images/wishlist-desktop.png" alt="Wishlist: games with a target price, a current price and a Target hit tag on a computer" width="100%"></a>
 
-<p align="center"><img src="docs/images/wishlist-mobile.png" alt="Wishlist: games with a target price, a current price and a "Target hit" tag on a phone" width="300"></p>
+<p align="center"><img src="docs/images/wishlist-mobile.png" alt="Wishlist: games with a target price, a current price and a Target hit tag on a phone" width="300"></p>
 
-Add a game you want and set a target price. When the market price drops to it, the game is marked as hit, so you know it is time to buy.
+Add a game you want and set a **target price**. Each card shows the target and the price now. When the price reaches your target, the card is tagged **Target hit**, and the Wishlist button shows a red number, so you know it is time to buy. The check also runs once a day.
 
 ### 7. Insights
 
-<p align="center"><a href="docs/images/insights-desktop.png"><img src="docs/images/insights-desktop.png" alt="Insights: three number cards and a ranked list of the most valuable games on a computer" width="100%"></a></p>
+<a href="docs/images/insights-desktop.png"><img src="docs/images/insights-desktop.png" alt="Insights: three number cards and a ranked list of the most valuable games on a computer" width="100%"></a>
 
 <p align="center"><img src="docs/images/insights-mobile.png" alt="Insights: three number cards and a ranked list of the most valuable games on a phone" width="300"></p>
 
-Three numbers (games with a price, the average, your top game) and a ranked list from most to least valuable. It tells you how many games have no price yet.
+Three numbers (games with a price, the average, your top game), then your games ranked from most to least valuable. Games with no market price yet are not ranked. Insights tells you how many there are. It is a good page to look at before you decide what to sell.
 
-### 8. Share and settings
+### 8. Settings
 
-**Share** makes a clean picture of your ten most valuable games. In Settings you pick light or dark mode, US dollars or Sri Lankan rupees, and can **hide values** to show someone your shelf without the numbers.
+<a href="docs/images/settings-desktop.png"><img src="docs/images/settings-desktop.png" alt="Settings: theme, currency, hide values, how prices work, and account on a computer" width="100%"></a>
+
+<p align="center"><img src="docs/images/settings-mobile.png" alt="Settings: theme, currency, hide values, how prices work, and account on a phone" width="300"></p>
+
+**Profile** and settings are in one place:
+
+* **Theme:** light or dark.
+* **Currency:** prices are fetched in US dollars and converted to Sri Lankan rupees if you choose LKR.
+* **Hide values:** masks prices on Home.
+* **How prices work:** a short reminder, in plain words, of where prices come from.
+* **Account:** your email, when you joined, the app version, and **Sign out**.
+
+### 9. Dark mode
+
+<a href="docs/images/home-dark-desktop.png"><img src="docs/images/home-dark-desktop.png" alt="Home in dark mode on a computer" width="100%"></a>
+
+<p align="center"><img src="docs/images/home-dark-mobile.png" alt="Home in dark mode on a phone" width="300"></p>
+
+Light is the default. Switch to dark in Settings, with the moon button on a phone, or in the side menu on a computer. Valora remembers your choice.
 
 ## Where prices come from
 
@@ -173,8 +230,6 @@ flutter test
 ## Look and feel
 
 The design is called **Midnight Manga**: bold outlines, hard shadows and comic panels, light by default with a dark theme you can switch to.
-
-<a href="docs/images/login-desktop.png"><img src="docs/images/login-desktop.png" alt="Sign-in page on a computer: comic art on the left, the sign-in form on the right" width="100%"></a>
 
 On a computer (900 pixels wide or more) the left side shows a landscape picture, the Valora name and three comic panels. On a phone, a large Valora logo sits above the form, and the panels are left out so the form comes first. The rules behind the look are in [Design](docs/Design.md).
 
