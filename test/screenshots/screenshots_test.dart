@@ -19,7 +19,10 @@ import 'package:valora/core/theme.dart';
 import 'package:valora/models/game.dart';
 import 'package:valora/models/wishlist_item.dart';
 import 'package:valora/repositories/game_repository.dart';
+import 'package:valora/models/price_data.dart';
 import 'package:valora/views/collections/collections_view.dart';
+import 'package:valora/views/collections/game_detail_view.dart';
+import 'package:valora/views/home/profile_view.dart';
 import 'package:valora/views/home/home_view.dart';
 import 'package:valora/views/home/insights_view.dart';
 import 'package:valora/views/wishlists/wishlists_view.dart';
@@ -37,7 +40,7 @@ Game _g(String id, String title, AppPlatform p, double? value,
       purchasePrice: paid,
       currentValue: value,
       estimatedValue: value,
-      fetchedAt: DateTime(2026, 10, 20),
+      fetchedAt: DateTime.now().subtract(const Duration(hours: 2)),
     );
 
 final _games = [
@@ -93,7 +96,7 @@ class _DemoHome extends HomeController {
     final total = s.totalValuation;
     return s.copyWith(valueHistory: [
       for (var i = 0; i < 30; i++)
-        ValueSnapshot(DateTime(2026, 9, 21).add(Duration(days: i)),
+        ValueSnapshot(DateTime.now().subtract(Duration(days: 29 - i)),
             total * (0.82 + 0.18 * i / 29 + (i % 4 == 0 ? 0.012 : 0))),
     ]);
   }
@@ -134,7 +137,9 @@ Future<void> _loadFonts() async {
 }
 
 Future<void> _shot(WidgetTester tester, String path, String name, Size size,
-    {bool dark = false}) async {
+    {bool dark = false,
+    List<Override> extra = const [],
+    Future<void> Function(WidgetTester)? act}) async {
   tester.view.physicalSize = size * 2;
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
@@ -149,7 +154,10 @@ Future<void> _shot(WidgetTester tester, String path, String name, Size size,
             path: '/collections', builder: (c, s) => const CollectionsView()),
         GoRoute(path: '/wishlists', builder: (c, s) => const WishlistsView()),
         GoRoute(path: '/insights', builder: (c, s) => const InsightsView()),
-        GoRoute(path: '/profile', builder: (c, s) => const SizedBox()),
+        GoRoute(path: '/profile', builder: (c, s) => const ProfileView()),
+        GoRoute(
+            path: '/game/:id',
+            builder: (c, s) => GameDetailView(gameId: s.pathParameters['id']!)),
       ],
     ),
   ]);
@@ -161,6 +169,7 @@ Future<void> _shot(WidgetTester tester, String path, String name, Size size,
       wishlistProvider.overrideWith((ref) async => _wishlist),
       wishlistDealCountProvider.overrideWith((ref) async => 2),
       homeControllerProvider.overrideWith(_DemoHome.new),
+      ...extra,
     ],
     child: RepaintBoundary(
       key: key,
@@ -175,6 +184,13 @@ Future<void> _shot(WidgetTester tester, String path, String name, Size size,
   ));
   for (var i = 0; i < 40; i++) {
     await tester.pump(const Duration(milliseconds: 100));
+  }
+
+  if (act != null) {
+    await act(tester);
+    for (var i = 0; i < 20; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
   }
 
   await tester.runAsync(() async {
@@ -210,4 +226,46 @@ void main() {
     testWidgets('${e.key} desktop',
         (t) => _shot(t, e.value, '${e.key}-desktop', desktop));
   }
+
+  final game = _games.first;
+  final detail = [
+    gameDetailProvider.overrideWith((ref, id) async => game),
+    gamePricesProvider.overrideWith((ref, id) async => PriceData(
+        loosePrice: 31.0,
+        cibPrice: 62.4,
+        newPrice: 118.0,
+        source: 'PriceCharting')),
+    gameHistoryProvider.overrideWith((ref, id) async => [
+          for (var i = 0; i < 12; i++)
+            {
+              'fetched_at': DateTime(2026, 5, 1)
+                  .add(Duration(days: i * 16))
+                  .toIso8601String(),
+              'price_complete': 48.0 + i * 1.3 + (i % 3) * 0.8,
+              'price_loose': 25.0 + i * 0.5,
+              'price_new': 90.0 + i * 2.2,
+            }
+        ]),
+  ];
+  for (final d in {'mobile': phone, 'desktop': desktop}.entries) {
+    testWidgets('game ${d.key}',
+        (t) => _shot(t, '/game/1', 'game-${d.key}', d.value, extra: detail));
+    testWidgets('settings ${d.key}',
+        (t) => _shot(t, '/profile', 'settings-${d.key}', d.value));
+    testWidgets('home dark ${d.key}',
+        (t) => _shot(t, '/', 'home-dark-${d.key}', d.value, dark: true));
+    testWidgets(
+        'add game ${d.key}',
+        (t) => _shot(t, '/', 'add-game-${d.key}', d.value, act: (t) async {
+              await t.tap(find.text('Add game').first);
+              await t.pump();
+            }));
+  }
+  testWidgets('library list desktop', (t) async {
+    await _shot(t, '/collections', 'library-list-desktop', desktop,
+        act: (t) async {
+      await t.tap(find.text('List').first);
+      await t.pump();
+    });
+  });
 }

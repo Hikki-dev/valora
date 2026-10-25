@@ -35,7 +35,7 @@ After that time, the next look asks the source again. You can also press the ref
 
 ## What condition does
 
-For disc games the price depends on how the game is kept. A game page shows a card for each condition, so you can see the difference between **Loose**, **CIB** (complete in box), **Boxed** and **New**. The Home total uses the condition you chose for each game.
+For disc games the price depends on how the game is kept. A game page shows a card for each condition, so you can see the difference between **Game only**, **Complete** and **Sealed**. The Home total uses the condition you chose for each game.
 
 ## When there is no price
 
