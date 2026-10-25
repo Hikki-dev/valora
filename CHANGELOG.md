@@ -2,7 +2,12 @@
 
 All notable changes to **Valora** are written here in plain words.
 
-## [Unreleased] - 2026-10-24
+## [Unreleased] - 2026-10-25
+
+### Fixed
+- Adding a game by search showed a blank box instead of the results. The results were found, but each row was drawn without a height, so it could not be shown. Search results now appear.
+- If a search really does fail, the box now says so instead of looking like "no matches".
+
 
 ### Better docs
 - The README now shows the real Home, Library, Wishlist and Insights screens, on a computer and on a phone, using made-up demo games.

@@ -18,6 +18,7 @@ import '../../core/currency_provider.dart';
 import '../../controllers/home_controller.dart';
 import '../../models/wishlist_item.dart';
 import '../collections/widgets/game_box_3d.dart';
+import '../collections/widgets/search_result_tile.dart';
 import 'barcode_scanner_view.dart';
 import '../../core/tokens.dart';
 import '../../widgets/app_shell.dart';
@@ -63,6 +64,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
   bool _isSaving = false;
   bool _isSearching = false;
+  bool _searchFailed = false;
   bool _configuring = false;
   bool _isScraping = false;
 
@@ -150,6 +152,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
     setState(() {
       _isSearching = true;
+      _searchFailed = false;
       _searchModeLabel = null;
     });
 
@@ -234,9 +237,12 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       if (response.status == 200) {
         return List<dynamic>.from(response.data as List);
       }
+      debugPrint('[Search] search-games answered ${response.status}');
     } catch (e) {
       debugPrint('[Search] Edge function error: $e');
     }
+    // An empty list means "no matches". A failure must not look the same.
+    if (mounted) setState(() => _searchFailed = true);
     return [];
   }
 
@@ -513,7 +519,21 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
               ],
             ),
           ),
-        if (!_isSearching && _searchResults.isEmpty && q.length > 2)
+        if (!_isSearching && _searchFailed)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Semantics(
+              liveRegion: true,
+              child: Text(
+                  'Search isn’t working right now. Check your connection and try again in a moment.',
+                  textAlign: TextAlign.center,
+                  style: VText.body(14, t.lossInk, weight: FontWeight.w700)),
+            ),
+          ),
+        if (!_isSearching &&
+            !_searchFailed &&
+            _searchResults.isEmpty &&
+            q.length > 2)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Text('No matches. Try fewer words, or check the spelling.',
@@ -533,11 +553,9 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         : game['thumb']?.toString();
     final String title = game['external']?.toString() ?? 'Unknown Title';
 
-    final row = PressableBox(
-      shadowOffset: 3,
-      minHeight: 72,
-      padding: const EdgeInsets.all(8),
-      semanticLabel: 'Choose $title',
+    final row = SearchResultTile(
+      title: title,
+      thumbUrl: thumb,
       onTap: () {
         _titleController.text = title;
         setState(() {
@@ -562,19 +580,6 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           }
         }
       },
-      child: Row(
-        children: [
-          SizedBox(width: 46, child: GameBox3D(coverUrl: thumb, title: title)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: VText.body(15, t.text, weight: FontWeight.w900)),
-          ),
-          Icon(Icons.chevron_right, color: t.muted),
-        ],
-      ),
     );
     if (index > 5) return row;
     return row
