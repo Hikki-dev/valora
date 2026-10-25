@@ -8,6 +8,8 @@ All notable changes to **Valora** are written here in plain words.
 - The README now shows the real Home, Library, Wishlist and Insights screens, on a computer and on a phone, using made-up demo games.
 - A small test makes those pictures, so they can be refreshed with one command.
 - Added a 1280 by 640 picture for the GitHub link preview.
+- The README is now one long walkthrough of the app, nine steps with a picture each: sign in, add a game, Home, Library, a game's page, Wishlist, Insights, Settings and dark mode.
+- Fixed the names of a disc game's condition in the guides. The app says Game only, Complete and Sealed.
 
 ### A new look: Midnight Manga
 - Every screen has a new look: Home, Library, game pages, Wishlist, Insights, Profile and Settings.
