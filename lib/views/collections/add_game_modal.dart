@@ -63,6 +63,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
   bool _isSaving = false;
   bool _isSearching = false;
+  bool _searchFailed = false;
   bool _configuring = false;
   bool _isScraping = false;
 
@@ -150,6 +151,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
     setState(() {
       _isSearching = true;
+      _searchFailed = false;
       _searchModeLabel = null;
     });
 
@@ -234,9 +236,12 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       if (response.status == 200) {
         return List<dynamic>.from(response.data as List);
       }
+      debugPrint('[Search] search-games answered ${response.status}');
     } catch (e) {
       debugPrint('[Search] Edge function error: $e');
     }
+    // An empty list means "no matches". A failure must not look the same.
+    if (mounted) setState(() => _searchFailed = true);
     return [];
   }
 
@@ -513,7 +518,21 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
               ],
             ),
           ),
-        if (!_isSearching && _searchResults.isEmpty && q.length > 2)
+        if (!_isSearching && _searchFailed)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Semantics(
+              liveRegion: true,
+              child: Text(
+                  'Search isn’t working right now. Check your connection and try again in a moment.',
+                  textAlign: TextAlign.center,
+                  style: VText.body(14, t.lossInk, weight: FontWeight.w700)),
+            ),
+          ),
+        if (!_isSearching &&
+            !_searchFailed &&
+            _searchResults.isEmpty &&
+            q.length > 2)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Text('No matches. Try fewer words, or check the spelling.',
