@@ -30,7 +30,7 @@ Press the add button and pick one of three ways:
 | **Scan** | A boxed game. Point your phone at the barcode |
 | **Sync Steam** | Your whole Steam library in one go |
 
-For a game you own on disc, choose how it is kept: **Loose** (just the disc), **CIB** (complete in box), **Boxed**, or **New**. The condition matters, because a sealed game sells for much more than a loose disc.
+For a game you own on disc, choose how it is kept: **Game only** (just the disc or cartridge), **Complete** (game, case and manual) or **Sealed** (still in the shrink-wrap). The condition matters, because a sealed game sells for much more than a loose disc.
 
 If you paid for the game, add what you paid. Valora uses it to show whether you are up or down.
 

@@ -42,9 +42,9 @@ The price source had no price for it. Valora shows a dash instead of inventing a
 
 Disc games are reused for 24 hours and digital games for 6 hours. Press refresh on a game's page to ask again.
 
-### What do Loose, CIB, Boxed and New mean?
+### What do Game only, Complete and Sealed mean?
 
-**Loose** is only the disc or cartridge. **CIB** is complete in box, with the case and the manual. **Boxed** has the box. **New** is sealed. The same game is worth different amounts in each, so choose the one that matches your copy.
+**Game only** is just the disc or cartridge, with no case and no manual. **Complete** is the game with its case and manual (collector sites call this "CIB", complete in box). **Sealed** is brand new, still in its shrink-wrap. The same game is worth different amounts in each, so choose the one that matches your copy.
 
 ### Can I add many games at once?
 
