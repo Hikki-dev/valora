@@ -1,5 +1,5 @@
+import 'package:valora/widgets/network_cover.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
 class GameBox3D extends StatefulWidget {
@@ -68,13 +68,11 @@ class _GameBox3DState extends State<GameBox3D> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: widget.coverUrl != null && widget.coverUrl!.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: widget.coverUrl!,
-                        fit: BoxFit.cover,
-                        memCacheWidth: 300,
-                        errorWidget: (context, url, err) => _buildFallback(),
-                        placeholder: (context, url) =>
-                            _buildFallback(loading: true),
+                    ? NetworkCover(
+                        url: widget.coverUrl!,
+                        cacheWidth: 300,
+                        fallback: _buildFallback(),
+                        placeholder: _buildFallback(loading: true),
                       )
                     : _buildFallback(),
               ),

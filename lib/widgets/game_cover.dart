@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../core/cache_manager.dart';
 import '../core/tokens.dart';
 import '../models/game.dart';
+import 'network_cover.dart';
 
 /// Cover art with a decoded-size cap (cheap on memory) and a readable fallback.
 class GameCover extends StatelessWidget {
@@ -25,14 +25,12 @@ class GameCover extends StatelessWidget {
     );
     final url = game.coverUrl;
     if (url == null || url.isEmpty) return fallback;
-    return CachedNetworkImage(
-      imageUrl: url,
+    return NetworkCover(
+      url: url,
       cacheManager: gameCoverCacheManager,
-      memCacheWidth: cacheWidth,
-      fit: BoxFit.cover,
-      fadeInDuration: const Duration(milliseconds: 150),
-      placeholder: (_, __) => ColoredBox(color: t.surface2),
-      errorWidget: (_, __, ___) => fallback,
+      cacheWidth: cacheWidth,
+      placeholder: ColoredBox(color: t.surface2),
+      fallback: fallback,
     );
   }
 }

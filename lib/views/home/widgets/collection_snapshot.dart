@@ -1,3 +1,4 @@
+import 'package:valora/widgets/network_cover.dart';
 import 'package:flutter/material.dart';
 import '../../../models/game.dart';
 import '../../../core/currency_provider.dart';
@@ -171,10 +172,9 @@ class CollectionSnapshotWidget extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: (game.coverUrl != null && game.coverUrl!.isNotEmpty)
-                  ? Image.network(
-                      game.coverUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
+                  ? NetworkCover(
+                      url: game.coverUrl!,
+                      fallback: Container(
                           color: Colors.white10,
                           child: const Icon(Icons.videogame_asset,
                               color: Colors.white10, size: 20)),
