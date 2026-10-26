@@ -32,6 +32,7 @@ You do not need to know anything about prices or investing. Everything is explai
   * [7. Insights](#7-insights)
   * [8. Settings](#8-settings)
   * [9. Dark mode](#9-dark-mode)
+  * [On a phone](#on-a-phone): all nine screens in one row
 * [Where prices come from](#where-prices-come-from)
 * [Your privacy and safety](#your-privacy-and-safety)
 * [Run your own copy](#run-your-own-copy)
@@ -76,15 +77,11 @@ Every screen explains itself in plain words, so you can go at your own pace. Cli
 
 <a href="docs/images/login-desktop.png"><img src="docs/images/login-desktop.png" alt="Sign-in page on a computer: comic art on the left, the sign-in form on the right" width="100%"></a>
 
-<p align="center"><img src="docs/images/login-mobile.png" alt="Sign-in page on a phone: a large Valora logo above the sign-in form" width="300"></p>
-
 Choose **Continue with Google**, or use an email and a password. Valora never sees your Google password.
 
 ### 2. Add a game
 
 <a href="docs/images/add-game-desktop.png"><img src="docs/images/add-game-desktop.png" alt="The Add a game sheet: a title box with a barcode button, and an Import my whole Steam library button on a computer" width="100%"></a>
-
-<p align="center"><img src="docs/images/add-game-mobile.png" alt="The Add a game sheet: a title box with a barcode button, and an Import my whole Steam library button on a phone" width="300"></p>
 
 Press **Add game** (on Home, or in the side menu on a computer). Type the title and pick it from the list, or press the barcode button beside the box and scan the case. If you use Steam, **Import my whole Steam library** brings in every game at once. It asks for your Steam ID (the number that identifies your Steam profile), and the import screen shows you how to find it.
 
@@ -102,8 +99,6 @@ Press **Add to library** and the game is saved. A game you only want goes to the
 
 <a href="docs/images/home-desktop.png"><img src="docs/images/home-desktop.png" alt="Home: the total value, a rising chart, value by platform and the most valuable games on a computer" width="100%"></a>
 
-<p align="center"><img src="docs/images/home-mobile.png" alt="Home: the total value, a rising chart, value by platform and the most valuable games on a phone" width="300"></p>
-
 Home answers one question: what is my collection worth today? The big yellow card shows the total, how much it moved this week, a chart of how it moved, and how long ago the prices were updated. **Refresh prices** looks everything up again.
 
 * The **share** button makes a picture of your ten most valuable games on a phone. On the web it shares a short text message instead.
@@ -117,8 +112,6 @@ A game with no price is left out of the total, so the total is never wrong in se
 
 <a href="docs/images/library-desktop.png"><img src="docs/images/library-desktop.png" alt="Library: a search box, platform filters, sort, and a grid of game cards each with a price on a computer" width="100%"></a>
 
-<p align="center"><img src="docs/images/library-mobile.png" alt="Library: a search box, platform filters, sort, and a grid of game cards each with a price on a phone" width="300"></p>
-
 Every game in one place. Search waits until you stop typing, so it stays smooth with thousands of games. Filter by PlayStation, Nintendo, Steam or Epic, and sort by value, name or most recently added.
 
 On a computer you can also switch from the grid to a list, which shows more at once:
@@ -128,8 +121,6 @@ On a computer you can also switch from the grid to a list, which shows more at o
 ### 5. A game's page
 
 <a href="docs/images/game-desktop.png"><img src="docs/images/game-desktop.png" alt="A game page: current value, a value history chart and a price for each condition on a computer" width="100%"></a>
-
-<p align="center"><img src="docs/images/game-mobile.png" alt="A game page: current value, a value history chart and a price for each condition on a phone" width="300"></p>
 
 Open a game to see its **current value** for the copy you own, where the price came from, and how fresh it is. A small tag says **Fresh** or **Out of date**, and **Refresh** looks it up again.
 
@@ -144,23 +135,17 @@ Under that you get:
 
 <a href="docs/images/wishlist-desktop.png"><img src="docs/images/wishlist-desktop.png" alt="Wishlist: games with a target price, a current price and a Target hit tag on a computer" width="100%"></a>
 
-<p align="center"><img src="docs/images/wishlist-mobile.png" alt="Wishlist: games with a target price, a current price and a Target hit tag on a phone" width="300"></p>
-
 Add a game you want and set a **target price**. Each card shows the target and the price now. When the price reaches your target, the card is tagged **Target hit**, and the Wishlist button shows a red number, so you know it is time to buy. The check also runs once a day.
 
 ### 7. Insights
 
 <a href="docs/images/insights-desktop.png"><img src="docs/images/insights-desktop.png" alt="Insights: three number cards and a ranked list of the most valuable games on a computer" width="100%"></a>
 
-<p align="center"><img src="docs/images/insights-mobile.png" alt="Insights: three number cards and a ranked list of the most valuable games on a phone" width="300"></p>
-
 Three numbers (games with a price, the average, your top game), then your games ranked from most to least valuable. Games with no market price yet are not ranked. Insights tells you how many there are. It is a good page to look at before you decide what to sell.
 
 ### 8. Settings
 
 <a href="docs/images/settings-desktop.png"><img src="docs/images/settings-desktop.png" alt="Settings: theme, currency, hide values, how prices work, and account on a computer" width="100%"></a>
-
-<p align="center"><img src="docs/images/settings-mobile.png" alt="Settings: theme, currency, hide values, how prices work, and account on a phone" width="300"></p>
 
 **Profile** and settings are in one place:
 
@@ -174,9 +159,43 @@ Three numbers (games with a price, the average, your top game), then your games 
 
 <a href="docs/images/home-dark-desktop.png"><img src="docs/images/home-dark-desktop.png" alt="Home in dark mode on a computer" width="100%"></a>
 
-<p align="center"><img src="docs/images/home-dark-mobile.png" alt="Home in dark mode on a phone" width="300"></p>
-
 Light is the default. Switch to dark in Settings, with the moon button on a phone, or in the side menu on a computer. Valora remembers your choice.
+
+### On a phone
+
+The nine screens above, on a phone, left to right. The number matches the step. Click a picture to see it full size.
+
+<table>
+<tr>
+<td valign="top"><a href="docs/images/login-mobile.png"><img src="docs/images/login-mobile.png" alt="Sign-in page on a phone: a large Valora logo above the sign-in form" width="145"></a></td>
+<td valign="top"><a href="docs/images/add-game-mobile.png"><img src="docs/images/add-game-mobile.png" alt="The Add a game sheet: a title box with a barcode button, and an Import my whole Steam library button on a phone" width="145"></a></td>
+<td valign="top"><a href="docs/images/home-mobile.png"><img src="docs/images/home-mobile.png" alt="Home: the total value, a rising chart, value by platform and the most valuable games on a phone" width="145"></a></td>
+<td valign="top"><a href="docs/images/library-mobile.png"><img src="docs/images/library-mobile.png" alt="Library: a search box, platform filters, sort, and a grid of game cards each with a price on a phone" width="145"></a></td>
+<td valign="top"><a href="docs/images/game-mobile.png"><img src="docs/images/game-mobile.png" alt="A game page: current value, a value history chart and a price for each condition on a phone" width="145"></a></td>
+</tr>
+<tr>
+<td align="center" valign="top"><b>1</b><br><sub>Sign in</sub></td>
+<td align="center" valign="top"><b>2</b><br><sub>Add a game</sub></td>
+<td align="center" valign="top"><b>3</b><br><sub>Home</sub></td>
+<td align="center" valign="top"><b>4</b><br><sub>Library</sub></td>
+<td align="center" valign="top"><b>5</b><br><sub>A game's page</sub></td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td valign="top"><a href="docs/images/wishlist-mobile.png"><img src="docs/images/wishlist-mobile.png" alt="Wishlist: games with a target price, a current price and a Target hit tag on a phone" width="145"></a></td>
+<td valign="top"><a href="docs/images/insights-mobile.png"><img src="docs/images/insights-mobile.png" alt="Insights: three number cards and a ranked list of the most valuable games on a phone" width="145"></a></td>
+<td valign="top"><a href="docs/images/settings-mobile.png"><img src="docs/images/settings-mobile.png" alt="Settings: theme, currency, hide values, how prices work, and account on a phone" width="145"></a></td>
+<td valign="top"><a href="docs/images/home-dark-mobile.png"><img src="docs/images/home-dark-mobile.png" alt="Home in dark mode on a phone" width="145"></a></td>
+</tr>
+<tr>
+<td align="center" valign="top"><b>6</b><br><sub>Wishlist</sub></td>
+<td align="center" valign="top"><b>7</b><br><sub>Insights</sub></td>
+<td align="center" valign="top"><b>8</b><br><sub>Settings</sub></td>
+<td align="center" valign="top"><b>9</b><br><sub>Dark mode</sub></td>
+</tr>
+</table>
 
 ## Where prices come from
 
