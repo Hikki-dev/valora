@@ -249,6 +249,10 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
   }
 
   Future<void> _scrapePhysicalPrice(Game tempGame) async {
+    // The price service stores its result against a saved game and rejects any
+    // id that is not a UUID (HTTP 400), so there is nothing to ask before the
+    // game is saved. The value is filled in once the game is in the library.
+    if (!_isUuid(tempGame.id)) return;
     setState(() => _isScraping = true);
     try {
       final priceService = ref.read(priceServiceProvider);
@@ -268,6 +272,11 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       if (mounted) setState(() => _isScraping = false);
     }
   }
+
+  static final _uuidPattern = RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false);
+  bool _isUuid(String id) => _uuidPattern.hasMatch(id);
 
   void _onSearchChanged(String query) {
     if (query.length > 2) {
@@ -758,7 +767,7 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           prefixText: prefix,
           helper: _isScraping
               ? 'Checking live prices\u2026'
-              : 'Filled in from live prices. Change it only if you know better.',
+              : 'Filled in from live prices once the game is added. Change it only if you know better.',
         ),
         Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),

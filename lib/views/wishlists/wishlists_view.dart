@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:valora/widgets/network_cover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -236,12 +236,10 @@ class _Card extends ConsumerWidget {
                   color: t.surface2,
                   border: Border.all(color: t.line, width: 2)),
               child: item.coverUrl != null && item.coverUrl!.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: item.coverUrl!,
-                      fit: BoxFit.cover,
-                      memCacheWidth: 240,
-                      errorWidget: (_, __, ___) =>
-                          Icon(Icons.videogame_asset, color: t.muted),
+                  ? NetworkCover(
+                      url: item.coverUrl!,
+                      cacheWidth: 240,
+                      fallback: Icon(Icons.videogame_asset, color: t.muted),
                     )
                   : Icon(Icons.videogame_asset, color: t.muted),
             ),
