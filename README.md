@@ -19,7 +19,7 @@ You do not need to know anything about prices or investing. Everything is explai
 
 ## On this page
 
-* [What you get](#what-you-get): the parts of the app, in one table
+* [What you get](#what-you-get): the parts of the app, in one table, and what it is built with
 * [How everything fits together](#how-everything-fits-together): one game, from adding it to seeing its price
 * [Try it first](#try-it-first): the live site and Android builds
 * [The app, step by step](#the-app-step-by-step)
@@ -54,6 +54,16 @@ You do not need to know anything about prices or investing. Everything is explai
 | **Settings** | Light or dark mode, US dollars or Sri Lankan rupees, and a switch to hide the numbers |
 
 When a game has no price, Valora shows a dash. It never shows a made up number.
+
+### What it is built with
+
+<table>
+<tr><td width="64"><img src="docs/images/icons/flutter.png" alt="Flutter logo" width="48"></td><td width="170"><b>Flutter</b></td><td>One app for the web and phones</td></tr>
+<tr><td><img src="docs/images/icons/dart.png" alt="Dart logo" width="48"></td><td><b>Dart</b></td><td>The language Flutter is written in</td></tr>
+<tr><td><img src="docs/images/icons/supabase.png" alt="Supabase logo" width="48"></td><td><b>Supabase</b></td><td>The locked database, sign-in and the price lookups</td></tr>
+<tr><td><img src="docs/images/icons/vercel.png" alt="Vercel logo" width="48"></td><td><b>Vercel</b></td><td>Hosts the live website</td></tr>
+<tr><td><img src="docs/images/icons/githubactions.png" alt="GitHub Actions logo" width="48"></td><td><b>GitHub Actions</b></td><td>Runs the checks and builds the Android app</td></tr>
+</table>
 
 ## How everything fits together
 
