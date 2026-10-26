@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/save_error.dart';
 import '../../models/game.dart';
 import '../../core/tokens.dart';
 import '../../repositories/game_repository.dart';
@@ -27,10 +28,12 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
     super.initState();
     _condition = widget.game.condition;
     _purchasePriceController = TextEditingController(
-        text: widget.game.purchasePrice?.toString() ?? '');
+      text: widget.game.purchasePrice?.toString() ?? '',
+    );
     _notesController = TextEditingController(text: widget.game.notes ?? '');
-    _coverUrlController =
-        TextEditingController(text: widget.game.coverUrl ?? '');
+    _coverUrlController = TextEditingController(
+      text: widget.game.coverUrl ?? '',
+    );
   }
 
   @override
@@ -59,17 +62,15 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
       if (mounted) {
         Navigator.pop(context);
         ref.invalidate(libraryStreamProvider);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Saved')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Saved')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'Couldn\u2019t save. Check your connection and try again.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(saveErrorText(e))));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -91,23 +92,26 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
       eyebrow: widget.game.title,
       onClose: () => Navigator.pop(context),
       child: Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (widget.game.platform.isPhysical) ...[
                 VConditionPicker(
-                    value: _condition,
-                    onChanged: (c) => setState(() => _condition = c)),
+                  value: _condition,
+                  onChanged: (c) => setState(() => _condition = c),
+                ),
                 const SizedBox(height: 20),
               ],
               VField(
                 label: 'What you paid',
                 controller: _purchasePriceController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 prefixText: '\$ ',
                 hint: '0.00',
                 optional: true,
@@ -145,10 +149,18 @@ class _EditGameSheetState extends ConsumerState<EditGameSheet> {
                         width: 22,
                         height: 22,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2.5, color: t.onMoney))
-                    : Text('Save changes',
-                        style:
-                            VText.body(15, t.onMoney, weight: FontWeight.w900)),
+                          strokeWidth: 2.5,
+                          color: t.onMoney,
+                        ),
+                      )
+                    : Text(
+                        'Save changes',
+                        style: VText.body(
+                          15,
+                          t.onMoney,
+                          weight: FontWeight.w900,
+                        ),
+                      ),
               ),
               const SizedBox(height: 12),
             ],

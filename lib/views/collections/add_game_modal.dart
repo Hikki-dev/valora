@@ -8,6 +8,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:async';
 
 import 'library_sync_view.dart';
+import '../../core/save_error.dart';
 import '../../models/game.dart';
 import '../../repositories/game_repository.dart';
 import '../../repositories/wishlist_repository.dart';
@@ -191,7 +192,8 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       final expandedQuery = _aliasService.expandQuery(cleanQuery);
       if (expandedQuery != cleanQuery) {
         debugPrint(
-            '[Search] No results for "$cleanQuery", trying expanded: "$expandedQuery"');
+          '[Search] No results for "$cleanQuery", trying expanded: "$expandedQuery"',
+        );
         final secondResults = await _fetchCheapShark(expandedQuery);
 
         secondResults.sort((a, b) {
@@ -365,17 +367,21 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
 
       if (mounted) {
         Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(widget.isWishlistMode
-              ? 'Game added to Wishlist!'
-              : 'Game added to Collection!'),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              widget.isWishlistMode
+                  ? 'Game added to Wishlist!'
+                  : 'Game added to Collection!',
+            ),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-                'Couldn\u2019t save. Check your connection and try again.')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(saveErrorText(e))));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -413,11 +419,17 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           constraints: const BoxConstraints(minHeight: 44),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-              color: on ? t.money : t.bg,
-              border: Border.all(color: on ? t.line : t.soft, width: 2)),
-          child: Text(label,
-              style: VText.body(13, on ? t.onMoney : t.text,
-                  weight: FontWeight.w900)),
+            color: on ? t.money : t.bg,
+            border: Border.all(color: on ? t.line : t.soft, width: 2),
+          ),
+          child: Text(
+            label,
+            style: VText.body(
+              13,
+              on ? t.onMoney : t.text,
+              weight: FontWeight.w900,
+            ),
+          ),
         ),
       ),
     );
@@ -472,8 +484,10 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           if (_searchModeLabel != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: Text(_searchModeLabel!,
-                  style: VText.body(12, t.muted, weight: FontWeight.w500)),
+              child: Text(
+                _searchModeLabel!,
+                style: VText.body(12, t.muted, weight: FontWeight.w500),
+              ),
             ),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 340),
@@ -493,8 +507,9 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                    'Type a title and pick it from the list, or scan the barcode on the case.',
-                    style: VText.body(13, t.muted, weight: FontWeight.w500)),
+                  'Type a title and pick it from the list, or scan the barcode on the case.',
+                  style: VText.body(13, t.muted, weight: FontWeight.w500),
+                ),
                 const SizedBox(height: 18),
                 PressableBox(
                   onTap: () {
@@ -507,14 +522,16 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                   shadowOffset: 3,
                   semanticLabel: 'Sync Steam library',
                   child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        FaIcon(FontAwesomeIcons.steam, size: 16, color: t.text),
-                        const SizedBox(width: 10),
-                        Text('Import my whole Steam library',
-                            style: VText.body(14, t.text,
-                                weight: FontWeight.w900)),
-                      ]),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FaIcon(FontAwesomeIcons.steam, size: 16, color: t.text),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Import my whole Steam library',
+                        style: VText.body(14, t.text, weight: FontWeight.w900),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -525,9 +542,10 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
             child: Semantics(
               liveRegion: true,
               child: Text(
-                  'Search isn’t working right now. Check your connection and try again in a moment.',
-                  textAlign: TextAlign.center,
-                  style: VText.body(14, t.lossInk, weight: FontWeight.w700)),
+                'Search isn’t working right now. Check your connection and try again in a moment.',
+                textAlign: TextAlign.center,
+                style: VText.body(14, t.lossInk, weight: FontWeight.w700),
+              ),
             ),
           ),
         if (!_isSearching &&
@@ -536,9 +554,11 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
             q.length > 2)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Text('No matches. Try fewer words, or check the spelling.',
-                textAlign: TextAlign.center,
-                style: VText.body(14, t.muted, weight: FontWeight.w500)),
+            child: Text(
+              'No matches. Try fewer words, or check the spelling.',
+              textAlign: TextAlign.center,
+              style: VText.body(14, t.muted, weight: FontWeight.w500),
+            ),
           ),
         const SizedBox(height: 8),
       ],
@@ -607,23 +627,29 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           child: TextButton.icon(
             onPressed: () => setState(() => _configuring = false),
             style: TextButton.styleFrom(
-                foregroundColor: t.text, minimumSize: const Size(44, 44)),
+              foregroundColor: t.text,
+              minimumSize: const Size(44, 44),
+            ),
             icon: const Icon(Icons.arrow_back, size: 18),
-            label: Text('Back to search',
-                style: VText.body(13, t.text, weight: FontWeight.w900)),
+            label: Text(
+              'Back to search',
+              style: VText.body(13, t.text, weight: FontWeight.w900),
+            ),
           ),
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-                width: 84,
-                height: 116,
-                child: GameBox3D(
-                    coverUrl: _customImageUrlController.text.isNotEmpty
-                        ? _customImageUrlController.text
-                        : thumb,
-                    title: _titleController.text)),
+              width: 84,
+              height: 116,
+              child: GameBox3D(
+                coverUrl: _customImageUrlController.text.isNotEmpty
+                    ? _customImageUrlController.text
+                    : thumb,
+                title: _titleController.text,
+              ),
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: VField(label: 'Title', controller: _titleController),
@@ -632,23 +658,34 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
         ),
         const SizedBox(height: 20),
         _label(t, 'Platform'),
-        Wrap(spacing: 8, runSpacing: 8, children: [
-          for (final p in const [
-            'PlayStation 5',
-            'PlayStation 4',
-            'Nintendo',
-            'Steam',
-            'Epic Games'
-          ])
-            _chip(
-                t, p, _uiPlatform == p, () => setState(() => _uiPlatform = p)),
-        ]),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final p in const [
+              'PlayStation 5',
+              'PlayStation 4',
+              'Nintendo',
+              'Steam',
+              'Epic Games',
+            ])
+              _chip(
+                t,
+                p,
+                _uiPlatform == p,
+                () => setState(() => _uiPlatform = p),
+              ),
+          ],
+        ),
         const SizedBox(height: 20),
         _label(t, 'Format'),
-        Wrap(spacing: 8, children: [
-          for (final f in const ['Physical', 'Digital'])
-            _chip(t, f, _format == f, () => setState(() => _format = f)),
-        ]),
+        Wrap(
+          spacing: 8,
+          children: [
+            for (final f in const ['Physical', 'Digital'])
+              _chip(t, f, _format == f, () => setState(() => _format = f)),
+          ],
+        ),
         if (isPhys) ...[
           const SizedBox(height: 20),
           VConditionPicker(
@@ -668,22 +705,28 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           ),
           const SizedBox(height: 20),
           _label(t, 'Region'),
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            for (final r in const [
-              'R1 (USA)',
-              'R2 (UK/EU)',
-              'R3 (Asia)',
-              'Japan'
-            ])
-              _chip(t, r, _region == r, () => setState(() => _region = r)),
-          ]),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final r in const [
+                'R1 (USA)',
+                'R2 (UK/EU)',
+                'R3 (Asia)',
+                'Japan',
+              ])
+                _chip(t, r, _region == r, () => setState(() => _region = r)),
+            ],
+          ),
         ],
         const SizedBox(height: 20),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('Currency',
-                style: VText.body(13, t.text, weight: FontWeight.w900)),
+            Text(
+              'Currency',
+              style: VText.body(13, t.text, weight: FontWeight.w900),
+            ),
             const Spacer(),
             VSegmented(
               semanticLabel: 'Currency',
@@ -721,27 +764,32 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
             tilePadding: EdgeInsets.zero,
-            title: Text('More options',
-                style: VText.body(14, t.muted, weight: FontWeight.w900)),
+            title: Text(
+              'More options',
+              style: VText.body(14, t.muted, weight: FontWeight.w900),
+            ),
             childrenPadding: const EdgeInsets.only(bottom: 8),
             children: [
               VField(
-                  label: 'Publisher',
-                  controller: _publisherController,
-                  optional: true),
+                label: 'Publisher',
+                controller: _publisherController,
+                optional: true,
+              ),
               const SizedBox(height: 14),
               VField(
-                  label: 'Release year',
-                  controller: _yearController,
-                  keyboardType: TextInputType.number,
-                  optional: true),
+                label: 'Release year',
+                controller: _yearController,
+                keyboardType: TextInputType.number,
+                optional: true,
+              ),
               const SizedBox(height: 14),
               VField(
-                  label: 'Cover image link',
-                  controller: _customImageUrlController,
-                  hint: 'https://\u2026',
-                  optional: true,
-                  onChanged: (_) => setState(() {})),
+                label: 'Cover image link',
+                controller: _customImageUrlController,
+                hint: 'https://\u2026',
+                optional: true,
+                onChanged: (_) => setState(() {}),
+              ),
             ],
           ),
         ),
@@ -757,10 +805,14 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
                   width: 22,
                   height: 22,
                   child: CircularProgressIndicator(
-                      strokeWidth: 2.5, color: t.onMoney))
+                    strokeWidth: 2.5,
+                    color: t.onMoney,
+                  ),
+                )
               : Text(
                   widget.isWishlistMode ? 'Save to wishlist' : 'Add to library',
-                  style: VText.body(15, t.onMoney, weight: FontWeight.w900)),
+                  style: VText.body(15, t.onMoney, weight: FontWeight.w900),
+                ),
         ),
         const SizedBox(height: 8),
       ],
@@ -810,8 +862,10 @@ class _AddGameModalState extends ConsumerState<AddGameModal> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text(
-                  'Could not identify game from barcode. Try searching manually.')),
+            content: Text(
+              'Could not identify game from barcode. Try searching manually.',
+            ),
+          ),
         );
       }
     }
