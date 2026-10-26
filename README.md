@@ -165,12 +165,12 @@ Light is the default. Switch to dark in Settings, with the moon button on a phon
 
 The nine screens above, on a phone, left to right. The number matches the step. Click a picture to see it full size.
 
-<table>
+<table align="center">
 <tr>
-<td valign="top" width="25%"><a href="docs/images/login-mobile.png"><img src="docs/images/login-mobile.png" alt="Sign-in page on a phone: a large Valora logo above the sign-in form" width="185"></a></td>
-<td valign="top" width="25%"><a href="docs/images/add-game-mobile.png"><img src="docs/images/add-game-mobile.png" alt="The Add a game sheet: a title box with a barcode button, and an Import my whole Steam library button on a phone" width="185"></a></td>
-<td valign="top" width="25%"><a href="docs/images/home-mobile.png"><img src="docs/images/home-mobile.png" alt="Home: the total value, a rising chart, value by platform and the most valuable games on a phone" width="185"></a></td>
-<td valign="top" width="25%"><a href="docs/images/library-mobile.png"><img src="docs/images/library-mobile.png" alt="Library: a search box, platform filters, sort, and a grid of game cards each with a price on a phone" width="185"></a></td>
+<td valign="top"><a href="docs/images/login-mobile.png"><img src="docs/images/login-mobile.png" alt="Sign-in page on a phone: a large Valora logo above the sign-in form" width="185"></a></td>
+<td valign="top"><a href="docs/images/add-game-mobile.png"><img src="docs/images/add-game-mobile.png" alt="The Add a game sheet: a title box with a barcode button, and an Import my whole Steam library button on a phone" width="185"></a></td>
+<td valign="top"><a href="docs/images/home-mobile.png"><img src="docs/images/home-mobile.png" alt="Home: the total value, a rising chart, value by platform and the most valuable games on a phone" width="185"></a></td>
+<td valign="top"><a href="docs/images/library-mobile.png"><img src="docs/images/library-mobile.png" alt="Library: a search box, platform filters, sort, and a grid of game cards each with a price on a phone" width="185"></a></td>
 </tr>
 <tr>
 <td align="center" valign="top"><b>1</b><br><sub>Sign in</sub></td>
@@ -180,12 +180,12 @@ The nine screens above, on a phone, left to right. The number matches the step. 
 </tr>
 </table>
 
-<table>
+<table align="center">
 <tr>
-<td valign="top" width="25%"><a href="docs/images/game-mobile.png"><img src="docs/images/game-mobile.png" alt="A game page: current value, a value history chart and a price for each condition on a phone" width="185"></a></td>
-<td valign="top" width="25%"><a href="docs/images/wishlist-mobile.png"><img src="docs/images/wishlist-mobile.png" alt="Wishlist: games with a target price, a current price and a Target hit tag on a phone" width="185"></a></td>
-<td valign="top" width="25%"><a href="docs/images/insights-mobile.png"><img src="docs/images/insights-mobile.png" alt="Insights: three number cards and a ranked list of the most valuable games on a phone" width="185"></a></td>
-<td valign="top" width="25%"><a href="docs/images/settings-mobile.png"><img src="docs/images/settings-mobile.png" alt="Settings: theme, currency, hide values, how prices work, and account on a phone" width="185"></a></td>
+<td valign="top"><a href="docs/images/game-mobile.png"><img src="docs/images/game-mobile.png" alt="A game page: current value, a value history chart and a price for each condition on a phone" width="185"></a></td>
+<td valign="top"><a href="docs/images/wishlist-mobile.png"><img src="docs/images/wishlist-mobile.png" alt="Wishlist: games with a target price, a current price and a Target hit tag on a phone" width="185"></a></td>
+<td valign="top"><a href="docs/images/insights-mobile.png"><img src="docs/images/insights-mobile.png" alt="Insights: three number cards and a ranked list of the most valuable games on a phone" width="185"></a></td>
+<td valign="top"><a href="docs/images/settings-mobile.png"><img src="docs/images/settings-mobile.png" alt="Settings: theme, currency, hide values, how prices work, and account on a phone" width="185"></a></td>
 </tr>
 <tr>
 <td align="center" valign="top"><b>5</b><br><sub>A game's page</sub></td>
@@ -195,18 +195,12 @@ The nine screens above, on a phone, left to right. The number matches the step. 
 </tr>
 </table>
 
-<table>
+<table align="center">
 <tr>
-<td valign="top" width="25%"><a href="docs/images/home-dark-mobile.png"><img src="docs/images/home-dark-mobile.png" alt="Home in dark mode on a phone" width="185"></a></td>
-<td></td>
-<td></td>
-<td></td>
+<td valign="top"><a href="docs/images/home-dark-mobile.png"><img src="docs/images/home-dark-mobile.png" alt="Home in dark mode on a phone" width="185"></a></td>
 </tr>
 <tr>
 <td align="center" valign="top"><b>9</b><br><sub>Dark mode</sub></td>
-<td></td>
-<td></td>
-<td></td>
 </tr>
 </table>
 
