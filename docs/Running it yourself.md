@@ -34,13 +34,25 @@ These live in Supabase, not in the code.
 
 | Name | What it is for |
 |---|---|
-| `PRICE_CHARTING_TOKEN` | Looking up PlayStation disc prices |
+| `EBAY_CLIENT_ID` and `EBAY_CLIENT_SECRET` | Looking up PlayStation disc prices for free, from eBay listings (see below) |
+| `PRICE_CHARTING_TOKEN` | Optional. Paid, more exact disc prices from PriceCharting. If it is set, it is used instead of eBay |
 | `STEAM_API_KEY` | Importing a Steam library |
 | `CRON_SECRET` | A long random value that protects the daily wishlist job |
 
 ```bash
-supabase secrets set PRICE_CHARTING_TOKEN=... STEAM_API_KEY=... CRON_SECRET=...
+supabase secrets set EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... STEAM_API_KEY=... CRON_SECRET=...
 ```
+
+### Getting the free eBay keys
+
+Disc prices need one of two sources. PriceCharting is exact but costs money. eBay is free.
+
+1. Join the eBay Developers Program at https://developer.ebay.com (it is free).
+2. Create an application and open its **Production** keys.
+3. eBay may ask you to either run a "Marketplace Account Deletion" web address or to apply for an **exemption** because you do not store eBay user data. Valora stores no eBay user data, so choose the exemption. The wording on eBay's screen changes now and then, so follow what it shows.
+4. Copy the **App ID (Client ID)** and the **Cert ID (Client Secret)** into the two secrets above.
+
+Valora then searches eBay for used and new copies of the game, ignores listings that are not a copy (digital codes, empty cases, lots), and uses the middle price. That is what sellers **ask**, not what games sold for, so it is rougher than PriceCharting. A game with fewer than three matching listings gets a dash instead of a guess.
 
 ## Step 4: Deploy the price lookups
 

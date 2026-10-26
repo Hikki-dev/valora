@@ -10,7 +10,7 @@ A price in Valora is an **estimate** of what a game sells for today. It comes fr
 
 | Kind of game | Where the price comes from |
 |---|---|
-| PlayStation disc games | PriceCharting, found by the game's ID, or by its title if there is no ID |
+| PlayStation disc games | eBay: the middle asking price of used and new listings for that game on that PlayStation (free). If a PriceCharting token is set, PriceCharting is used instead (paid, sold prices) |
 | Steam games | The Steam store, by the game's Steam ID |
 | Other digital games (PlayStation Store, Epic, Nintendo) | CheapShark, found by the game's title |
 
@@ -21,6 +21,10 @@ Other helpers do smaller jobs:
 | Searching for a game to add | CheapShark |
 | Reading a barcode | UPCitemdb |
 | Importing your Steam library | The Steam web service, after you sign in with Steam |
+
+## What an eBay price means
+
+eBay shows what sellers **ask**, not what games sold for, so it is an estimate and can run higher than a sale. A used listing is normally a disc in its case, so it is shown as the **Complete** value. **Game only** stays a dash, because a disc-only copy cannot be told apart reliably. **Sealed** comes from new listings. If fewer than three listings match, Valora shows a dash instead of guessing.
 
 ## How fresh a price is
 

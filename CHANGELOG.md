@@ -2,6 +2,14 @@
 
 All notable changes to **Valora** are written here in plain words.
 
+## Free disc prices, and fixes found on the live site
+
+1. PlayStation disc prices can now come from eBay, which is free. The price function uses eBay listings when no PriceCharting token is set; the middle asking price of used copies is the Complete value and of new copies the Sealed value. Fewer than three matching listings gives a dash. The app now tells the function whether a disc is for a PS4 or a PS5. Needs `EBAY_CLIENT_ID` and `EBAY_CLIENT_SECRET`; see Running it yourself.
+2. Disc games showed no market value because `PRICE_CHARTING_TOKEN` was never set. That is why Refresh did nothing.
+3. Adding a game failed with "Couldn't save" because the `games` table had no `notes` column. It was added (see `supabase/migrations`).
+4. The "removed" banner now goes away after 5 seconds, and the delete really runs.
+5. Cover art from Steam and GamesGate shows on the web again.
+
 ## [Unreleased] - 2026-10-25
 
 ### Fixed

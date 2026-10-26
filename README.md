@@ -216,7 +216,7 @@ The nine screens above, on a phone, left to right. The number matches the step. 
 
 ## Where prices come from
 
-Disc games are looked up at PriceCharting, Steam games at the Steam store, and other digital games at CheapShark. Prices are saved with their date, and reused for 24 hours (disc) or 6 hours (digital), so the app stays fast.
+Disc games are looked up on eBay (free; PriceCharting if you have a token), Steam games at the Steam store, and other digital games at CheapShark. Prices are saved with their date, and reused for 24 hours (disc) or 6 hours (digital), so the app stays fast.
 
 A price is an estimate, not an offer. The details, including what happens when there is no price, are in [Where prices come from](docs/Where%20prices%20come%20from.md).
 
@@ -297,7 +297,7 @@ Pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first. It is 
 
 ## Credits
 
-Prices come from [PriceCharting](https://www.pricecharting.com), the [Steam store](https://store.steampowered.com) and [CheapShark](https://www.cheapshark.com). Barcodes are looked up with [UPCitemdb](https://www.upcitemdb.com). Built with [Flutter](https://flutter.dev) and [Supabase](https://supabase.com), and hosted on [Vercel](https://vercel.com). The fonts are Dela Gothic One, Zen Kaku Gothic New and DotGothic16, under the SIL Open Font Licence.
+Prices come from [eBay](https://developer.ebay.com) listings, optionally [PriceCharting](https://www.pricecharting.com), the [Steam store](https://store.steampowered.com) and [CheapShark](https://www.cheapshark.com). Barcodes are looked up with [UPCitemdb](https://www.upcitemdb.com). Built with [Flutter](https://flutter.dev) and [Supabase](https://supabase.com), and hosted on [Vercel](https://vercel.com). The fonts are Dela Gothic One, Zen Kaku Gothic New and DotGothic16, under the SIL Open Font Licence.
 
 ## Licence
 
