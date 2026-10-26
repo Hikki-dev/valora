@@ -77,6 +77,7 @@ class PriceService {
         body: {
           'gameId': game.id,
           'platform': _mapPlatformForEdge(game.platform),
+          'generation': _generationForEdge(game.platform),
           'externalId': game.externalId,
           'title': game.title,
           'forceRefresh': force,
@@ -119,6 +120,18 @@ class PriceService {
     } catch (e) {
       debugPrint('[PriceService] Invoke error for "${game.title}": $e');
       return null;
+    }
+  }
+
+  /// Which PlayStation a disc is for, so eBay prices match the right edition.
+  String? _generationForEdge(AppPlatform platform) {
+    switch (platform) {
+      case AppPlatform.ps4Physical:
+        return 'ps4';
+      case AppPlatform.ps5Physical:
+        return 'ps5';
+      default:
+        return null;
     }
   }
 
