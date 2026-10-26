@@ -45,6 +45,9 @@ class _WishlistsViewState extends ConsumerState<WishlistsView> {
           backgroundColor: t.text,
           shape: Border.all(color: t.line, width: 2),
           duration: const Duration(seconds: 5),
+          // A snackbar with an action stays up forever in current Flutter unless
+          // persist is false, and the delete below only runs when it closes.
+          persist: false,
           content: Text('${item.title} removed', style: VText.body(14, t.bg)),
           action: SnackBarAction(
               label: 'UNDO', textColor: t.money, onPressed: () {}),
